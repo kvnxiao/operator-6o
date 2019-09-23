@@ -19,61 +19,36 @@ import com.github.kvnxiao.discord.command.Alias
 import java.util.regex.Pattern
 
 /**
- * A data class representing a a potential pair of command alias and arguments, processed from a single text input
- * string. The string input is split by whitespace (including new-line whitespace).
- *
- * For example:
- *   - "test abc 123" is processed into -> alias="test", arguments="abc 123"
- *   - "test\nwith new-lines" is processed into -> alias="test", arguments="with new-lines"
- *
- * If the input string is null or blank, a default value is set for the alias-arguments pair: (alias="", arguments=null)
+ * A data class representing a potential pair of command alias and arguments.
  */
-class Arguments(single: String?) {
-    val alias: Alias
-    val arguments: String?
-
+data class Arguments(val alias: Alias, val arguments: String?) {
     companion object {
         private val SPLIT_REGEX: Pattern = Pattern.compile("\\s+|\\n+")
-    }
 
-    init {
-        if (single.isNullOrBlank()) {
-            this.alias = ""
-            this.arguments = null
-        } else {
-            val split = SPLIT_REGEX.split(single, 2)
-            this.alias = split[0]
-            this.arguments = if (split.size == 1) null else split[1]
-        }
+        /**
+         * Process a single text input string into an arguments pair.
+         * The string input is split by whitespace (including new-line whitespace).
+         *
+         * For example:
+         *   - "test abc 123" is processed into -> alias="test", arguments="abc 123"
+         *   - "test\nwith new-lines" is processed into -> alias="test", arguments="with new-lines"
+         *
+         * If the input string is null or blank, a default value is set for the alias-arguments pair: (alias="",
+         * arguments=null)
+         */
+        @JvmStatic
+        fun from(input: String?): Arguments =
+            if (input.isNullOrBlank()) {
+                Arguments("", null)
+            } else {
+                val split = SPLIT_REGEX.split(input, 2)
+                Arguments(split[0], if (split.size == 1) null else split[1])
+            }
     }
 
     /**
      * Attempts to further process the arguments value of the current Arguments instance. If the current arguments value
      * is null or blank, returns the default value for the alias-arguments pair: (alias="", arguments=null)
      */
-    fun next(): Arguments {
-        return Arguments(this.arguments)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Arguments
-
-        if (alias != other.alias) return false
-        if (arguments != other.arguments) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = alias.hashCode()
-        result = 31 * result + (arguments?.hashCode() ?: 0)
-        return result
-    }
-
-    override fun toString(): String {
-        return "Arguments(alias='$alias', arguments=$arguments)"
-    }
+    fun next(): Arguments = from(arguments)
 }
