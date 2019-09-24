@@ -13,8 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command.registry
+package com.github.kvnxiao.discord
 
-interface CommandRegistryNode {
-    // TODO
+fun main() {
 }
