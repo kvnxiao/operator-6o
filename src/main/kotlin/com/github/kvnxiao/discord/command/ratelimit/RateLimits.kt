@@ -21,7 +21,7 @@ package com.github.kvnxiao.discord.command.ratelimit
 data class RateLimits(
     val rateLimitOnGuild: Boolean = RATELIMIT_ON_GUILD,
     val tokensPerPeriod: Long = TOKENS_PER_PERIOD,
-    val ratelimitPeriodMs: Long = RATELIMIT_PERIOD_MS
+    val rateLimitPeriodMs: Long = RATELIMIT_PERIOD_MS
 ) {
 
     companion object {
