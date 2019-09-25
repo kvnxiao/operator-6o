@@ -17,3 +17,5 @@ package com.github.kvnxiao.discord.command
 
 typealias Alias = String
 typealias Id = String
+
+fun Alias.isMention(botId: String): Boolean = this == "<@$botId>" || this == "<@!$botId>"

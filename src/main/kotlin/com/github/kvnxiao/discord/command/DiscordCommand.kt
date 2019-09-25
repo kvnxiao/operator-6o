@@ -16,10 +16,11 @@
 package com.github.kvnxiao.discord.command
 
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.ratelimit.RateLimiter
 
 data class DiscordCommand(
     val properties: CommandProperties,
     val executable: CommandExecutable
 ) {
-    // TODO: command-local rate-limiter
+    val rateLimiter: RateLimiter = RateLimiter(properties.id, properties.rateLimits)
 }

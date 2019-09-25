@@ -20,7 +20,6 @@ import com.github.kvnxiao.discord.command.Id
 import com.github.kvnxiao.discord.command.descriptor.Descriptor
 import com.github.kvnxiao.discord.command.permission.Permissions
 import com.github.kvnxiao.discord.command.ratelimit.RateLimits
-import com.github.kvnxiao.discord.command.registry.PropertiesRegistryNode
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.MessageChannel
 import discord4j.core.`object`.entity.User
@@ -43,6 +42,5 @@ data class Context(
     val rateLimits: RateLimits,
     val isBotOwner: Boolean,
     val isDirectMessage: Boolean,
-    val wasBotMentioned: Boolean,
-    val commandPropertiesRegistry: PropertiesRegistryNode
+    val wasBotMentioned: Boolean
 )
