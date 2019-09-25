@@ -25,7 +25,8 @@ private val logger = KotlinLogging.logger("CommandRegistry")
 private fun register(
     command: DiscordCommand,
     aliasToIdMap: MutableMap<Alias, Id>,
-    idMap: MutableMap<Id, RegistryNode>
+    idMap: MutableMap<Id, RegistryNode>,
+    parentId: Id?
 ): RegistryNode {
     // Validate that the id is unique
     require(!idMap.containsKey(command.properties.id)) { "The id ${command.properties.id} is already in use!" }
@@ -43,8 +44,11 @@ private fun register(
     idMap[command.properties.id] = commandNode
     command.properties.aliases.forEach { alias -> aliasToIdMap[alias] = command.properties.id }
 
-    logger.info { "Registering command [${command.properties.id}] with aliases ${command.properties.aliases}" }
-
+    if (parentId == null) {
+        logger.info { "Registering command [${command.properties.id}] with aliases ${command.properties.aliases}" }
+    } else {
+        logger.info { "Registering sub-command [${command.properties.id}] with aliases ${command.properties.aliases} for parent command [$parentId]" }
+    }
     return commandNode
 }
 
@@ -59,7 +63,7 @@ class MapTreeRegistryRoot : RegistryNode {
     override val idEntries: List<Id>
         get() = idMap.keys.toList()
 
-    override fun register(command: DiscordCommand): RegistryNode = register(command, aliasToIdMap, idMap)
+    override fun register(command: DiscordCommand): RegistryNode = register(command, aliasToIdMap, idMap, null)
 
     override fun subNodeFromAlias(alias: Alias): RegistryNode? =
         idMap[aliasToIdMap[alias]]
@@ -86,7 +90,8 @@ class MapTreeRegistryNode(
     override val idEntries: List<Id>
         get() = subIdMap.keys.toList()
 
-    override fun register(command: DiscordCommand): RegistryNode = register(command, subAliasToIdMap, subIdMap)
+    override fun register(command: DiscordCommand): RegistryNode =
+        register(command, subAliasToIdMap, subIdMap, this.command.properties.id)
 
     override fun subNodeFromAlias(alias: Alias): RegistryNode? =
         subIdMap[subAliasToIdMap[alias]]
