@@ -23,9 +23,9 @@ import discord4j.core.`object`.entity.User
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.Bucket4j
+import java.time.Duration
 import mu.KLogger
 import mu.KotlinLogging
-import java.time.Duration
 
 private val logger: KLogger = KotlinLogging.logger { }
 

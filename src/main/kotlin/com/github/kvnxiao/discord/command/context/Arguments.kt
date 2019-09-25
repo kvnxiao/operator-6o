@@ -40,7 +40,7 @@ data class Arguments(val alias: Alias, val arguments: String?) {
         @JvmStatic
         fun from(input: String?): Arguments =
             if (input.isNullOrBlank()) {
-                Arguments("", null)
+                EMPTY
             } else {
                 val split = SPLIT_REGEX.split(input, 2)
                 Arguments(split[0], if (split.size == 1) null else split[1])

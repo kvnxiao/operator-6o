@@ -19,7 +19,6 @@ import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.context.Arguments
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.isMention
-import com.github.kvnxiao.discord.command.registry.MapTreeRegistryNode
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.command.validation.Validator
 import discord4j.core.`object`.entity.Channel
@@ -128,18 +127,17 @@ class CommandProcessor(
             }
             .filterWhen(this::validateContext)
 
-    private fun getCommandFromAlias(args: Arguments): Mono<Tuple2<DiscordCommand, Arguments>> {
+    internal fun getCommandFromAlias(args: Arguments): Mono<Tuple2<DiscordCommand, Arguments>> {
         var currArgs: Arguments = args
+        var prevArgs: Arguments = args
         var currNode: RegistryNode? = rootRegistry
-        var prevArgs: Arguments = currArgs
-        var prevNode: RegistryNode? = null
+        var currCommand: DiscordCommand? = null
         while (currNode != null && currArgs.alias.isNotEmpty() && currNode.subNodeFromAlias(currArgs.alias) != null) {
-            prevArgs = currArgs
-            prevNode = currNode
-            currArgs = currArgs.next()
+            currCommand = currNode.commandFromAlias(currArgs.alias)
             currNode = currNode.subNodeFromAlias(currArgs.alias)
+            prevArgs = currArgs
+            currArgs = currArgs.next()
         }
-        return if (prevNode == null) Mono.empty()
-        else Mono.just(Tuples.of((prevNode as MapTreeRegistryNode).command, prevArgs))
+        return if (currCommand == null) Mono.empty() else Mono.just(Tuples.of(currCommand, prevArgs))
     }
 }
