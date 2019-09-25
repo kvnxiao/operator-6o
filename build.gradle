@@ -82,6 +82,6 @@ ktlint {
 }
 
 license {
-    header rootProject.file('LICENSE_HEADER')
+    header rootProject.file('docs/LICENSE_HEADER')
     strictCheck true
 }
