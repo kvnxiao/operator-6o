@@ -22,21 +22,20 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
 class ArgumentsSpec : Spek({
-    val emptyArguments = Arguments("", null)
 
     describe("An alias/argument pair") {
         context("input string is null") {
             it("null should return default arguments") {
-                Arguments.from(null) shouldEqual emptyArguments
+                Arguments.from(null) shouldEqual Arguments.EMPTY
             }
         }
 
         context("input string is empty/blank") {
             it("empty should return default arguments") {
-                Arguments.from("") shouldEqual emptyArguments
+                Arguments.from("") shouldEqual Arguments.EMPTY
             }
             it("blank should return default arguments") {
-                Arguments.from("  \t   ") shouldEqual emptyArguments
+                Arguments.from("  \t   ") shouldEqual Arguments.EMPTY
             }
         }
 
@@ -63,7 +62,7 @@ class ArgumentsSpec : Spek({
                 arg2 shouldEqual Arguments("123", "abc")
                 val arg3 = arg2.next()
                 arg3 shouldEqual Arguments("abc", null)
-                arg3.next() shouldEqual emptyArguments
+                arg3.next() shouldEqual Arguments.EMPTY
             }
         }
     }

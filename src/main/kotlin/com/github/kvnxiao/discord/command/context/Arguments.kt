@@ -24,6 +24,7 @@ import java.util.regex.Pattern
 data class Arguments(val alias: Alias, val arguments: String?) {
     companion object {
         private val SPLIT_REGEX: Pattern = Pattern.compile("\\s+|\\n+")
+        val EMPTY: Arguments = Arguments("", null)
 
         /**
          * Process a single text input string into an arguments pair.
