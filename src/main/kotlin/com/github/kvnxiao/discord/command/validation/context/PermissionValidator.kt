@@ -19,7 +19,7 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.validation.Validator
 import discord4j.core.`object`.entity.TextChannel
 import reactor.core.publisher.Mono
-import reactor.core.publisher.toMono
+import reactor.kotlin.core.publisher.toMono
 
 class PermissionValidator : Validator<Context> {
     override fun validate(value: Context): Mono<Boolean> =
