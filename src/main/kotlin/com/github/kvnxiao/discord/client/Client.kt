@@ -18,6 +18,7 @@ package com.github.kvnxiao.discord.client
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.env.Environment
+import com.github.kvnxiao.discord.koin.getProperty
 import discord4j.core.DiscordClient
 import discord4j.core.DiscordClientBuilder
 import discord4j.core.event.domain.lifecycle.ReadyEvent
@@ -25,7 +26,6 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import mu.KotlinLogging
 import org.koin.core.KoinComponent
 import org.koin.core.get
-import org.koin.core.qualifier.named
 
 private val logger = KotlinLogging.logger {}
 
@@ -33,7 +33,7 @@ class Client : KoinComponent {
     private val commandProcessor: CommandProcessor = get()
     private val rootRegistry: RegistryNode = get()
 
-    private val token: String = get(named(Environment.TOKEN))
+    private val token: String = getProperty(Environment.TOKEN)
 
     private val client: DiscordClient = DiscordClientBuilder(token).build()
 

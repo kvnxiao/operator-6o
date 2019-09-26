@@ -17,7 +17,7 @@ package com.github.kvnxiao.discord.command.validation.context
 
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.validation.Validator
-import discord4j.core.`object`.entity.TextChannel
+import discord4j.core.`object`.entity.channel.TextChannel
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 

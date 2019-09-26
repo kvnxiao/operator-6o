@@ -16,7 +16,7 @@
 package com.github.kvnxiao.discord
 
 import com.github.kvnxiao.discord.client.Client
-import com.github.kvnxiao.discord.command.Modules
+import com.github.kvnxiao.discord.koin.Modules
 import org.koin.core.context.startKoin
 
 fun main() {
@@ -27,9 +27,9 @@ fun main() {
 
         modules(
             listOf(
-                Modules.environmentModule,
                 Modules.validationModule,
-                Modules.commandModule
+                Modules.commandProcessingModule,
+                Modules.commandsModule
             )
         )
     }

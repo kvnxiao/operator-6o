@@ -21,8 +21,8 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.isMention
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.command.validation.Validator
-import discord4j.core.`object`.entity.Channel
 import discord4j.core.`object`.entity.Message
+import discord4j.core.`object`.entity.channel.GuildChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -86,7 +86,7 @@ class CommandProcessor(
             .flatMap { (channel, appInfo) ->
                 val user = event.message.author.get()
                 val isBotOwner = appInfo.ownerId == user.id
-                val isDirectMessage = channel.type == Channel.Type.DM
+                val isDirectMessage = channel !is GuildChannel
 
                 // Attempt to create a command context with non-null guild
                 event.guild.map { guild ->

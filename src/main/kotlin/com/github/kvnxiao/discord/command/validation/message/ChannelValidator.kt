@@ -16,8 +16,9 @@
 package com.github.kvnxiao.discord.command.validation.message
 
 import com.github.kvnxiao.discord.command.validation.Validator
-import discord4j.core.`object`.entity.Channel
 import discord4j.core.`object`.entity.Message
+import discord4j.core.`object`.entity.channel.PrivateChannel
+import discord4j.core.`object`.entity.channel.TextChannel
 import reactor.core.publisher.Mono
 
 /**
@@ -26,6 +27,6 @@ import reactor.core.publisher.Mono
 class ChannelValidator : Validator<Message> {
     override fun validate(value: Message): Mono<Boolean> =
         value.channel.map { channel ->
-            channel.type == Channel.Type.DM || channel.type == Channel.Type.GUILD_TEXT
+            channel is TextChannel || channel is PrivateChannel
         }
 }

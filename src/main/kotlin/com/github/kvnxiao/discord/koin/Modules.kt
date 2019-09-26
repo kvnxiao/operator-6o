@@ -13,9 +13,10 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command
+package com.github.kvnxiao.discord.koin
 
 import com.github.kvnxiao.discord.command.context.Context
+import com.github.kvnxiao.discord.command.executable.CommandExecutable
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.MapTreeRegistryRoot
 import com.github.kvnxiao.discord.command.registry.RegistryNode
@@ -24,8 +25,8 @@ import com.github.kvnxiao.discord.command.validation.context.ContextValidator
 import com.github.kvnxiao.discord.command.validation.context.PermissionValidator
 import com.github.kvnxiao.discord.command.validation.message.ChannelValidator
 import com.github.kvnxiao.discord.command.validation.message.SourceValidator
-import com.github.kvnxiao.discord.env.Environment
 import discord4j.core.`object`.entity.Message
+import org.koin.core.KoinComponent
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -36,11 +37,13 @@ object Modules {
         single<Validator<Message>>(named("source")) { SourceValidator() }
         single<Validator<Message>>(named("channel")) { ChannelValidator() }
     }
-    val environmentModule = module {
-        single<String>(named(Environment.TOKEN)) { getProperty(Environment.TOKEN) }
-    }
-    val commandModule = module {
+    val commandProcessingModule = module {
         single<RegistryNode> { MapTreeRegistryRoot() }
         single { CommandProcessor(getAll(), getAll(), get()) }
     }
+    val commandsModule = module {
+    }
 }
+
+fun KoinComponent.getProperty(key: String): String = this.getKoin().getProperty<String>(key)
+    ?: throw IllegalArgumentException("Missing value for environment variable: $key.")
