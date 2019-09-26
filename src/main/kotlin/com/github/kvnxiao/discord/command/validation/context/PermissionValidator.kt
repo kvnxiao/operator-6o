@@ -21,7 +21,7 @@ import discord4j.core.`object`.entity.TextChannel
 import reactor.core.publisher.Mono
 import reactor.core.publisher.toMono
 
-object PermissionValidator : Validator<Context> {
+class PermissionValidator : Validator<Context> {
     override fun validate(value: Context): Mono<Boolean> =
         if (value.isDirectMessage) true.toMono()
         else (value.channel as TextChannel)

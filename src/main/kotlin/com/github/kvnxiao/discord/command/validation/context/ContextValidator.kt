@@ -19,7 +19,7 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.validation.Validator
 import reactor.core.publisher.Mono
 
-object ContextValidator : Validator<Context> {
+class ContextValidator : Validator<Context> {
     override fun validate(value: Context): Mono<Boolean> {
         return Mono.just(
             passesHasBotMention(value) &&

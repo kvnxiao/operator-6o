@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono
 /**
  * Validates that the command message is either a direct message or a guild text channel message.
  */
-object ChannelValidator : Validator<Message> {
+class ChannelValidator : Validator<Message> {
     override fun validate(value: Message): Mono<Boolean> =
         value.channel.map { channel ->
             channel.type == Channel.Type.DM || channel.type == Channel.Type.GUILD_TEXT
