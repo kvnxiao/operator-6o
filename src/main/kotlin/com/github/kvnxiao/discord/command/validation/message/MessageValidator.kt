@@ -15,17 +15,7 @@
  */
 package com.github.kvnxiao.discord.command.validation.message
 
+import com.github.kvnxiao.discord.command.validation.Validator
 import discord4j.core.`object`.entity.Message
-import reactor.core.publisher.Mono
 
-/**
- * Checks if the message is non-empty, has an author, and was sent by a non-bot user.
- */
-class SourceValidator : MessageValidator {
-    override fun validate(value: Message): Mono<Boolean> =
-        Mono.just(
-            value.content.map(String::isNotBlank).orElse(false) &&
-                    value.author.isPresent &&
-                    value.author.map { !it.isBot }.orElse(false)
-        )
-}
+interface MessageValidator : Validator<Message>

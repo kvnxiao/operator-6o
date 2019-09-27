@@ -15,7 +15,6 @@
  */
 package com.github.kvnxiao.discord.command.validation.message
 
-import com.github.kvnxiao.discord.command.validation.Validator
 import discord4j.core.`object`.entity.Message
 import discord4j.core.`object`.entity.channel.PrivateChannel
 import discord4j.core.`object`.entity.channel.TextChannel
@@ -24,7 +23,7 @@ import reactor.core.publisher.Mono
 /**
  * Validates that the command message is either a direct message or a guild text channel message.
  */
-class ChannelValidator : Validator<Message> {
+class ChannelValidator : MessageValidator {
     override fun validate(value: Message): Mono<Boolean> =
         value.channel.map { channel ->
             channel is TextChannel || channel is PrivateChannel

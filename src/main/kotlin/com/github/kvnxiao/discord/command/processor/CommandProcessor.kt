@@ -20,8 +20,8 @@ import com.github.kvnxiao.discord.command.context.Arguments
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.isMention
 import com.github.kvnxiao.discord.command.registry.RegistryNode
-import com.github.kvnxiao.discord.command.validation.Validator
-import discord4j.core.`object`.entity.Message
+import com.github.kvnxiao.discord.command.validation.context.ContextValidator
+import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import discord4j.core.`object`.entity.channel.GuildChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import reactor.core.publisher.Flux
@@ -33,13 +33,13 @@ import reactor.util.function.Tuple2
 import reactor.util.function.Tuples
 
 class CommandProcessor(
-    messageValidators: List<Validator<Message>>,
-    contextValidators: List<Validator<Context>>,
+    messageValidators: List<MessageValidator>,
+    contextValidators: List<ContextValidator>,
     private val rootRegistry: RegistryNode
 ) {
 
-    private val messageValidators: Flux<Validator<Message>> = Flux.fromIterable(messageValidators)
-    private val contextValidators: Flux<Validator<Context>> = Flux.fromIterable(contextValidators)
+    private val messageValidators: Flux<MessageValidator> = Flux.fromIterable(messageValidators)
+    private val contextValidators: Flux<ContextValidator> = Flux.fromIterable(contextValidators)
 
     fun processMessageCreateEvent(event: MessageCreateEvent): Mono<Void> = Mono.just(event)
         .filterWhen(this::validateMessageCreateEvent)

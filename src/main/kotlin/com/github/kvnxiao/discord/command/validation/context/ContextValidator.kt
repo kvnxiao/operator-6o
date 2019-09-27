@@ -17,33 +17,5 @@ package com.github.kvnxiao.discord.command.validation.context
 
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.validation.Validator
-import reactor.core.publisher.Mono
 
-class ContextValidator : Validator<Context> {
-    override fun validate(value: Context): Mono<Boolean> {
-        return Mono.just(
-            passesHasBotMention(value) &&
-                    passesRequireDirectMessage(value) &&
-                    passesAllowDirectMessage(value) &&
-                    passesIsGuildOwner(value) &&
-                    passesIsBotOwner(value)
-        )
-    }
-
-    private fun passesHasBotMention(context: Context): Boolean =
-        !(context.permissions.requireBotMention xor context.wasBotMentioned)
-
-    private fun passesRequireDirectMessage(context: Context): Boolean =
-        !context.permissions.requireDirectMessaging || context.isDirectMessage
-
-    private fun passesAllowDirectMessage(context: Context): Boolean =
-        context.permissions.allowDirectMessaging || !context.isDirectMessage
-
-    private fun passesIsGuildOwner(context: Context): Boolean =
-        if (context.guild != null && context.permissions.requireGuildOwner) context.guild.ownerId == context.user.id
-        else true
-
-    private fun passesIsBotOwner(context: Context): Boolean =
-        if (context.guild != null && context.permissions.requireBotOwner) context.isBotOwner
-        else true
-}
+interface ContextValidator : Validator<Context>

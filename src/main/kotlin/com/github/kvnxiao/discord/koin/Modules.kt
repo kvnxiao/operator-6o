@@ -15,35 +15,47 @@
  */
 package com.github.kvnxiao.discord.koin
 
-import com.github.kvnxiao.discord.command.context.Context
+import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.MapTreeRegistryRoot
 import com.github.kvnxiao.discord.command.registry.RegistryNode
-import com.github.kvnxiao.discord.command.validation.Validator
 import com.github.kvnxiao.discord.command.validation.context.ContextValidator
+import com.github.kvnxiao.discord.command.validation.context.MessageContextValidator
 import com.github.kvnxiao.discord.command.validation.context.PermissionValidator
 import com.github.kvnxiao.discord.command.validation.message.ChannelValidator
+import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import com.github.kvnxiao.discord.command.validation.message.SourceValidator
-import discord4j.core.`object`.entity.Message
+import com.github.kvnxiao.discord.commands.PingCommand
 import org.koin.core.KoinComponent
+import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 object Modules {
     val validationModule = module {
-        single<Validator<Context>>(named("context")) { ContextValidator() }
-        single<Validator<Context>>(named("permission")) { PermissionValidator() }
-        single<Validator<Message>>(named("source")) { SourceValidator() }
-        single<Validator<Message>>(named("channel")) { ChannelValidator() }
+        single<ContextValidator>(named("context")) { MessageContextValidator() }
+        single<ContextValidator>(named("permission")) { PermissionValidator() }
+        single<MessageValidator>(named("source")) { SourceValidator() }
+        single<MessageValidator>(named("channel")) { ChannelValidator() }
     }
     val commandProcessingModule = module {
         single<RegistryNode> { MapTreeRegistryRoot() }
         single { CommandProcessor(getAll(), getAll(), get()) }
     }
     val commandsModule = module {
+        command(PingCommand())
     }
+}
+
+private fun Module.command(commandExecutable: CommandExecutable) {
+    val annotations = commandExecutable::class.annotations
+    val id = annotations.find { an -> an is Id } as? Id
+    require(id != null) { "@Id annotation must exist for command ${commandExecutable::class}" }
+    this.single(named(id.id)) { commandExecutable }
 }
 
 fun KoinComponent.getProperty(key: String): String = this.getKoin().getProperty<String>(key)
     ?: throw IllegalArgumentException("Missing value for environment variable: $key.")
+
+inline fun <reified T> KoinComponent.getAll(): List<T> = this.getKoin().getAll()

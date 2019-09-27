@@ -15,9 +15,18 @@
  */
 package com.github.kvnxiao.discord.client
 
+import com.github.kvnxiao.discord.command.CommandProperties
+import com.github.kvnxiao.discord.command.DiscordCommand
+import com.github.kvnxiao.discord.command.annotation.Alias
+import com.github.kvnxiao.discord.command.annotation.Id
+import com.github.kvnxiao.discord.command.descriptor.Descriptor
+import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.permission.Permissions
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
+import com.github.kvnxiao.discord.command.ratelimit.RateLimits
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.env.Environment
+import com.github.kvnxiao.discord.koin.getAll
 import com.github.kvnxiao.discord.koin.getProperty
 import discord4j.core.DiscordClient
 import discord4j.core.DiscordClientBuilder
@@ -38,6 +47,8 @@ class Client : KoinComponent {
     private val client: DiscordClient = DiscordClientBuilder(token).build()
 
     init {
+        registerCommands()
+
         client.eventDispatcher.apply {
             on(ReadyEvent::class.java)
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
@@ -51,5 +62,26 @@ class Client : KoinComponent {
 
     fun run() {
         client.login().block()
+    }
+
+    private fun registerCommands() {
+        val executables: List<CommandExecutable> = getAll()
+        executables.forEach { ex ->
+            val annotations = ex::class.annotations
+            val id = (annotations.find { it is Id } as Id).id
+            val aliases = annotations.filterIsInstance<Alias>().map { it.alias }.toSet()
+
+            val command = DiscordCommand(
+                CommandProperties(
+                    id,
+                    if (aliases.isEmpty()) setOf(id) else aliases,
+                    Descriptor(),
+                    RateLimits(),
+                    Permissions()
+                ),
+                ex
+            )
+            rootRegistry.register(command)
+        }
     }
 }
