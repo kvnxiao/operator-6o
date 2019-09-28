@@ -19,6 +19,7 @@ import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.context.Arguments
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.isMention
+import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.command.validation.context.ContextValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
@@ -26,7 +27,6 @@ import discord4j.core.`object`.entity.channel.GuildChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.switchIfEmpty
 import reactor.kotlin.core.util.function.component1
 import reactor.kotlin.core.util.function.component2
 import reactor.util.function.Tuple2
@@ -35,11 +35,16 @@ import reactor.util.function.Tuples
 class CommandProcessor(
     messageValidators: List<MessageValidator>,
     contextValidators: List<ContextValidator>,
-    private val rootRegistry: RegistryNode
+    private val rootRegistry: RegistryNode,
+    private val prefixSettings: PrefixSettings
 ) {
 
     private val messageValidators: Flux<MessageValidator> = Flux.fromIterable(messageValidators)
     private val contextValidators: Flux<ContextValidator> = Flux.fromIterable(contextValidators)
+
+    fun loadPrefixSettings() {
+        prefixSettings.loadGuildPrefixes()
+    }
 
     fun processMessageCreateEvent(event: MessageCreateEvent): Mono<Void> = Mono.just(event)
         .filterWhen(this::validateMessageCreateEvent)
@@ -61,18 +66,21 @@ class CommandProcessor(
         command.executable.execute(context)
 
     private fun getCommandWithContext(event: MessageCreateEvent): Mono<Tuple2<DiscordCommand, Context>> {
-        val initialArgs: Arguments =
-            event.message.content.map(Arguments.Companion::from).orElse(Arguments.EMPTY)
-        val wasBotMentioned: Boolean =
-            event.message.client.selfId.map { initialArgs.alias.isMention(it.asString()) }
-                .orElse(false)
-        val arguments: Arguments = if (wasBotMentioned) initialArgs.next() else initialArgs
+        val prefix = event.guildId.map { prefixSettings.getPrefixOrDefault(it.asLong()) }
+            .orElse(PrefixSettings.DEFAULT_PREFIX)
+        return Mono.justOrEmpty(event.message.content)
+            .filter { content -> content.startsWith(prefix) }
+            .map { content -> content.substring(prefix.length) }
+            .flatMap { strippedContent ->
+                val initialArgs = Arguments.from(strippedContent)
+                val wasBotMentioned: Boolean =
+                    event.message.client.selfId.map { initialArgs.alias.isMention(it.asString()) }.orElse(false)
+                val arguments: Arguments = if (wasBotMentioned) initialArgs.next() else initialArgs
 
-        return getCommandFromAlias(arguments)
-            .flatMap { (command, args) ->
-                Mono.just(command).zipWith(
-                    createContext(event, command, args, wasBotMentioned)
-                )
+                getCommandFromAlias(arguments)
+                    .flatMap { (command, args) ->
+                        Mono.just(command).zipWith(createContext(event, command, args, wasBotMentioned))
+                    }
             }
     }
 
@@ -105,7 +113,7 @@ class CommandProcessor(
                         isDirectMessage,
                         wasBotMentioned
                     )
-                }.switchIfEmpty {
+                }.switchIfEmpty(
                     Mono.just(
                         Context(
                             event,
@@ -123,7 +131,7 @@ class CommandProcessor(
                             wasBotMentioned
                         )
                     )
-                }
+                )
             }
             .filterWhen(this::validateContext)
 

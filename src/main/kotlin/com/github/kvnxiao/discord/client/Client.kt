@@ -30,6 +30,7 @@ import com.github.kvnxiao.discord.koin.getAll
 import com.github.kvnxiao.discord.koin.getProperty
 import discord4j.core.DiscordClient
 import discord4j.core.DiscordClientBuilder
+import discord4j.core.event.domain.guild.GuildCreateEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
 import mu.KotlinLogging
@@ -52,10 +53,19 @@ class Client : KoinComponent {
         client.eventDispatcher.apply {
             on(ReadyEvent::class.java)
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
-                .subscribe()
-
-            on(MessageCreateEvent::class.java)
-                .flatMap(commandProcessor::processMessageCreateEvent)
+                .map { event -> event.guilds.size }
+                .flatMap { size ->
+                    this.on(GuildCreateEvent::class.java)
+                        .take(size.toLong())
+                        .last()
+                        .doOnNext { commandProcessor.loadPrefixSettings() }
+                        .info(logger) { "Done loading $size guilds." }
+                }
+                .info(logger) { "Ready to receive commands." }
+                .flatMap {
+                    this.on(MessageCreateEvent::class.java)
+                        .flatMap(commandProcessor::processMessageCreateEvent)
+                }
                 .subscribe()
         }
     }
