@@ -30,6 +30,7 @@ import com.github.kvnxiao.discord.koin.getAll
 import com.github.kvnxiao.discord.koin.getProperty
 import discord4j.core.DiscordClient
 import discord4j.core.DiscordClientBuilder
+import discord4j.core.`object`.util.PermissionSet
 import discord4j.core.event.domain.guild.GuildCreateEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
@@ -79,15 +80,39 @@ class Client : KoinComponent {
         executables.forEach { ex ->
             val annotations = ex::class.annotations
             val id = (annotations.find { it is Id } as Id).id
-            val aliases = annotations.filterIsInstance<Alias>().map { it.alias }.toSet()
+            val aliases = (annotations.find { it is Alias } as? Alias)?.aliases?.toSet() ?: setOf(id)
+            val descriptor =
+                (annotations.find { it is com.github.kvnxiao.discord.command.annotation.Descriptor }
+                        as? com.github.kvnxiao.discord.command.annotation.Descriptor)?.let {
+                    Descriptor(it.description, it.usage)
+                } ?: Descriptor()
+            val rateLimits =
+                (annotations.find { it is com.github.kvnxiao.discord.command.annotation.RateLimits }
+                        as? com.github.kvnxiao.discord.command.annotation.RateLimits)?.let {
+                    RateLimits(it.rateLimitOnGuild, it.tokensPerPeriod, it.rateLimitPeriodMs)
+                } ?: RateLimits()
+
+            val permissions =
+                (annotations.find { it is com.github.kvnxiao.discord.command.annotation.Permissions }
+                        as? com.github.kvnxiao.discord.command.annotation.Permissions)?.let {
+                    Permissions(
+                        it.requireBotOwner,
+                        it.requireGuildOwner,
+                        it.requireBotMention,
+                        it.allowDirectMessaging,
+                        it.requireDirectMessaging,
+                        it.removeInvocationMessage,
+                        PermissionSet.of(*it.permSet)
+                    )
+                } ?: Permissions()
 
             val command = DiscordCommand(
                 CommandProperties(
                     id,
-                    if (aliases.isEmpty()) setOf(id) else aliases,
-                    Descriptor(),
-                    RateLimits(),
-                    Permissions()
+                    aliases,
+                    descriptor,
+                    rateLimits,
+                    permissions
                 ),
                 ex
             )

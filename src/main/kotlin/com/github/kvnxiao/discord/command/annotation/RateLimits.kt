@@ -15,8 +15,12 @@
  */
 package com.github.kvnxiao.discord.command.annotation
 
+import com.github.kvnxiao.discord.command.ratelimit.RateLimits
+
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Alias(
-    val aliases: Array<String>
+annotation class RateLimits(
+    val rateLimitOnGuild: Boolean = RateLimits.RATELIMIT_ON_GUILD,
+    val tokensPerPeriod: Long = RateLimits.TOKENS_PER_PERIOD,
+    val rateLimitPeriodMs: Long = RateLimits.RATELIMIT_PERIOD_MS
 )
