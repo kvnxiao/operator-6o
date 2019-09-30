@@ -117,7 +117,9 @@ class AnnotationProcessor {
             // Get sub-commands and remove from the class:command map (to avoid cycles)
             val subCommands = subCommandsClassList.map { subKClass ->
                 classToCommandMap.remove(subKClass) ?: throw IllegalArgumentException(
-                    "The sub-command class $subKClass does not exist in the class:command mapping, meaning that a cycle was detected in the command graph."
+                    """The sub-command class $subKClass does not exist in the class:command mapping.
+                      |Either the command was not added as a dependency within a Koin module,
+                      |or it has already been processed and thus a cycle was detected in the command graph.""".trimMargin()
                 )
             }
             // Register sub-commands for current command (including their own sub-commands, if exists)

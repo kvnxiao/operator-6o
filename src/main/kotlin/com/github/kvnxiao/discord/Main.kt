@@ -17,11 +17,12 @@ package com.github.kvnxiao.discord
 
 import com.github.kvnxiao.discord.client.Client
 import com.github.kvnxiao.discord.koin.Modules
+import com.github.kvnxiao.discord.koin.ModulesLogger
 import org.koin.core.context.startKoin
 
 fun main() {
     startKoin {
-        printLogger()
+        logger(ModulesLogger())
 
         environmentProperties()
 
