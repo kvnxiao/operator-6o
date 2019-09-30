@@ -25,4 +25,9 @@ data class CommandProperties(
     val descriptor: Descriptor,
     val rateLimits: RateLimits,
     val permissions: Permissions
-)
+) {
+    init {
+        require(id.isNotBlank()) { "Command ID cannot be blank or empty-string." }
+        require(aliases.isNotEmpty()) { "Command alias cannot be empty." }
+    }
+}
