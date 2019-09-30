@@ -15,22 +15,15 @@
  */
 package com.github.kvnxiao.discord.client
 
-import com.github.kvnxiao.discord.command.CommandProperties
-import com.github.kvnxiao.discord.command.DiscordCommand
-import com.github.kvnxiao.discord.command.annotation.Alias
-import com.github.kvnxiao.discord.command.annotation.Id
-import com.github.kvnxiao.discord.command.descriptor.Descriptor
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
-import com.github.kvnxiao.discord.command.permission.Permissions
+import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
-import com.github.kvnxiao.discord.command.ratelimit.RateLimits
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.env.Environment
 import com.github.kvnxiao.discord.koin.getAll
 import com.github.kvnxiao.discord.koin.getProperty
 import discord4j.core.DiscordClient
 import discord4j.core.DiscordClientBuilder
-import discord4j.core.`object`.util.PermissionSet
 import discord4j.core.event.domain.guild.GuildCreateEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
@@ -42,6 +35,7 @@ private val logger = KotlinLogging.logger {}
 
 class Client : KoinComponent {
     private val commandProcessor: CommandProcessor = get()
+    private val annotationProcessor: AnnotationProcessor = get()
     private val rootRegistry: RegistryNode = get()
 
     private val token: String = getProperty(Environment.TOKEN)
@@ -77,46 +71,6 @@ class Client : KoinComponent {
 
     private fun registerCommands() {
         val executables: List<CommandExecutable> = getAll()
-        executables.forEach { ex ->
-            val annotations = ex::class.annotations
-            val id = (annotations.find { it is Id } as Id).id
-            val aliases = (annotations.find { it is Alias } as? Alias)?.aliases?.toSet() ?: setOf(id)
-            val descriptor =
-                (annotations.find { it is com.github.kvnxiao.discord.command.annotation.Descriptor }
-                        as? com.github.kvnxiao.discord.command.annotation.Descriptor)?.let {
-                    Descriptor(it.description, it.usage)
-                } ?: Descriptor()
-            val rateLimits =
-                (annotations.find { it is com.github.kvnxiao.discord.command.annotation.RateLimits }
-                        as? com.github.kvnxiao.discord.command.annotation.RateLimits)?.let {
-                    RateLimits(it.rateLimitOnGuild, it.tokensPerPeriod, it.rateLimitPeriodMs)
-                } ?: RateLimits()
-
-            val permissions =
-                (annotations.find { it is com.github.kvnxiao.discord.command.annotation.Permissions }
-                        as? com.github.kvnxiao.discord.command.annotation.Permissions)?.let {
-                    Permissions(
-                        it.requireBotOwner,
-                        it.requireGuildOwner,
-                        it.requireBotMention,
-                        it.allowDirectMessaging,
-                        it.requireDirectMessaging,
-                        it.removeInvocationMessage,
-                        PermissionSet.of(*it.permSet)
-                    )
-                } ?: Permissions()
-
-            val command = DiscordCommand(
-                CommandProperties(
-                    id,
-                    aliases,
-                    descriptor,
-                    rateLimits,
-                    permissions
-                ),
-                ex
-            )
-            rootRegistry.register(command)
-        }
+        annotationProcessor.process(executables, rootRegistry)
     }
 }

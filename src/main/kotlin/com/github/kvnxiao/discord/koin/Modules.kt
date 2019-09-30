@@ -18,6 +18,7 @@ package com.github.kvnxiao.discord.koin
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
+import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.MapTreeRegistryRoot
 import com.github.kvnxiao.discord.command.registry.RegistryNode
@@ -44,6 +45,7 @@ object Modules {
         single { PrefixSettings() }
         single<RegistryNode> { MapTreeRegistryRoot() }
         single { CommandProcessor(getAll(), getAll(), get(), get()) }
+        single { AnnotationProcessor() }
     }
     val commandsModule = module {
         command(PingCommand())
