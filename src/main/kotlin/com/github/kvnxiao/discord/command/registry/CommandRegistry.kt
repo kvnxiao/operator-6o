@@ -20,7 +20,7 @@ import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.Id
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger("CommandRegistry")
+private val logger = KotlinLogging.logger { }
 
 private fun register(
     command: DiscordCommand,
