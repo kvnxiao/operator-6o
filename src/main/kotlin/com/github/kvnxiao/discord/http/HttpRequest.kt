@@ -13,10 +13,14 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.env
+package com.github.kvnxiao.discord.http
 
-object Environment {
-    const val TOKEN = "TOKEN"
-    const val GOOGLE_SEARCH_ENGINE = "GS_ENGINE"
-    const val GOOGLE_API_KEY = "GS_API_KEY"
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+
+class HttpRequest {
+    companion object {
+        val OBJECT_MAPPER: ObjectMapper = ObjectMapper()
+            .registerModule(KotlinModule())
+    }
 }

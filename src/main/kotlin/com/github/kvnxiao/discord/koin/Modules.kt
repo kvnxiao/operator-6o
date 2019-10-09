@@ -32,6 +32,8 @@ import com.github.kvnxiao.discord.command.validation.message.SourceValidator
 import com.github.kvnxiao.discord.commands.PingCommand
 import com.github.kvnxiao.discord.commands.help.AllCommand
 import com.github.kvnxiao.discord.commands.help.HelpCommand
+import com.github.kvnxiao.discord.commands.search.GoogleCommand
+import com.github.kvnxiao.discord.env.Environment
 import org.koin.core.KoinComponent
 import org.koin.core.definition.Definition
 import org.koin.core.module.Module
@@ -56,6 +58,12 @@ object Modules {
         command<PingCommand> { PingCommand() }
         command<HelpCommand> { HelpCommand(get(), get()) }
         command<AllCommand> { AllCommand(get(), get()) }
+        command<GoogleCommand> {
+            GoogleCommand(
+                getProperty(Environment.GOOGLE_SEARCH_ENGINE),
+                getProperty(Environment.GOOGLE_API_KEY)
+            )
+        }
     }
 }
 
