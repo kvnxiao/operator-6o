@@ -16,8 +16,10 @@
 package com.github.kvnxiao.discord.command.registry
 
 import com.github.kvnxiao.discord.command.Alias
+import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.Id
+import com.github.kvnxiao.discord.command.context.Arguments
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
@@ -50,6 +52,29 @@ private fun register(
         logger.info { "Registering sub-command [${command.properties.id}] with aliases ${command.properties.aliases} for parent command [$parentId]" }
     }
     return commandNode
+}
+
+class PropertiesRegistry(private val registryNode: RegistryNode) {
+    val topLevelAliasEntries: Set<Pair<Alias, Id>>
+        get() = registryNode.aliasEntries
+    val topLevelIds: List<Id>
+        get() = registryNode.idEntries
+
+    fun getPropertiesFromAlias(args: Arguments): Pair<CommandProperties, List<Alias>>? {
+        var currArgs: Arguments = args
+        var currNode: RegistryNode? = registryNode
+        var currCommand: DiscordCommand? = null
+        while (currNode != null && currArgs.alias.isNotEmpty() && currNode.subNodeFromAlias(currArgs.alias) != null) {
+            currCommand = currNode.commandFromAlias(currArgs.alias)
+            currNode = currNode.subNodeFromAlias(currArgs.alias)
+            currArgs = currArgs.next()
+        }
+        return if (currCommand != null && currNode != null) {
+            Pair(currCommand.properties, currNode.aliasEntries.map { it.first })
+        } else {
+            null
+        }
+    }
 }
 
 class MapTreeRegistryRoot : RegistryNode {

@@ -21,6 +21,7 @@ import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.MapTreeRegistryRoot
+import com.github.kvnxiao.discord.command.registry.PropertiesRegistry
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.command.validation.context.ContextValidator
 import com.github.kvnxiao.discord.command.validation.context.MessageContextValidator
@@ -29,7 +30,10 @@ import com.github.kvnxiao.discord.command.validation.message.ChannelValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import com.github.kvnxiao.discord.command.validation.message.SourceValidator
 import com.github.kvnxiao.discord.commands.PingCommand
+import com.github.kvnxiao.discord.commands.help.AllCommand
+import com.github.kvnxiao.discord.commands.help.HelpCommand
 import org.koin.core.KoinComponent
+import org.koin.core.definition.Definition
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -44,19 +48,24 @@ object Modules {
     val commandProcessingModule = module {
         single { PrefixSettings() }
         single<RegistryNode> { MapTreeRegistryRoot() }
+        single { PropertiesRegistry(get()) }
         single { CommandProcessor(getAll(), getAll(), get(), get()) }
         single { AnnotationProcessor() }
     }
     val commandsModule = module {
-        command(PingCommand())
+        command<PingCommand> { PingCommand() }
+        command<HelpCommand> { HelpCommand(get()) }
+        command<AllCommand> { AllCommand(get(), get()) }
     }
 }
 
-private fun Module.command(commandExecutable: CommandExecutable) {
-    val annotations = commandExecutable::class.annotations
+private inline fun <reified T : CommandExecutable> Module.command(
+    noinline definition: Definition<CommandExecutable>
+) {
+    val annotations = T::class.annotations
     val id = annotations.find { an -> an is Id } as? Id
-    require(id != null) { "@Id annotation must exist for command ${commandExecutable::class}" }
-    this.single(named(id.id)) { commandExecutable }
+    require(id != null) { "@Id annotation must exist for command ${T::class}" }
+    this.single(named(id.id), definition = definition)
 }
 
 fun KoinComponent.getProperty(key: String): String = this.getKoin().getProperty<String>(key)

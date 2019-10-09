@@ -15,6 +15,8 @@
  */
 package com.github.kvnxiao.discord.command.prefix
 
+import discord4j.core.`object`.entity.Guild
+
 class PrefixSettings {
     companion object {
         const val DEFAULT_PREFIX: String = "!"
@@ -28,4 +30,6 @@ class PrefixSettings {
     }
 
     fun getPrefixOrDefault(guildId: Long): String = guildPrefix[guildId] ?: DEFAULT_PREFIX
+
+    fun getPrefixOrDefault(guild: Guild?): String = guildPrefix[guild?.id?.asLong()] ?: DEFAULT_PREFIX
 }
