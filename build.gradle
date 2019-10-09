@@ -91,3 +91,10 @@ license {
     header rootProject.file('docs/LICENSE_HEADER')
     strictCheck true
 }
+
+task formatAll {
+    group('linting')
+    dependsOn 'licenseFormat'
+    dependsOn 'ktlintFormat'
+    tasks.findByName('ktlintFormat').mustRunAfter 'licenseFormat'
+}
