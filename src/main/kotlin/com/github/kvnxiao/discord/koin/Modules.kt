@@ -54,7 +54,7 @@ object Modules {
     }
     val commandsModule = module {
         command<PingCommand> { PingCommand() }
-        command<HelpCommand> { HelpCommand(get()) }
+        command<HelpCommand> { HelpCommand(get(), get()) }
         command<AllCommand> { AllCommand(get(), get()) }
     }
 }

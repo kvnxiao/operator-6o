@@ -16,6 +16,7 @@
 package com.github.kvnxiao.discord.commands.help
 
 import com.github.kvnxiao.discord.command.annotation.Alias
+import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
@@ -25,6 +26,10 @@ import reactor.core.publisher.Mono
 
 @Id("all")
 @Alias(["all", "commands"])
+@Descriptor(
+    description = "Displays all available top-level commands.",
+    usage = "%A"
+)
 class AllCommand(
     private val prefixSettings: PrefixSettings,
     private val propertiesRegistry: PropertiesRegistry

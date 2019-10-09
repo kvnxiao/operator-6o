@@ -17,18 +17,26 @@ package com.github.kvnxiao.discord.commands.help
 
 import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.annotation.Alias
+import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.PropertiesRegistry
 import reactor.core.publisher.Mono
 
 @Id("help")
 @Alias(["help", "man"])
+@Descriptor(
+    description = "Displays the manual for a provided command alias.",
+    usage = "%A <command alias>"
+)
 class HelpCommand(
+    private val prefixSettings: PrefixSettings,
     private val propertiesRegistry: PropertiesRegistry
 ) : CommandExecutable {
     override fun execute(ctx: Context): Mono<Void> {
+        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
         val properties: Mono<Pair<CommandProperties, List<String>>> =
             Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
         return properties.flatMap { (props, subAliases) ->
@@ -39,9 +47,12 @@ class HelpCommand(
                         .addField("Aliases", props.aliases.joinToString(), true)
                         .addField("Sub-commands", if (subAliases.isEmpty()) "N/A" else subAliases.joinToString(), false)
                         .addField("Description", props.descriptor.description, false)
-                        .addField("Usage", props.descriptor.usage, false)
+                        .addField("Usage", props.formatUsage(prefix), false)
                 }
             }
         }.then()
     }
+
+    private fun CommandProperties.formatUsage(prefix: String): String =
+        this.descriptor.usage.replace("%A", this.aliases.joinToString(separator = "/") { "`$prefix$it`" })
 }
