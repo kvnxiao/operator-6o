@@ -18,6 +18,7 @@ package com.github.kvnxiao.discord.commands.search
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kvnxiao.discord.command.annotation.Alias
+import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
@@ -32,6 +33,10 @@ import reactor.netty.http.client.HttpClientResponse
 
 @Id("google")
 @Alias(["g", "google"])
+@Descriptor(
+    description = "Searches for results on Google.",
+    usage = "%A <query>"
+)
 class GoogleCommand(
     private val googleSearchEngine: String,
     private val googleApiKey: String
