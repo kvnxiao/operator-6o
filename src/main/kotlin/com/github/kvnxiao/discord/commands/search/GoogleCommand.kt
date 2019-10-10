@@ -22,7 +22,8 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.CommandExecutable
 import com.github.kvnxiao.discord.http.HttpRequest
-import java.io.InputStream
+import com.github.kvnxiao.discord.http.HttpResponseHandler
+import discord4j.core.`object`.entity.Message
 import org.apache.http.client.utils.URIBuilder
 import reactor.core.publisher.Mono
 import reactor.netty.ByteBufMono
@@ -34,7 +35,7 @@ import reactor.netty.http.client.HttpClientResponse
 class GoogleCommand(
     private val googleSearchEngine: String,
     private val googleApiKey: String
-) : CommandExecutable {
+) : CommandExecutable, HttpResponseHandler {
     companion object {
         private val CUSTOM_SEARCH_URL_BUILDER: URIBuilder
             get() = URIBuilder()
@@ -78,29 +79,30 @@ class GoogleCommand(
                             .build()
                             .toASCIIString()
                     )
-                    .responseSingle(this::handleResponse)
-                    .map { HttpRequest.OBJECT_MAPPER.readValue<SearchResponse>(it) }
-                    .flatMap { response ->
-                        ctx.channel.createMessage { spec ->
-                            spec.setEmbed { embedSpec ->
-                                embedSpec.setTitle("\uD83D\uDD0E Google Search")
-                                    .setDescription(formatMessage(query, response))
-                            }
-                        }
+                    .responseSingle { response, body ->
+                        handleResponse(ctx, query, response, body)
                     }
             }.then()
 
-    private fun handleResponse(response: HttpClientResponse, body: ByteBufMono): Mono<InputStream> =
-        if (response.status().code() in 200..299) {
-            body.asInputStream()
-        } else {
-            Mono.empty()
-        }
+    override fun handleInputStream(ctx: Context, query: String, body: ByteBufMono): Mono<Message> =
+        body.asInputStream()
+            .map { HttpRequest.OBJECT_MAPPER.readValue<SearchResponse>(it) }
+            .flatMap { search ->
+                ctx.channel.createMessage { spec ->
+                    spec.setEmbed { embedSpec ->
+                        embedSpec.setTitle("\uD83D\uDD0E Google Search")
+                            .setDescription(formatMessage(query, search))
+                    }
+                }
+            }
+
+    override fun handleError(ctx: Context, query: String, response: HttpClientResponse): Mono<Message> =
+        ctx.channel.createMessage("An error occurred while searching for $query on Google.\n${response.status().code()} - ${response.status().reasonPhrase()}")
 
     private fun formatMessage(query: String, response: SearchResponse): String {
         val top = "**Results for: `$query`**\n"
         val body = response.items.joinToString(separator = "\n") { item ->
-            "${item.title}\n\u00A0\u00A0\u00A0\u00A0<${item.link}>"
+            "**${item.title}**\n\u00A0\u00A0\u00A0\u00A0<${item.link}>"
         }
         return "$top\n$body"
     }
