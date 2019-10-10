@@ -16,28 +16,29 @@
 package com.github.kvnxiao.discord.command.prefix
 
 import discord4j.core.`object`.entity.Guild
+import discord4j.core.`object`.util.Snowflake
 
 class PrefixSettings {
     companion object {
         const val DEFAULT_PREFIX: String = "!"
     }
 
-    private val guildPrefix: MutableMap<Long, String> = mutableMapOf()
+    private val guildPrefix: MutableMap<Snowflake, String> = mutableMapOf()
 
     fun loadGuildPrefixes() {
         // TODO
-        guildPrefix[171867128314593280L] = "?"
+        guildPrefix[Snowflake.of(171867128314593280L)] = "?"
     }
 
     /**
-     * Gets the command alias prefix for a specified guild based on a guild's ID value.
+     * Gets the command alias prefix for a specified guild based on a guild's ID snowflake value.
      * Returns [DEFAULT_PREFIX] if the guild ID does not match with the custom internal mapping.
      */
-    fun getPrefixOrDefault(guildId: Long): String = guildPrefix[guildId] ?: DEFAULT_PREFIX
+    fun getPrefixOrDefault(guildId: Snowflake): String = guildPrefix[guildId] ?: DEFAULT_PREFIX
 
     /**
      * Gets the command alias prefix for a specified guild based on a nullable Guild parameter.
      * Returns [DEFAULT_PREFIX] if the guild provided is null.
      */
-    fun getPrefixOrDefault(guild: Guild?): String = guildPrefix[guild?.id?.asLong()] ?: DEFAULT_PREFIX
+    fun getPrefixOrDefault(guild: Guild?): String = guildPrefix[guild?.id] ?: DEFAULT_PREFIX
 }

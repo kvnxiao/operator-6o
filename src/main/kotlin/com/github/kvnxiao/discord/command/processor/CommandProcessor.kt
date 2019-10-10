@@ -75,7 +75,7 @@ class CommandProcessor(
         command.executable.execute(context)
 
     private fun getCommandWithContext(event: MessageCreateEvent): Mono<Tuple2<DiscordCommand, Context>> {
-        val prefix = event.guildId.map { prefixSettings.getPrefixOrDefault(it.asLong()) }
+        val prefix = event.guildId.map { prefixSettings.getPrefixOrDefault(it) }
             .orElse(PrefixSettings.DEFAULT_PREFIX)
         return Mono.justOrEmpty(event.message.content)
             .filter { content -> content.startsWith(prefix) }

@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.kvnxiao.discord.command.Id
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.User
+import discord4j.core.`object`.util.Snowflake
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.Bucket4j
@@ -34,24 +35,24 @@ data class RateLimiter(
     private val rateLimits: RateLimits
 ) {
 
-    private val userManager: Cache<Long, Bucket> = Caffeine.newBuilder()
+    private val userManager: Cache<Snowflake, Bucket> = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofMinutes(3))
         .expireAfterWrite(Duration.ofMinutes(3))
         .build()
 
-    private val guildManager: Cache<Long, Bucket> = Caffeine.newBuilder()
+    private val guildManager: Cache<Snowflake, Bucket> = Caffeine.newBuilder()
         .expireAfterAccess(Duration.ofMinutes(5))
         .expireAfterWrite(Duration.ofMinutes(5))
         .build()
 
     fun isNotRateLimited(guild: Guild?, user: User): Boolean =
         if (rateLimits.rateLimitOnGuild && guild != null) {
-            guildManager.getOrCreateBucket(guild.id.asLong())?.tryConsume(1) ?: false
+            guildManager.getOrCreateBucket(guild.id)?.tryConsume(1) ?: false
         } else {
-            userManager.getOrCreateBucket(user.id.asLong())?.tryConsume(1) ?: false
+            userManager.getOrCreateBucket(user.id)?.tryConsume(1) ?: false
         }
 
-    private fun Cache<Long, Bucket>.getOrCreateBucket(id: Long): Bucket? =
+    private fun Cache<Snowflake, Bucket>.getOrCreateBucket(id: Snowflake): Bucket? =
         this.get(id) {
             logger.info {
                 "Creating a new rate-limit bucket for command [$commandId] (rateLimitOnGuild=${rateLimits.rateLimitOnGuild}, tokens=${rateLimits.tokensPerPeriod}, periodMs=${rateLimits.rateLimitPeriodMs}) [${if (rateLimits.rateLimitOnGuild) "guild" else "user"}:$id]"
