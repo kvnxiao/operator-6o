@@ -29,7 +29,15 @@ class PrefixSettings {
         guildPrefix[171867128314593280L] = "?"
     }
 
+    /**
+     * Gets the command alias prefix for a specified guild based on a guild's ID value.
+     * Returns [DEFAULT_PREFIX] if the guild ID does not match with the custom internal mapping.
+     */
     fun getPrefixOrDefault(guildId: Long): String = guildPrefix[guildId] ?: DEFAULT_PREFIX
 
+    /**
+     * Gets the command alias prefix for a specified guild based on a nullable Guild parameter.
+     * Returns [DEFAULT_PREFIX] if the guild provided is null.
+     */
     fun getPrefixOrDefault(guild: Guild?): String = guildPrefix[guild?.id?.asLong()] ?: DEFAULT_PREFIX
 }

@@ -32,6 +32,10 @@ import reactor.kotlin.core.util.function.component2
 import reactor.util.function.Tuple2
 import reactor.util.function.Tuples
 
+/**
+ * Command processing handler which consumes [MessageCreateEvent]s from Discord, parses the message contents into
+ * arguments, and attempts to retrieve and execute commands that match the arguments if they exist.
+ */
 class CommandProcessor(
     messageValidators: List<MessageValidator>,
     contextValidators: List<ContextValidator>,
@@ -42,10 +46,15 @@ class CommandProcessor(
     private val messageValidators: Flux<MessageValidator> = Flux.fromIterable(messageValidators)
     private val contextValidators: Flux<ContextValidator> = Flux.fromIterable(contextValidators)
 
-    fun loadPrefixSettings() {
-        prefixSettings.loadGuildPrefixes()
-    }
+    /**
+     * Loads custom alias prefixes for each guild.
+     */
+    fun loadPrefixSettings() = prefixSettings.loadGuildPrefixes()
 
+    /**
+     * Validates and processes [MessageCreateEvent]s into potential commands, creating a context and executing the
+     * command with said context upon successful validations.
+     */
     fun processMessageCreateEvent(event: MessageCreateEvent): Mono<Void> = Mono.just(event)
         .filterWhen(this::validateMessageCreateEvent)
         .flatMap(this::getCommandWithContext)

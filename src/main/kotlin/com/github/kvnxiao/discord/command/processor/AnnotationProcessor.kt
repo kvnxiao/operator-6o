@@ -37,6 +37,9 @@ private val logger: KLogger = KotlinLogging.logger { }
 
 typealias CommandKClass = KClass<out CommandExecutable>
 
+/**
+ * Runtime annotation processor for creating a command tree to be added to a root-level command registry node.
+ */
 class AnnotationProcessor {
 
     companion object {
@@ -45,6 +48,17 @@ class AnnotationProcessor {
         }
     }
 
+    /**
+     * Processes a list of command executable implementations for runtime annotations to create associated command
+     * properties such as the id, alias, description, permissions, etc.
+     *
+     * @see Id
+     * @see Alias
+     * @see Descriptor
+     * @see Permissions
+     * @see RateLimits
+     * @see SubCommand
+     */
     fun process(commands: List<CommandExecutable>, rootRegistry: RegistryNode) {
         val subCommandEdgeMap = mutableMapOf<DiscordCommand, List<CommandKClass>>()
         val subCommandClassSet = mutableSetOf<CommandKClass>()
@@ -85,11 +99,13 @@ class AnnotationProcessor {
         logger.debug { "Processed ${commands.size} command executable annotations." }
         logger.debug {
             "Constructed ${rootCommandClassSet.size} root-level commands:\n${rootCommandClassSet.prettyString(
-                classToCommandMap)}"
+                classToCommandMap
+            )}"
         }
         logger.debug {
             "Constructed ${subCommandClassSet.size} sub-commands:\n${subCommandClassSet.prettyString(
-                classToCommandMap)}"
+                classToCommandMap
+            )}"
         }
 
         // Get map<KClass, DiscordCommand> of rootCommands
@@ -100,9 +116,11 @@ class AnnotationProcessor {
         rootCommands.values.forEach { registerCommand(it, rootRegistry, classToCommandMap, subCommandEdgeMap) }
 
         require(
-            classToCommandMap.isEmpty()) { "Expected the class:command mapping to be empty but got leftovers (a cycle could exist, causing no root-level command to be present): $classToCommandMap" }
+            classToCommandMap.isEmpty()
+        ) { "Expected the class:command mapping to be empty but got leftovers (a cycle could exist, causing no root-level command to be present): $classToCommandMap" }
         require(
-            subCommandEdgeMap.isEmpty()) { "Expected the sub-command edge map to be empty but got leftovers: $subCommandEdgeMap" }
+            subCommandEdgeMap.isEmpty()
+        ) { "Expected the sub-command edge map to be empty but got leftovers: $subCommandEdgeMap" }
     }
 
     private fun registerCommand(
