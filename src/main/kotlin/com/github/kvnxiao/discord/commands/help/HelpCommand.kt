@@ -37,20 +37,23 @@ class HelpCommand(
 ) : CommandExecutable {
     override fun execute(ctx: Context): Mono<Void> {
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
-        val properties: Mono<Pair<CommandProperties, List<String>>> =
-            Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
-        return properties.flatMap { (props, subAliases) ->
-            ctx.channel.createMessage { spec ->
-                spec.setEmbed { embedSpec ->
-                    embedSpec.setTitle("Command Manual")
-                        .addField("ID", props.id, true)
-                        .addField("Aliases", props.aliases.joinToString(), true)
-                        .addField("Sub-commands", if (subAliases.isEmpty()) "N/A" else subAliases.joinToString(), false)
-                        .addField("Description", props.descriptor.description, false)
-                        .addField("Usage", props.formatUsage(prefix), false)
+        return Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
+            .flatMap { (props, subAliases) ->
+                ctx.channel.createMessage { spec ->
+                    spec.setEmbed { embedSpec ->
+                        embedSpec.setTitle("Command Manual")
+                            .addField("ID", props.id, true)
+                            .addField("Aliases", props.aliases.joinToString(), true)
+                            .addField(
+                                "Sub-commands",
+                                if (subAliases.isEmpty()) "N/A" else subAliases.joinToString(),
+                                false
+                            )
+                            .addField("Description", props.descriptor.description, false)
+                            .addField("Usage", props.formatUsage(prefix), false)
+                    }
                 }
-            }
-        }.then()
+            }.then()
     }
 
     private fun CommandProperties.formatUsage(prefix: String): String =

@@ -65,31 +65,30 @@ class GoogleCommand(
         val totalResults: String
     )
 
-    override fun execute(ctx: Context): Mono<Void> {
-        val args: Mono<String> = Mono.justOrEmpty(ctx.args.arguments)
-        return args.flatMap { query ->
-            HttpClient.create()
-                .get()
-                .uri(
-                    CUSTOM_SEARCH_URL_BUILDER
-                        .addParameter("key", googleApiKey)
-                        .addParameter("cx", googleSearchEngine)
-                        .addParameter("q", query)
-                        .build()
-                        .toASCIIString()
-                )
-                .responseSingle(this::handleResponse)
-                .map { HttpRequest.OBJECT_MAPPER.readValue<SearchResponse>(it) }
-                .flatMap { response ->
-                    ctx.channel.createMessage { spec ->
-                        spec.setEmbed { embedSpec ->
-                            embedSpec.setTitle("\uD83D\uDD0E Google Search")
-                                .setDescription(formatMessage(query, response))
+    override fun execute(ctx: Context): Mono<Void> =
+        Mono.justOrEmpty(ctx.args.arguments)
+            .flatMap { query: String ->
+                HttpClient.create()
+                    .get()
+                    .uri(
+                        CUSTOM_SEARCH_URL_BUILDER
+                            .addParameter("key", googleApiKey)
+                            .addParameter("cx", googleSearchEngine)
+                            .addParameter("q", query)
+                            .build()
+                            .toASCIIString()
+                    )
+                    .responseSingle(this::handleResponse)
+                    .map { HttpRequest.OBJECT_MAPPER.readValue<SearchResponse>(it) }
+                    .flatMap { response ->
+                        ctx.channel.createMessage { spec ->
+                            spec.setEmbed { embedSpec ->
+                                embedSpec.setTitle("\uD83D\uDD0E Google Search")
+                                    .setDescription(formatMessage(query, response))
+                            }
                         }
                     }
-                }
-        }.then()
-    }
+            }.then()
 
     private fun handleResponse(response: HttpClientResponse, body: ByteBufMono): Mono<InputStream> =
         if (response.status().code() in 200..299) {
