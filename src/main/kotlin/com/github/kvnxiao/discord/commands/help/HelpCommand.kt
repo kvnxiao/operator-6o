@@ -20,7 +20,7 @@ import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.PropertiesRegistry
 import reactor.core.publisher.Mono
@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono
 class HelpCommand(
     private val prefixSettings: PrefixSettings,
     private val propertiesRegistry: PropertiesRegistry
-) : CommandExecutable {
+) : Command {
     override fun execute(ctx: Context): Mono<Void> {
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
         return Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))

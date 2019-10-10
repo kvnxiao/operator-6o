@@ -16,7 +16,7 @@
 package com.github.kvnxiao.discord.koin
 
 import com.github.kvnxiao.discord.command.annotation.Id
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
@@ -71,8 +71,8 @@ object Modules {
     }
 }
 
-private inline fun <reified T : CommandExecutable> Module.command(
-    noinline definition: Definition<CommandExecutable>
+private inline fun <reified T : Command> Module.command(
+    noinline definition: Definition<Command>
 ) {
     val annotations = T::class.annotations
     val id = annotations.find { an -> an is Id } as? Id

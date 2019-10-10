@@ -18,7 +18,7 @@ package com.github.kvnxiao.discord.commands.`fun`
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import java.util.concurrent.ThreadLocalRandom
 import reactor.core.publisher.Mono
 
@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono
     description = "The magic 8-ball sees all.",
     usage = "%A <question>"
 )
-class EightBallCommand : CommandExecutable {
+class EightBallCommand : Command {
     companion object {
         private const val EIGHTBALL_EMOJI = "\uD83C\uDFB1"
         private val LINES = listOf(

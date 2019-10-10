@@ -22,6 +22,6 @@ import reactor.core.publisher.Mono
  * The functional interface representing an executable command.
  */
 @FunctionalInterface
-interface CommandExecutable {
+interface Command {
     fun execute(ctx: Context): Mono<Void>
 }

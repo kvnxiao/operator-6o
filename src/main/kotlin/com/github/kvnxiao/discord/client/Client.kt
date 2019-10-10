@@ -15,7 +15,7 @@
  */
 package com.github.kvnxiao.discord.client
 
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.RegistryNode
@@ -70,7 +70,7 @@ class Client : KoinComponent {
     }
 
     private fun registerCommands() {
-        val executables: List<CommandExecutable> = getAll()
+        val executables: List<Command> = getAll()
         annotationProcessor.process(executables, rootRegistry)
     }
 }

@@ -24,7 +24,7 @@ import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.annotation.RateLimits
 import com.github.kvnxiao.discord.command.annotation.SubCommand
 import com.github.kvnxiao.discord.command.descriptor.Descriptor as CommandDescriptor
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.permission.Permissions as CommandPermissions
 import com.github.kvnxiao.discord.command.ratelimit.RateLimits as CommandRateLimits
 import com.github.kvnxiao.discord.command.registry.RegistryNode
@@ -35,7 +35,7 @@ import mu.KotlinLogging
 
 private val logger: KLogger = KotlinLogging.logger { }
 
-typealias CommandKClass = KClass<out CommandExecutable>
+typealias CommandKClass = KClass<out Command>
 
 /**
  * Runtime annotation processor for creating a command tree to be added to a root-level command registry node.
@@ -59,7 +59,7 @@ class AnnotationProcessor {
      * @see RateLimits
      * @see SubCommand
      */
-    fun process(commands: List<CommandExecutable>, rootRegistry: RegistryNode) {
+    fun process(commands: List<Command>, rootRegistry: RegistryNode) {
         val subCommandEdgeMap = mutableMapOf<DiscordCommand, List<CommandKClass>>()
         val subCommandClassSet = mutableSetOf<CommandKClass>()
         val classToCommandMap = mutableMapOf<CommandKClass, DiscordCommand>()

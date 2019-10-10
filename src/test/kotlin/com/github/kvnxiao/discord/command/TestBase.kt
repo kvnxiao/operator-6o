@@ -18,7 +18,7 @@ package com.github.kvnxiao.discord.command
 import com.github.kvnxiao.discord.command.context.Arguments
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.descriptor.Descriptor
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.permission.Permissions
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.ratelimit.RateLimits
@@ -28,7 +28,7 @@ import reactor.util.function.Tuple2
 
 fun command(id: Id): DiscordCommand = DiscordCommand(
     CommandProperties(id, setOf(id), Descriptor(), RateLimits(), Permissions()),
-    object : CommandExecutable {
+    object : Command {
         override fun execute(ctx: Context): Mono<Void> = Mono.empty()
     }
 )

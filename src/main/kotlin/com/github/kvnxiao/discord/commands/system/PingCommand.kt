@@ -18,7 +18,7 @@ package com.github.kvnxiao.discord.commands.system
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import reactor.core.publisher.Mono
 
 @Id("ping")
@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono
     description = "Replies with 'pong!' from the bot.",
     usage = "%A"
 )
-class PingCommand : CommandExecutable {
+class PingCommand : Command {
     override fun execute(ctx: Context): Mono<Void> =
         ctx.channel.createMessage("pong!")
             .then()

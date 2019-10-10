@@ -15,11 +15,11 @@
  */
 package com.github.kvnxiao.discord.command.annotation
 
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class SubCommand(
-    val subCommands: Array<KClass<out CommandExecutable>>
+    val subCommands: Array<KClass<out Command>>
 )

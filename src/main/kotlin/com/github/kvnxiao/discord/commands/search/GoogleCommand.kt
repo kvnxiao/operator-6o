@@ -21,7 +21,7 @@ import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.CommandExecutable
+import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.http.HttpRequest
 import com.github.kvnxiao.discord.http.HttpResponseHandler
 import discord4j.core.`object`.entity.Message
@@ -40,7 +40,7 @@ import reactor.netty.http.client.HttpClientResponse
 class GoogleCommand(
     private val googleSearchEngine: String,
     private val googleApiKey: String
-) : CommandExecutable, HttpResponseHandler {
+) : Command, HttpResponseHandler {
     companion object {
         private val CUSTOM_SEARCH_URL_BUILDER: URIBuilder
             get() = URIBuilder()
