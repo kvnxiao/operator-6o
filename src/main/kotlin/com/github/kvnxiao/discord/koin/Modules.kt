@@ -29,10 +29,12 @@ import com.github.kvnxiao.discord.command.validation.context.PermissionValidator
 import com.github.kvnxiao.discord.command.validation.message.ChannelValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import com.github.kvnxiao.discord.command.validation.message.SourceValidator
-import com.github.kvnxiao.discord.commands.PingCommand
+import com.github.kvnxiao.discord.commands.`fun`.EightBallCommand
 import com.github.kvnxiao.discord.commands.help.AllCommand
 import com.github.kvnxiao.discord.commands.help.HelpCommand
 import com.github.kvnxiao.discord.commands.search.GoogleCommand
+import com.github.kvnxiao.discord.commands.system.PingCommand
+import com.github.kvnxiao.discord.commands.system.UptimeCommand
 import com.github.kvnxiao.discord.env.Environment
 import org.koin.core.KoinComponent
 import org.koin.core.definition.Definition
@@ -64,6 +66,8 @@ object Modules {
                 getProperty(Environment.GOOGLE_API_KEY)
             )
         }
+        command<EightBallCommand> { EightBallCommand() }
+        command<UptimeCommand> { UptimeCommand() }
     }
 }
 
