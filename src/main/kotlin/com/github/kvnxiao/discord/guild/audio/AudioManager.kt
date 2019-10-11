@@ -35,7 +35,7 @@ class AudioManager(
         addListener(this@AudioManager)
     }
 
-    private val queue: BlockingDeque<Pair<AudioTrack, Member>> = LinkedBlockingDeque()
+    private val queue: BlockingDeque<AudioTrack> = LinkedBlockingDeque()
 
     val provider = LavaPlayerAudioProvider(player)
 
@@ -73,23 +73,26 @@ class AudioManager(
     }
 
     private fun enqueue(track: AudioTrack, requestedBy: Member) {
+        track.userData = requestedBy
         if (player.playingTrack == null) {
             player.playTrack(track)
         } else {
-            queue.offer(Pair(track, requestedBy))
+            queue.offer(track)
         }
     }
 
     private fun enqueue(tracks: List<AudioTrack>, requestedBy: Member) {
-        tracks.forEach { queue.offer(Pair(it, requestedBy)) }
+        tracks.forEach {
+            it.userData = requestedBy
+            queue.offer(it)
+        }
         if (player.playingTrack == null) {
             next(true)
         }
     }
 
     fun next(noInterrupt: Boolean = false) {
-        val (track) = queue.poll()
-        player.startTrack(track, noInterrupt)
+        player.startTrack(queue.poll(), noInterrupt)
     }
 
     fun stop() {
@@ -97,4 +100,6 @@ class AudioManager(
     }
 
     fun getCurrentTrack(): AudioTrack? = player.playingTrack
+
+    fun getQueueList(): List<AudioTrack> = this.queue.toList()
 }
