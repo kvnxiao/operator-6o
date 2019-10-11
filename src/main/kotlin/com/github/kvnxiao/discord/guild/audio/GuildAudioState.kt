@@ -18,12 +18,16 @@ package com.github.kvnxiao.discord.guild.audio
 import com.github.kvnxiao.discord.guild.GuildState
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer
 import discord4j.core.`object`.util.Snowflake
 
 class GuildAudioState : GuildState<AudioManager> {
-    private val playerManager: AudioPlayerManager = DefaultAudioPlayerManager().apply {
-        this.configuration.setFrameBufferFactory(::NonAllocatingAudioFrameBuffer)
+    companion object {
+        private val playerManager: AudioPlayerManager = DefaultAudioPlayerManager().apply {
+            this.configuration.setFrameBufferFactory(::NonAllocatingAudioFrameBuffer)
+            AudioSourceManagers.registerRemoteSources(this)
+        }
     }
 
     private val guildAudioManager: MutableMap<Snowflake, AudioManager> = mutableMapOf()

@@ -15,36 +15,40 @@
  */
 package com.github.kvnxiao.discord.commands.audio
 
+import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
-import discord4j.core.`object`.entity.Member
+import com.github.kvnxiao.discord.guild.audio.SourceType
+import discord4j.core.`object`.entity.channel.TextChannel
 import reactor.core.publisher.Mono
 
-@Id("join")
+@Id("youtube")
+@Alias(["yt", "youtube"])
 @Descriptor(
-    description = "Makes the bot join the voice channel that the calling user is in.",
-    usage = "%A"
+    description = "Searches on YouTube and plays the first search result, or plays a specified youtube link.",
+    usage = "%A <query> | %A <youtube URL>"
 )
 @Permissions(allowDirectMessaging = false)
-class JoinCommand(
+class YoutubeCommand(
     private val guildAudioState: GuildAudioState
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> =
-        if (ctx.guild == null) Mono.empty()
+        if (ctx.guild == null || ctx.args.arguments == null) Mono.empty()
         else {
             val audioManager = guildAudioState.getOrCreateForGuild(ctx.guild.id)
             ctx.event.message.authorAsMember
-                .flatMap(Member::getVoiceState)
-                .filter { !audioManager.voiceConnectionManager.isVoiceConnected() }
-                .flatMap { voiceState ->
-                    voiceState.channel.flatMap { voiceChannel ->
-                        voiceChannel.join { spec -> spec.setProvider(audioManager.provider) }
-                            .doOnNext { audioManager.voiceConnectionManager.saveVoiceConnection(it) }
-                    }
+                .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
+                .doOnNext { member ->
+                    audioManager.enqueue(
+                        ctx.args.arguments,
+                        member,
+                        ctx.channel as TextChannel,
+                        SourceType.YOUTUBE
+                    )
                 }
                 .then()
         }

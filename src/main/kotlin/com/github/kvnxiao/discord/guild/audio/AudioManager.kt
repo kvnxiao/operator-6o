@@ -31,15 +31,17 @@ class AudioManager(
     val voiceConnectionManager: VoiceConnectionManager = VoiceConnectionManager()
 ) : AudioEventAdapter {
     // Create an audio player for this guild
-    private val player: AudioPlayer = playerManager.createPlayer()
+    private val player: AudioPlayer = playerManager.createPlayer().apply {
+        addListener(this@AudioManager)
+    }
 
-    private val queue: BlockingDeque<AudioTrack> = LinkedBlockingDeque()
+    private val queue: BlockingDeque<Pair<AudioTrack, Member>> = LinkedBlockingDeque()
 
     val provider = LavaPlayerAudioProvider(player)
 
     fun enqueue(
         query: String,
-        user: Member,
+        requestedBy: Member,
         channel: TextChannel,
         sourceType: SourceType = SourceType.UNKNOWN,
         isPlaylist: Boolean = false
@@ -55,39 +57,44 @@ class AudioManager(
                 channel.createMessage("Failed to load query due to exception: $exception").subscribe()
             }
 
-            override fun trackLoaded(track: AudioTrack) = enqueue(track)
+            override fun trackLoaded(track: AudioTrack) = enqueue(track, requestedBy)
 
             override fun noMatches() {
-                channel.createMessage("No results found for query").subscribe()
+                channel.createMessage("No results found for query: $query").subscribe()
             }
 
             override fun playlistLoaded(playlist: AudioPlaylist) =
                 if (isPlaylist) {
-                    enqueue(playlist.tracks)
+                    enqueue(playlist.tracks, requestedBy)
                 } else {
-                    enqueue(playlist.tracks[0])
+                    enqueue(playlist.tracks[0], requestedBy)
                 }
         })
     }
 
-    private fun enqueue(track: AudioTrack) {
+    private fun enqueue(track: AudioTrack, requestedBy: Member) {
         if (player.playingTrack == null) {
             player.playTrack(track)
         } else {
-            queue.offer(track)
+            queue.offer(Pair(track, requestedBy))
         }
     }
 
-    private fun enqueue(tracks: List<AudioTrack>) {
-        tracks.forEach {
-            queue.offer(it)
-        }
+    private fun enqueue(tracks: List<AudioTrack>, requestedBy: Member) {
+        tracks.forEach { queue.offer(Pair(it, requestedBy)) }
         if (player.playingTrack == null) {
             next(true)
         }
     }
 
     fun next(noInterrupt: Boolean = false) {
-        player.startTrack(queue.poll(), noInterrupt)
+        val (track) = queue.poll()
+        player.startTrack(track, noInterrupt)
     }
+
+    fun stop() {
+        if (player.playingTrack != null) player.stopTrack()
+    }
+
+    fun getCurrentTrack(): AudioTrack? = player.playingTrack
 }

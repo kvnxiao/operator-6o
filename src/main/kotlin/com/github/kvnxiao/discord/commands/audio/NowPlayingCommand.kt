@@ -15,37 +15,35 @@
  */
 package com.github.kvnxiao.discord.commands.audio
 
+import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
-import discord4j.core.`object`.entity.Member
 import reactor.core.publisher.Mono
 
-@Id("join")
+@Id("nowplaying")
+@Alias(["np", "playing"])
 @Descriptor(
-    description = "Makes the bot join the voice channel that the calling user is in.",
+    description = "Prints the current audio track being played by the bot.",
     usage = "%A"
 )
 @Permissions(allowDirectMessaging = false)
-class JoinCommand(
+class NowPlayingCommand(
     private val guildAudioState: GuildAudioState
 ) : Command {
-    override fun execute(ctx: Context): Mono<Void> =
-        if (ctx.guild == null) Mono.empty()
-        else {
-            val audioManager = guildAudioState.getOrCreateForGuild(ctx.guild.id)
-            ctx.event.message.authorAsMember
-                .flatMap(Member::getVoiceState)
-                .filter { !audioManager.voiceConnectionManager.isVoiceConnected() }
-                .flatMap { voiceState ->
-                    voiceState.channel.flatMap { voiceChannel ->
-                        voiceChannel.join { spec -> spec.setProvider(audioManager.provider) }
-                            .doOnNext { audioManager.voiceConnectionManager.saveVoiceConnection(it) }
+    override fun execute(ctx: Context): Mono<Void> {
+        return if (ctx.guild == null) Mono.empty()
+        else Mono.justOrEmpty(guildAudioState.getState(ctx.guild.id))
+            .filter { it.voiceConnectionManager.isVoiceConnected() }
+            .flatMap { audioManager ->
+                Mono.justOrEmpty(audioManager.getCurrentTrack())
+                    .flatMap { track ->
+                        ctx.channel.createMessage(track.info.title)
                     }
-                }
-                .then()
-        }
+            }
+            .then()
+    }
 }

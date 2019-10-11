@@ -32,6 +32,10 @@ import com.github.kvnxiao.discord.command.validation.message.SourceValidator
 import com.github.kvnxiao.discord.commands.`fun`.EightBallCommand
 import com.github.kvnxiao.discord.commands.audio.JoinCommand
 import com.github.kvnxiao.discord.commands.audio.LeaveCommand
+import com.github.kvnxiao.discord.commands.audio.NextCommand
+import com.github.kvnxiao.discord.commands.audio.NowPlayingCommand
+import com.github.kvnxiao.discord.commands.audio.StopCommand
+import com.github.kvnxiao.discord.commands.audio.YoutubeCommand
 import com.github.kvnxiao.discord.commands.help.AllCommand
 import com.github.kvnxiao.discord.commands.help.HelpCommand
 import com.github.kvnxiao.discord.commands.search.GoogleCommand
@@ -63,19 +67,32 @@ object Modules {
         single { GuildAudioState() }
     }
     val commandsModule = module {
+        // System commands
         command<PingCommand> { PingCommand() }
+        command<UptimeCommand> { UptimeCommand() }
+
+        // Help commands
         command<HelpCommand> { HelpCommand(get(), get()) }
         command<AllCommand> { AllCommand(get(), get()) }
+
+        // Query commands
         command<GoogleCommand> {
             GoogleCommand(
                 getProperty(Environment.GOOGLE_SEARCH_ENGINE),
                 getProperty(Environment.GOOGLE_API_KEY)
             )
         }
+
+        // Fun commands
         command<EightBallCommand> { EightBallCommand() }
-        command<UptimeCommand> { UptimeCommand() }
+
+        // Audio commands
         command<JoinCommand> { JoinCommand(get()) }
         command<LeaveCommand> { LeaveCommand(get()) }
+        command<StopCommand> { StopCommand(get()) }
+        command<NowPlayingCommand> { NowPlayingCommand(get()) }
+        command<NextCommand> { NextCommand(get()) }
+        command<YoutubeCommand> { YoutubeCommand(get()) }
     }
 }
 
