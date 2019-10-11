@@ -55,7 +55,7 @@ data class RateLimiter(
     private fun Cache<Snowflake, Bucket>.getOrCreateBucket(id: Snowflake): Bucket? =
         this.get(id) {
             logger.info {
-                "Creating a new rate-limit bucket for command [$commandId] (rateLimitOnGuild=${rateLimits.rateLimitOnGuild}, tokens=${rateLimits.tokensPerPeriod}, periodMs=${rateLimits.rateLimitPeriodMs}) [${if (rateLimits.rateLimitOnGuild) "guild" else "user"}:$id]"
+                "Instantiating new rate-limit bucket for command [$commandId] (rateLimitOnGuild=${rateLimits.rateLimitOnGuild}, tokens=${rateLimits.tokensPerPeriod}, periodMs=${rateLimits.rateLimitPeriodMs}) [${if (rateLimits.rateLimitOnGuild) "guild" else "user"}:$id]"
             }
             Bucket4j.builder()
                 .addLimit(Bandwidth.simple(rateLimits.tokensPerPeriod, Duration.ofMillis(rateLimits.rateLimitPeriodMs)))
