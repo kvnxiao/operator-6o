@@ -59,6 +59,8 @@ class PropertiesRegistry(private val registryNode: RegistryNode) {
         get() = registryNode.aliasEntries
     val topLevelIds: List<Id>
         get() = registryNode.idEntries
+    val topLevelProperties: List<CommandProperties>
+        get() = topLevelIds.map { id -> registryNode.commandFromId(id)!!.properties }
 
     fun getPropertiesFromAlias(args: Arguments): Pair<CommandProperties, List<Alias>>? {
         var currArgs: Arguments = args

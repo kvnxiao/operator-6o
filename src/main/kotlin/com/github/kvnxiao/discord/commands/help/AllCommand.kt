@@ -36,8 +36,10 @@ class AllCommand(
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
-        val prefixedAliases = propertiesRegistry.topLevelAliasEntries
-            .map { prefix + it.first }
+        val prefixedAliases = propertiesRegistry.topLevelProperties
+            .filter { props -> !ctx.isDirectMessage || props.permissions.allowDirectMessaging }
+            .flatMap { it.aliases }
+            .map { prefix + it }
             .sorted()
         return ctx.channel.createMessage { spec ->
             spec.setEmbed { embedSpec ->
