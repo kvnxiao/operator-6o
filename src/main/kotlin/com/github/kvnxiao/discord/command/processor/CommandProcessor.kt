@@ -27,6 +27,7 @@ import discord4j.core.`object`.entity.channel.GuildChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import reactor.kotlin.core.util.function.component1
 import reactor.kotlin.core.util.function.component2
 import reactor.util.function.Tuple2
@@ -56,6 +57,7 @@ class CommandProcessor(
      * command with said context upon successful validations.
      */
     fun processMessageCreateEvent(event: MessageCreateEvent): Mono<Void> = Mono.just(event)
+        .publishOn(Schedulers.boundedElastic())
         .filterWhen(this::validateMessageCreateEvent)
         .flatMap(this::getCommandWithContext)
         .filter { (command, context) -> command.rateLimiter.isNotRateLimited(context.guild, context.user) }
