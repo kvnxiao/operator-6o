@@ -38,7 +38,7 @@ data class Permissions(
         const val REQUIRE_BOT_OWNER = false
         const val REQUIRE_GUILD_OWNER = false
         const val REQUIRE_BOT_MENTION = false
-        const val ALLOW_DIRECT_MESSAGING = false
+        const val ALLOW_DIRECT_MESSAGING = true
         const val REQUIRE_DIRECT_MESSAGING = false
         const val REMOVE_INVOCATION_MESSAGE = false
     }
