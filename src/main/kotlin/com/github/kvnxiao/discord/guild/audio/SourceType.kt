@@ -13,28 +13,10 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord
+package com.github.kvnxiao.discord.guild.audio
 
-import com.github.kvnxiao.discord.client.Client
-import com.github.kvnxiao.discord.koin.Modules
-import com.github.kvnxiao.discord.koin.ModulesLogger
-import org.koin.core.context.startKoin
-
-fun main() {
-    startKoin {
-        logger(ModulesLogger())
-
-        environmentProperties()
-
-        modules(
-            listOf(
-                Modules.validationModule,
-                Modules.commandProcessingModule,
-                Modules.guildModule,
-                Modules.commandsModule
-            )
-        )
-    }
-
-    Client().run()
+enum class SourceType {
+    UNKNOWN,
+    YOUTUBE,
+    SOUNDCLOUD,
 }

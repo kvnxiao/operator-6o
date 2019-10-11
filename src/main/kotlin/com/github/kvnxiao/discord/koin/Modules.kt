@@ -30,12 +30,15 @@ import com.github.kvnxiao.discord.command.validation.message.ChannelValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import com.github.kvnxiao.discord.command.validation.message.SourceValidator
 import com.github.kvnxiao.discord.commands.`fun`.EightBallCommand
+import com.github.kvnxiao.discord.commands.audio.JoinCommand
+import com.github.kvnxiao.discord.commands.audio.LeaveCommand
 import com.github.kvnxiao.discord.commands.help.AllCommand
 import com.github.kvnxiao.discord.commands.help.HelpCommand
 import com.github.kvnxiao.discord.commands.search.GoogleCommand
 import com.github.kvnxiao.discord.commands.system.PingCommand
 import com.github.kvnxiao.discord.commands.system.UptimeCommand
 import com.github.kvnxiao.discord.env.Environment
+import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import org.koin.core.KoinComponent
 import org.koin.core.definition.Definition
 import org.koin.core.module.Module
@@ -56,6 +59,9 @@ object Modules {
         single { CommandProcessor(getAll(), getAll(), get(), get()) }
         single { AnnotationProcessor() }
     }
+    val guildModule = module {
+        single { GuildAudioState() }
+    }
     val commandsModule = module {
         command<PingCommand> { PingCommand() }
         command<HelpCommand> { HelpCommand(get(), get()) }
@@ -68,6 +74,8 @@ object Modules {
         }
         command<EightBallCommand> { EightBallCommand() }
         command<UptimeCommand> { UptimeCommand() }
+        command<JoinCommand> { JoinCommand(get()) }
+        command<LeaveCommand> { LeaveCommand(get()) }
     }
 }
 

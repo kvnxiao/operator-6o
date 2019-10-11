@@ -13,28 +13,19 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord
+package com.github.kvnxiao.discord.guild
 
-import com.github.kvnxiao.discord.client.Client
-import com.github.kvnxiao.discord.koin.Modules
-import com.github.kvnxiao.discord.koin.ModulesLogger
-import org.koin.core.context.startKoin
+import discord4j.core.`object`.util.Snowflake
 
-fun main() {
-    startKoin {
-        logger(ModulesLogger())
+interface GuildState<T> {
+    /**
+     * Gets the generic value associated with this guild state.
+     */
+    fun getState(guildId: Snowflake): T?
+    /**
+     * Creates a new generic value for this guild state, and returns it.
+     */
+    fun createForGuild(guildId: Snowflake): T
 
-        environmentProperties()
-
-        modules(
-            listOf(
-                Modules.validationModule,
-                Modules.commandProcessingModule,
-                Modules.guildModule,
-                Modules.commandsModule
-            )
-        )
-    }
-
-    Client().run()
+    fun getOrCreateForGuild(guildId: Snowflake): T = getState(guildId) ?: createForGuild(guildId)
 }
