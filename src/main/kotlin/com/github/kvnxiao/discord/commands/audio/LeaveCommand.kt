@@ -32,13 +32,12 @@ import reactor.core.publisher.Mono
 class LeaveCommand(
     private val guildAudioState: GuildAudioState
 ) : Command {
-    override fun execute(ctx: Context): Mono<Void> {
-        return if (ctx.guild == null) Mono.empty()
+    override fun execute(ctx: Context): Mono<Void> =
+        if (ctx.guild == null) Mono.empty()
         else Mono.justOrEmpty(guildAudioState.getState(ctx.guild.id))
             .doOnNext { audioManager ->
                 audioManager.stop()
                 audioManager.voiceConnectionManager.disconnectVoiceConnection()
             }
             .then()
-    }
 }
