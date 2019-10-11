@@ -30,6 +30,7 @@ import com.github.kvnxiao.discord.command.validation.message.ChannelValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import com.github.kvnxiao.discord.command.validation.message.SourceValidator
 import com.github.kvnxiao.discord.commands.`fun`.EightBallCommand
+import com.github.kvnxiao.discord.commands.audio.ClearCommand
 import com.github.kvnxiao.discord.commands.audio.JoinCommand
 import com.github.kvnxiao.discord.commands.audio.LeaveCommand
 import com.github.kvnxiao.discord.commands.audio.NextCommand
@@ -93,6 +94,7 @@ object Modules {
         command<NowPlayingCommand> { NowPlayingCommand(get()) }
         command<NextCommand> { NextCommand(get()) }
         command<YoutubeCommand> { YoutubeCommand(get()) }
+        command<ClearCommand> { ClearCommand(get()) }
     }
 }
 

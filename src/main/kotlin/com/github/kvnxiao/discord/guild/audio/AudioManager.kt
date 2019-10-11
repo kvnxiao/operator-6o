@@ -101,5 +101,7 @@ class AudioManager(
 
     fun getCurrentTrack(): AudioTrack? = player.playingTrack
 
-    fun getQueueList(): List<AudioTrack> = this.queue.toList()
+    fun getQueueList(): List<AudioTrack> = queue.toList()
+
+    fun clearQueue() = queue.clear()
 }
