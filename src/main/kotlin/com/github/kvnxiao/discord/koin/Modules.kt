@@ -45,8 +45,6 @@ import com.github.kvnxiao.discord.commands.system.PingCommand
 import com.github.kvnxiao.discord.commands.system.UptimeCommand
 import com.github.kvnxiao.discord.env.Environment
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
-import com.github.kvnxiao.discord.guild.audio.reaction.AudioReactionProcessor
-import com.github.kvnxiao.discord.guild.audio.reaction.GuildAudioReactionState
 import org.koin.core.KoinComponent
 import org.koin.core.definition.Definition
 import org.koin.core.module.Module
@@ -69,8 +67,6 @@ object Modules {
     }
     val guildModule = module {
         single { GuildAudioState() }
-        single { GuildAudioReactionState() }
-        single { AudioReactionProcessor(get(), get()) }
     }
     val commandsModule = module {
         // System commands
@@ -100,7 +96,7 @@ object Modules {
         command<NextCommand> { NextCommand(get()) }
         command<YoutubeCommand> { YoutubeCommand(get()) }
         command<ClearCommand> { ClearCommand(get()) }
-        command<YoutubeSearchCommand> { YoutubeSearchCommand(get(), get()) }
+        command<YoutubeSearchCommand> { YoutubeSearchCommand(get()) }
     }
 }
 

@@ -20,7 +20,6 @@ import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.env.Environment
-import com.github.kvnxiao.discord.guild.audio.reaction.AudioReactionProcessor
 import com.github.kvnxiao.discord.koin.getAll
 import com.github.kvnxiao.discord.koin.getProperty
 import discord4j.core.DiscordClient
@@ -28,7 +27,6 @@ import discord4j.core.DiscordClientBuilder
 import discord4j.core.event.domain.guild.GuildCreateEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
-import discord4j.core.event.domain.message.ReactionAddEvent
 import mu.KotlinLogging
 import org.koin.core.KoinComponent
 import org.koin.core.get
@@ -37,7 +35,6 @@ private val logger = KotlinLogging.logger {}
 
 class Client : KoinComponent {
     private val commandProcessor: CommandProcessor = get()
-    private val reactionProcessor: AudioReactionProcessor = get()
     private val annotationProcessor: AnnotationProcessor = get()
     private val rootRegistry: RegistryNode = get()
 
@@ -49,10 +46,6 @@ class Client : KoinComponent {
         registerCommands()
 
         client.eventDispatcher.apply {
-            on(ReactionAddEvent::class.java)
-                .flatMap(reactionProcessor::processReactionAddEvent)
-                .subscribe()
-
             on(ReadyEvent::class.java)
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
                 .map { event -> event.guilds.size }

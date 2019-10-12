@@ -15,6 +15,7 @@ object ReactionUnicode {
     const val DIGIT_8 = "\u0038\u20E3"
     const val DIGIT_9 = "\u0039\u20E3"
     const val DIGIT_10 = "\uD83D\uDD1F"
+    const val TIMER = "\u23F2"
 
     val FIRST_8_DIGITS = listOf(
         DIGIT_1,
