@@ -23,6 +23,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import discord4j.core.`object`.entity.Member
 import discord4j.core.`object`.entity.channel.TextChannel
+import reactor.core.publisher.Flux
 import java.util.concurrent.BlockingDeque
 import java.util.concurrent.LinkedBlockingDeque
 
@@ -39,49 +40,49 @@ class AudioManager(
 
     val provider = LavaPlayerAudioProvider(player)
 
-    fun enqueue(
+    fun query(
         query: String,
         requestedBy: Member,
         channel: TextChannel,
         sourceType: SourceType = SourceType.UNKNOWN,
         isPlaylist: Boolean = false
-    ) {
+    ): Flux<AudioTrack> {
         val lavaplayerQuery = when (sourceType) {
             SourceType.UNKNOWN -> query
             SourceType.YOUTUBE -> "ytsearch:$query"
             SourceType.SOUNDCLOUD -> "scsearch:$query"
         }
 
-        playerManager.loadItem(lavaplayerQuery, object : AudioLoadResultHandler {
-            override fun loadFailed(exception: FriendlyException) {
-                channel.createMessage("Failed to load query due to exception: $exception").subscribe()
-            }
-
-            override fun trackLoaded(track: AudioTrack) = enqueue(track, requestedBy)
-
-            override fun noMatches() {
-                channel.createMessage("No results found for query: $query").subscribe()
-            }
-
-            override fun playlistLoaded(playlist: AudioPlaylist) =
-                if (isPlaylist) {
-                    enqueue(playlist.tracks, requestedBy)
-                } else {
-                    enqueue(playlist.tracks[0], requestedBy)
+        return Flux.create<AudioTrack> { emitter ->
+            playerManager.loadItem(lavaplayerQuery, object : AudioLoadResultHandler {
+                override fun loadFailed(exception: FriendlyException) {
+                    emitter.error(exception)
                 }
-        })
-    }
 
-    private fun enqueue(track: AudioTrack, requestedBy: Member) {
-        track.userData = requestedBy
-        if (player.playingTrack == null) {
-            player.playTrack(track)
-        } else {
-            queue.offer(track)
+                override fun trackLoaded(track: AudioTrack) {
+                    emitter.next(track)
+                    emitter.complete()
+                }
+
+                override fun noMatches() {
+                    emitter.complete()
+                }
+
+                override fun playlistLoaded(playlist: AudioPlaylist) {
+                    if (isPlaylist) {
+                        playlist.tracks.forEach { track ->
+                            emitter.next(track)
+                        }
+                    } else {
+                        emitter.next(playlist.tracks[0])
+                    }
+                    emitter.complete()
+                }
+            })
         }
     }
 
-    private fun enqueue(tracks: List<AudioTrack>, requestedBy: Member) {
+    fun offer(tracks: List<AudioTrack>, requestedBy: Member) {
         tracks.forEach {
             it.userData = requestedBy
             queue.offer(it)

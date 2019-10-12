@@ -42,13 +42,26 @@ class YoutubeCommand(
             val audioManager = guildAudioState.getOrCreateForGuild(ctx.guild.id)
             ctx.event.message.authorAsMember
                 .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
-                .doOnNext { member ->
-                    audioManager.enqueue(
-                        ctx.args.arguments,
-                        member,
-                        ctx.channel as TextChannel,
-                        SourceType.YOUTUBE
-                    )
+                .flatMap { member ->
+                    audioManager.query(ctx.args.arguments, member, ctx.channel as TextChannel, SourceType.YOUTUBE)
+                        .collectList()
+                        .filter { it.isNotEmpty() }
+                        .doOnNext { tracks -> audioManager.offer(tracks, member) }
+                        .flatMap { tracks ->
+                            ctx.channel.createEmbed { spec ->
+                                spec.setTitle("Audio Player")
+                                    .setDescription(
+                                        if (tracks.size > 1) {
+                                            "Added ${tracks.size} tracks to the queue."
+                                        } else {
+                                            "Added **[${tracks[0].info.title}](${tracks[0].info.uri})** to the queue."
+                                        }
+                                    ).setFooter(
+                                        "${audioManager.getQueueList().size} tracks left in queue",
+                                        member.avatarUrl
+                                    )
+                            }
+                        }
                 }
                 .then()
         }
