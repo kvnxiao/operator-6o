@@ -39,11 +39,12 @@ class YoutubeCommand(
     override fun execute(ctx: Context): Mono<Void> =
         if (ctx.guild == null || ctx.args.arguments == null) Mono.empty()
         else {
+            val query: String = ctx.args.arguments
             val audioManager = guildAudioState.getOrCreateForGuild(ctx.guild.id)
             ctx.event.message.authorAsMember
                 .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
                 .flatMap { member ->
-                    audioManager.query(ctx.args.arguments, member, ctx.channel as TextChannel, SourceType.YOUTUBE)
+                    audioManager.query(query, member, ctx.channel as TextChannel, SourceType.YOUTUBE)
                         .collectList()
                         .filter { it.isNotEmpty() }
                         .doOnNext { tracks -> audioManager.offer(tracks, member) }
@@ -62,6 +63,7 @@ class YoutubeCommand(
                                     )
                             }
                         }
+                        .onErrorResume { ctx.channel.createMessage("An error occurred with querying for: $query") }
                 }
                 .then()
         }
