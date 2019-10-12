@@ -25,7 +25,13 @@ import discord4j.core.`object`.util.Snowflake
 class GuildAudioState : GuildState<AudioManager> {
     companion object {
         private val playerManager: AudioPlayerManager = DefaultAudioPlayerManager().apply {
-            this.configuration.setFrameBufferFactory(::NonAllocatingAudioFrameBuffer)
+            this.configuration.setFrameBufferFactory { bufferDuration, format, stopping ->
+                NonAllocatingAudioFrameBuffer(
+                    bufferDuration,
+                    format,
+                    stopping
+                )
+            }
             AudioSourceManagers.registerRemoteSources(this)
         }
     }
