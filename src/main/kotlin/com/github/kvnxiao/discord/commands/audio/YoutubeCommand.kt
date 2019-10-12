@@ -21,13 +21,16 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.embeds.addedToQueueDescription
+import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
+import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
 import discord4j.core.`object`.entity.channel.TextChannel
 import reactor.core.publisher.Mono
 
 @Id("youtube")
-@Alias(["yt", "youtube"])
+@Alias(["yt"])
 @Descriptor(
     description = "Searches on YouTube and plays the first search result, or plays a specified youtube link.",
     usage = "%A <query> | %A <youtube URL>"
@@ -50,17 +53,9 @@ class YoutubeCommand(
                         .doOnNext { tracks -> audioManager.offer(tracks, member) }
                         .flatMap { tracks ->
                             ctx.channel.createEmbed { spec ->
-                                spec.setTitle("Audio Player")
-                                    .setDescription(
-                                        if (tracks.size > 1) {
-                                            "Added ${tracks.size} tracks to the queue."
-                                        } else {
-                                            "Added **[${tracks[0].info.title}](${tracks[0].info.uri})** to the queue."
-                                        }
-                                    ).setFooter(
-                                        "${audioManager.getQueueList().size} tracks left in queue",
-                                        member.avatarUrl
-                                    )
+                                spec.setAudioEmbedTitle()
+                                    .addedToQueueDescription(tracks)
+                                    .setAudioEmbedFooter(audioManager.remainingTracks, member)
                             }
                         }
                         .onErrorResume { ctx.channel.createMessage("An error occurred with querying for: $query") }
