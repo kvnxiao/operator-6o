@@ -15,19 +15,21 @@
  */
 package com.github.kvnxiao.discord.commands.audio
 
+import com.github.kvnxiao.discord.ReactionUnicode
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import discord4j.core.spec.EmbedCreateSpec
 import java.util.concurrent.TimeUnit
 import reactor.core.publisher.Mono
 
-@Id("nowplaying")
+@Id("now_playing")
 @Alias(["np", "playing"])
 @Descriptor(
     description = "Prints the current audio track being played by the bot.",
@@ -43,11 +45,11 @@ class NowPlayingCommand(
             .filter { it.voiceConnectionManager.isVoiceConnected() }
             .flatMap { audioManager ->
                 val currentTrack = audioManager.getCurrentTrack()
-                val queueList = audioManager.getQueueList()
+                val queueList = audioManager.queueList
                 ctx.channel.createEmbed { spec ->
                     spec.setTitle("Audio Player - Now Playing")
                         .formatTrack(currentTrack, queueList)
-                        .setFooter("${queueList.size} tracks left in queue", ctx.user.avatarUrl)
+                        .setAudioEmbedFooter(audioManager.remainingTracks, ctx.user)
                 }
             }
             .then()
@@ -55,7 +57,7 @@ class NowPlayingCommand(
 
     private fun EmbedCreateSpec.formatTrack(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
         if (track == null) this.setDescription("No tracks are currently playing.")
-        else this.setDescription("\u25B6 ${track.formatAsMarkdown()}\n${track.position.format()}/${track.duration.format()}")
+        else this.setDescription("${ReactionUnicode.ARROW_FORWARD} ${track.formatAsMarkdown()}\n${track.position.format()}/${track.duration.format()}")
             .addField("Up Next", queueList.formatAsMarkdown(), false)
 
     private fun AudioTrack.formatAsMarkdown(): String =

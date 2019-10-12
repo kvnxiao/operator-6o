@@ -15,6 +15,7 @@
  */
 package com.github.kvnxiao.discord.commands.`fun`
 
+import com.github.kvnxiao.discord.ReactionUnicode.EIGHTBALL
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
@@ -29,7 +30,6 @@ import reactor.core.publisher.Mono
 )
 class EightBallCommand : Command {
     companion object {
-        private const val EIGHTBALL_EMOJI = "\uD83C\uDFB1"
         private val LINES = listOf(
             "It is certain",
             "It is decidedly so",
@@ -56,7 +56,7 @@ class EightBallCommand : Command {
 
     override fun execute(ctx: Context): Mono<Void> =
         Mono.justOrEmpty(ctx.args.arguments)
-            .flatMap { ctx.channel.createMessage("**Question:** $it\n$EIGHTBALL_EMOJI**: ${randomAnswer()}**") }
+            .flatMap { ctx.channel.createMessage("**Question:** $it\n$EIGHTBALL**: ${randomAnswer()}**") }
             .then()
 
     private fun randomAnswer(): String = LINES[ThreadLocalRandom.current().nextInt(LINES.size)]

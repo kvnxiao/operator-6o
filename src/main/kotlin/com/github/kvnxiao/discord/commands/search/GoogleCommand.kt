@@ -17,6 +17,7 @@ package com.github.kvnxiao.discord.commands.search
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.github.kvnxiao.discord.ReactionUnicode
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
@@ -95,7 +96,7 @@ class GoogleCommand(
             .flatMap { search ->
                 ctx.channel.createMessage { spec ->
                     spec.setEmbed { embedSpec ->
-                        embedSpec.setTitle("\uD83D\uDD0E Google Search")
+                        embedSpec.setTitle("${ReactionUnicode.MAG_RIGHT} Google Search")
                             .setDescription(formatMessage(query, search))
                     }
                 }
