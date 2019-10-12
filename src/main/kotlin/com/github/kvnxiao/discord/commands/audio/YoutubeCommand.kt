@@ -57,7 +57,9 @@ class YoutubeCommand(
                                     .setAudioEmbedFooter(audioManager.remainingTracks, member)
                             }
                         }
-                        .onErrorResume { ctx.channel.createMessage("An error occurred with querying for: $query") }
+                        .onErrorResume {
+                            ctx.channel.createMessage("An error occurred with querying for **$query**: ${it.message}")
+                        }
                 }
                 .then()
         }
