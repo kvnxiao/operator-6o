@@ -15,18 +15,15 @@
  */
 package com.github.kvnxiao.discord.commands.audio
 
-import com.github.kvnxiao.discord.ReactionUnicode
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.embeds.displayTrack
 import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack
-import discord4j.core.spec.EmbedCreateSpec
-import java.util.concurrent.TimeUnit
 import reactor.core.publisher.Mono
 
 @Id("now_playing")
@@ -48,33 +45,10 @@ class NowPlayingCommand(
                 val queueList = audioManager.queueList
                 ctx.channel.createEmbed { spec ->
                     spec.setTitle("Audio Player - Now Playing")
-                        .formatTrack(currentTrack, queueList)
+                        .displayTrack(currentTrack, queueList)
                         .setAudioEmbedFooter(audioManager.remainingTracks, ctx.user)
                 }
             }
             .then()
-    }
-
-    private fun EmbedCreateSpec.formatTrack(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
-        if (track == null) this.setDescription("No tracks are currently playing.")
-        else this.setDescription("${ReactionUnicode.ARROW_FORWARD} ${track.formatAsMarkdown()}\n${track.position.format()}/${track.duration.format()}")
-            .addField("Up Next", queueList.formatAsMarkdown(), false)
-
-    private fun AudioTrack.formatAsMarkdown(): String =
-        "**[${this.info.title}](${this.info.uri}) (${this.duration.format()})**"
-
-    private fun List<AudioTrack>.formatAsMarkdown(): String =
-        if (this.isEmpty()) "No tracks left."
-        else this.joinToString(separator = "\n") { it.formatAsMarkdown() }
-
-    private fun Long.format(): String {
-        val h = TimeUnit.MILLISECONDS.toHours(this)
-        val m = TimeUnit.MILLISECONDS.toMinutes(this)
-        val s = TimeUnit.MILLISECONDS.toSeconds(this)
-        return if (h > 0) String.format(
-            "%02d:%02d:%02d", h, m % TimeUnit.HOURS.toMinutes(1), s % TimeUnit.MINUTES.toSeconds(1)
-        ) else String.format(
-            "%02d:%02d", m % TimeUnit.HOURS.toMinutes(1), s % TimeUnit.MINUTES.toSeconds(1)
-        )
     }
 }

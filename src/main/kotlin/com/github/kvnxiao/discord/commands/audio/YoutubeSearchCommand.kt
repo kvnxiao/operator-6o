@@ -22,11 +22,11 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.embeds.formatIndexed
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
 import com.github.kvnxiao.discord.guild.audio.reaction.AudioSearchSelection
 import com.github.kvnxiao.discord.guild.audio.reaction.GuildAudioReactionState
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import discord4j.core.`object`.reaction.ReactionEmoji
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -57,7 +57,7 @@ class YoutubeSearchCommand(
                         .flatMap { tracks ->
                             ctx.channel.createEmbed { spec ->
                                 spec.setTitle("Audio Player - Youtube Search")
-                                    .setDescription(tracks.format())
+                                    .setDescription(tracks.formatIndexed())
                             }.flatMap { message ->
                                 Flux.fromIterable(ReactionUnicode.FIRST_8_DIGITS.take(tracks.size))
                                     .flatMap { unicode -> message.addReaction(ReactionEmoji.unicode(unicode)) }
@@ -71,9 +71,4 @@ class YoutubeSearchCommand(
                 }
                 .then()
         }
-
-    private fun List<AudioTrack>.format(): String =
-        this.mapIndexed { index, audioTrack ->
-            "**${index + 1}. [${audioTrack.info.title}](${audioTrack.info.uri})**"
-        }.joinToString(separator = "\n")
 }
