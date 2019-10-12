@@ -22,10 +22,9 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import discord4j.core.`object`.entity.Member
-import discord4j.core.`object`.entity.channel.TextChannel
-import reactor.core.publisher.Flux
 import java.util.concurrent.BlockingDeque
 import java.util.concurrent.LinkedBlockingDeque
+import reactor.core.publisher.Flux
 
 class AudioManager(
     private val playerManager: AudioPlayerManager,
@@ -42,8 +41,6 @@ class AudioManager(
 
     fun query(
         query: String,
-        requestedBy: Member,
-        channel: TextChannel,
         sourceType: SourceType = SourceType.UNKNOWN,
         isPlaylist: Boolean = false
     ): Flux<AudioTrack> {
@@ -102,7 +99,11 @@ class AudioManager(
 
     fun getCurrentTrack(): AudioTrack? = player.playingTrack
 
-    fun getQueueList(): List<AudioTrack> = queue.toList()
+    val queueList: List<AudioTrack>
+        get() = queue.toList()
+
+    val remainingTracks: Int
+        get() = queueList.size
 
     fun clearQueue() = queue.clear()
 }
