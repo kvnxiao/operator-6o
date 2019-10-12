@@ -20,6 +20,8 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
+import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import reactor.core.publisher.Mono
 
@@ -35,13 +37,13 @@ class ClearCommand(
     override fun execute(ctx: Context): Mono<Void> {
         return if (ctx.guild == null) Mono.empty()
         else Mono.justOrEmpty(guildAudioState.getState(ctx.guild.id))
-            .filter { audioManager -> audioManager.getQueueList().isNotEmpty() }
+            .filter { audioManager -> audioManager.queueList.isNotEmpty() }
             .flatMap { audioManager ->
                 ctx.channel.createEmbed { spec ->
                     audioManager.clearQueue()
-                    spec.setTitle("Audio Player")
+                    spec.setAudioEmbedTitle()
                         .setDescription("Queue has been cleared!")
-                        .setFooter("0 tracks left in queue", ctx.user.avatarUrl)
+                        .setAudioEmbedFooter(0, ctx.user)
                 }
             }
             .then()
