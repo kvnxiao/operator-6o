@@ -41,6 +41,7 @@ import com.github.kvnxiao.discord.commands.audio.YoutubeSearchCommand
 import com.github.kvnxiao.discord.commands.help.AllCommand
 import com.github.kvnxiao.discord.commands.help.HelpCommand
 import com.github.kvnxiao.discord.commands.search.GoogleCommand
+import com.github.kvnxiao.discord.commands.search.XkcdCommand
 import com.github.kvnxiao.discord.commands.system.PingCommand
 import com.github.kvnxiao.discord.commands.system.UptimeCommand
 import com.github.kvnxiao.discord.env.Environment
@@ -84,6 +85,7 @@ object Modules {
                 getProperty(Environment.GOOGLE_API_KEY)
             )
         }
+        command<XkcdCommand> { XkcdCommand() }
 
         // Fun commands
         command<EightBallCommand> { EightBallCommand() }

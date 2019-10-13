@@ -24,17 +24,16 @@ import reactor.netty.http.client.HttpClientResponse
 interface HttpResponseHandler {
     fun handleResponse(
         ctx: Context,
-        query: String,
         response: HttpClientResponse,
         body: ByteBufMono
     ): Mono<Message> =
         if (response.status().code() in 200..299) {
-            handleInputStream(ctx, query, body)
+            handleInputStream(ctx, body)
         } else {
-            handleError(ctx, query, response)
+            handleError(ctx, response)
         }
 
-    fun handleInputStream(ctx: Context, query: String, body: ByteBufMono): Mono<Message>
+    fun handleInputStream(ctx: Context, body: ByteBufMono): Mono<Message>
 
-    fun handleError(ctx: Context, query: String, response: HttpClientResponse): Mono<Message>
+    fun handleError(ctx: Context, response: HttpClientResponse): Mono<Message>
 }

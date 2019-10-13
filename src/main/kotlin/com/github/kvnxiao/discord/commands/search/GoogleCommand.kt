@@ -86,26 +86,26 @@ class GoogleCommand(
                             .toASCIIString()
                     )
                     .responseSingle { response, body ->
-                        handleResponse(ctx, query, response, body)
+                        handleResponse(ctx, response, body)
                     }
             }.then()
 
-    override fun handleInputStream(ctx: Context, query: String, body: ByteBufMono): Mono<Message> =
+    override fun handleInputStream(ctx: Context, body: ByteBufMono): Mono<Message> =
         body.asInputStream()
             .map { HttpRequest.OBJECT_MAPPER.readValue<SearchResponse>(it) }
             .flatMap { search ->
                 ctx.channel.createMessage { spec ->
                     spec.setEmbed { embedSpec ->
                         embedSpec.setTitle("${ReactionUnicode.MAG_RIGHT} Google Search")
-                            .setDescription(formatMessage(query, search))
+                            .setDescription(formatMessage(ctx.args.arguments, search))
                     }
                 }
             }
 
-    override fun handleError(ctx: Context, query: String, response: HttpClientResponse): Mono<Message> =
-        ctx.channel.createMessage("An error occurred while searching for $query on Google.\n${response.status().code()} - ${response.status().reasonPhrase()}")
+    override fun handleError(ctx: Context, response: HttpClientResponse): Mono<Message> =
+        ctx.channel.createMessage("An error occurred while searching for ${ctx.args.arguments} on Google.\n${response.status().code()} - ${response.status().reasonPhrase()}")
 
-    private fun formatMessage(query: String, response: SearchResponse): String {
+    private fun formatMessage(query: String?, response: SearchResponse): String {
         val top = "**Results for: `$query`**\n"
         val body = response.items.joinToString(separator = "\n") { item ->
             "**${item.title}**\n\u00A0\u00A0\u00A0\u00A0<${item.link}>"
