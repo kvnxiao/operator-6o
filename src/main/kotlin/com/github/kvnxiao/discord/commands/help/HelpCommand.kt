@@ -49,6 +49,7 @@ class HelpCommand(
                                 if (subAliases.isEmpty()) "N/A" else subAliases.joinToString(),
                                 false
                             )
+                            .addField("Permissions", props.formatPermissions(), false)
                             .addField("Description", props.descriptor.description, false)
                             .addField("Usage", props.formatUsage(prefix), false)
                     }
@@ -58,4 +59,16 @@ class HelpCommand(
 
     private fun CommandProperties.formatUsage(prefix: String): String =
         this.descriptor.usage.replace("%A", this.aliases.joinToString(separator = "/") { "`$prefix$it`" })
+
+    private fun CommandProperties.formatPermissions(): String {
+        return this.permissions.let { perms ->
+            StringBuilder().apply {
+                append(perms.permSet.asEnumSet().toString())
+                if (perms.requireGuildOwner) append("\nrequireGuildOwner")
+                if (perms.requireBotOwner) append("\nrequireBotOwner")
+                if (perms.requireBotMention) append("\nrequireBotMention")
+                if (perms.requireDirectMessaging) append("\nrequireDirectMessaging")
+            }.toString()
+        }
+    }
 }

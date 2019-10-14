@@ -38,6 +38,12 @@ class AllCommand(
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
         val prefixedAliases = propertiesRegistry.topLevelProperties
             .filter { props -> !ctx.isDirectMessage || props.permissions.allowDirectMessaging }
+            .filter { props -> !props.permissions.requireBotOwner || ctx.isBotOwner }
+            .filter { props ->
+                if (ctx.guild != null) {
+                    !props.permissions.requireGuildOwner || ctx.guild.ownerId == ctx.user.id
+                } else true
+            }
             .flatMap { it.aliases }
             .map { prefix + it }
             .sorted()
