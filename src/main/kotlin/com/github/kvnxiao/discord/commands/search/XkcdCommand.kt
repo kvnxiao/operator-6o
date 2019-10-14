@@ -91,7 +91,7 @@ class XkcdCommand : Command, HttpResponseHandler {
             if (response.status().code() in 200..299) {
                 getNumber(body)
                     .flatMap { latestNum ->
-                        client("${ThreadLocalRandom.current().nextInt(latestNum)}/$DEFAULT_PATH")
+                        client("${ThreadLocalRandom.current().nextInt(1, latestNum + 1)}/$DEFAULT_PATH")
                             .responseSingle { response, body -> handleResponse(ctx, response, body) }
                     }
             } else {
