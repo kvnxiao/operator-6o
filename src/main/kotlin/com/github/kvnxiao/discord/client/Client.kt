@@ -67,7 +67,7 @@ class Client : KoinComponent {
     }
 
     fun run() {
-        client.login().block()
+        client.login().subscribe()
     }
 
     private fun registerCommands() {

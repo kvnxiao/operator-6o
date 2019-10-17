@@ -15,28 +15,16 @@
  */
 package com.github.kvnxiao.discord
 
-import com.github.kvnxiao.discord.client.Client
-import com.github.kvnxiao.discord.koin.Modules
-import com.github.kvnxiao.discord.koin.ModulesLogger
-import org.koin.core.context.startKoin
-import org.springframework.boot.SpringApplication
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.context.annotation.Bean
+import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.router
 
-fun main(args: Array<String>) {
-    SpringApplication.run(Application::class.java, *args)
-    startKoin {
-        logger(ModulesLogger())
-
-        environmentProperties()
-
-        modules(
-            listOf(
-                Modules.validationModule,
-                Modules.commandProcessingModule,
-                Modules.guildModule,
-                Modules.commandsModule
-            )
-        )
+@SpringBootApplication
+class Application {
+    @Bean
+    fun route() = router {
+        GET("/**") { ServerResponse.ok().body(BodyInserters.fromValue("OK")) }
     }
-
-    Client().run()
 }
