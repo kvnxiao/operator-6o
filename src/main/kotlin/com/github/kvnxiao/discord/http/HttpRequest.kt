@@ -17,10 +17,15 @@ package com.github.kvnxiao.discord.http
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import reactor.netty.http.client.HttpClientResponse
 
-class HttpRequest {
-    companion object {
-        val OBJECT_MAPPER: ObjectMapper = ObjectMapper()
-            .registerModule(KotlinModule())
-    }
+fun HttpClientResponse.isSuccessCode(): Boolean = this.status().code() in 200..299
+
+@Configuration
+class HttpClientConfiguration {
+    @Bean
+    fun objectMapper(): ObjectMapper =
+        ObjectMapper().registerModule(KotlinModule())
 }

@@ -27,7 +27,7 @@ interface HttpResponseHandler {
         response: HttpClientResponse,
         body: ByteBufMono
     ): Mono<Message> =
-        if (response.status().code() in 200..299) {
+        if (response.isSuccessCode()) {
             handleInputStream(ctx, body)
         } else {
             handleError(ctx, response)

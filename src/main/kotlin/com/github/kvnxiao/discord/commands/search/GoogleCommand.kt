@@ -16,6 +16,7 @@
 package com.github.kvnxiao.discord.commands.search
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
@@ -23,7 +24,6 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.env.Environment
-import com.github.kvnxiao.discord.http.HttpRequest
 import com.github.kvnxiao.discord.http.HttpResponseHandler
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import discord4j.core.`object`.entity.Message
@@ -44,7 +44,8 @@ import reactor.netty.http.client.HttpClientResponse
 )
 class GoogleCommand(
     @Value(Environment.GOOGLE_SEARCH_ENGINE) private val googleSearchEngine: String,
-    @Value(Environment.GOOGLE_API_KEY) private val googleApiKey: String
+    @Value(Environment.GOOGLE_API_KEY) private val googleApiKey: String,
+    private val objectMapper: ObjectMapper
 ) : Command, HttpResponseHandler {
 
     companion object {
@@ -97,7 +98,7 @@ class GoogleCommand(
 
     override fun handleInputStream(ctx: Context, body: ByteBufMono): Mono<Message> =
         body.asInputStream()
-            .map { HttpRequest.OBJECT_MAPPER.readValue<SearchResponse>(it) }
+            .map { objectMapper.readValue<SearchResponse>(it) }
             .flatMap { search ->
                 ctx.channel.createMessage { spec ->
                     spec.setEmbed { embedSpec ->
