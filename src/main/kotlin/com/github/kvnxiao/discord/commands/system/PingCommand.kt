@@ -19,8 +19,10 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("ping")
 @Descriptor(
     description = "Replies with 'pong!' from the bot.",

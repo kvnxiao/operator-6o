@@ -15,28 +15,8 @@
  */
 package com.github.kvnxiao.discord
 
-import com.github.kvnxiao.discord.client.Client
-import com.github.kvnxiao.discord.koin.Modules
-import com.github.kvnxiao.discord.koin.ModulesLogger
-import org.koin.core.context.startKoin
 import org.springframework.boot.SpringApplication
 
 fun main(args: Array<String>) {
     SpringApplication.run(Application::class.java, *args)
-    startKoin {
-        logger(ModulesLogger())
-
-        environmentProperties()
-
-        modules(
-            listOf(
-                Modules.validationModule,
-                Modules.commandProcessingModule,
-                Modules.guildModule,
-                Modules.commandsModule
-            )
-        )
-    }
-
-    Client().run()
 }

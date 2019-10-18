@@ -22,8 +22,10 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import discord4j.core.`object`.entity.Member
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("join")
 @Descriptor(
     description = "Makes the bot join the voice channel that the calling user is in.",

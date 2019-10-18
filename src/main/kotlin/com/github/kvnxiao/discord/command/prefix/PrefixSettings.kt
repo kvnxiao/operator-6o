@@ -17,7 +17,9 @@ package com.github.kvnxiao.discord.command.prefix
 
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.util.Snowflake
+import org.springframework.stereotype.Component
 
+@Component
 class PrefixSettings {
     companion object {
         const val DEFAULT_PREFIX: String = "!"

@@ -23,15 +23,19 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.env.Environment
 import com.github.kvnxiao.discord.http.HttpRequest
 import com.github.kvnxiao.discord.http.HttpResponseHandler
 import discord4j.core.`object`.entity.Message
 import org.apache.http.client.utils.URIBuilder
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.netty.ByteBufMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.http.client.HttpClientResponse
 
+@Component
 @Id("google")
 @Alias(["g", "google"])
 @Descriptor(
@@ -39,9 +43,10 @@ import reactor.netty.http.client.HttpClientResponse
     usage = "%A <query>"
 )
 class GoogleCommand(
-    private val googleSearchEngine: String,
-    private val googleApiKey: String
+    @Value(Environment.GOOGLE_SEARCH_ENGINE) private val googleSearchEngine: String,
+    @Value(Environment.GOOGLE_API_KEY) private val googleApiKey: String
 ) : Command, HttpResponseHandler {
+
     companion object {
         private val CUSTOM_SEARCH_URL_BUILDER: URIBuilder
             get() = URIBuilder()

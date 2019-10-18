@@ -26,8 +26,10 @@ import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("youtube")
 @Alias(["yt"])
 @Descriptor(

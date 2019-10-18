@@ -23,8 +23,10 @@ import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("clear")
 @Descriptor(
     description = "Clears the current audio queue.",

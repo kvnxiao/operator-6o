@@ -21,7 +21,9 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer
 import discord4j.core.`object`.util.Snowflake
+import org.springframework.stereotype.Component
 
+@Component
 class GuildAudioState : GuildState<AudioManager> {
     companion object {
         private val playerManager: AudioPlayerManager = DefaultAudioPlayerManager().apply {

@@ -26,11 +26,13 @@ import discord4j.core.`object`.entity.Message
 import java.awt.Color
 import java.util.concurrent.ThreadLocalRandom
 import org.apache.http.client.utils.URIBuilder
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.netty.ByteBufMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.http.client.HttpClientResponse
 
+@Component
 @Id("xkcd")
 @Descriptor(
     description = "Displays a random post from XKCD, or the latest post from XKCD with `latest`.",
@@ -91,7 +93,9 @@ class XkcdCommand : Command, HttpResponseHandler {
             }
 
     override fun handleError(ctx: Context, response: HttpClientResponse): Mono<Message> =
-        ctx.channel.createMessage("Unable to query XKCD:\n${response.status().code()} - ${response.status().reasonPhrase()}")
+        ctx.channel.createMessage(
+            "Unable to query XKCD:\n${response.status().code()} - ${response.status().reasonPhrase()}"
+        )
 
     private fun getNumber(body: ByteBufMono): Mono<Int> =
         body.asInputStream()

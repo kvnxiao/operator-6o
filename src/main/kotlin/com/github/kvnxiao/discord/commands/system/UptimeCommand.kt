@@ -21,8 +21,10 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import java.time.Duration
 import java.time.Instant
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("uptime")
 @Descriptor(
     description = "Shows how long the bot has been running for.",

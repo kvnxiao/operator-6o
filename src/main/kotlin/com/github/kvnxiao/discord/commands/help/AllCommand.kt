@@ -22,8 +22,10 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.PropertiesRegistry
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("all")
 @Alias(["all", "commands"])
 @Descriptor(

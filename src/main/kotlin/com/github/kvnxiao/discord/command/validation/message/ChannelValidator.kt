@@ -18,11 +18,13 @@ package com.github.kvnxiao.discord.command.validation.message
 import discord4j.core.`object`.entity.Message
 import discord4j.core.`object`.entity.channel.PrivateChannel
 import discord4j.core.`object`.entity.channel.TextChannel
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 /**
  * Validates that the command message is either a direct message or a guild text channel message.
  */
+@Component
 class ChannelValidator : MessageValidator {
     override fun validate(value: Message): Mono<Boolean> =
         value.channel.map { channel ->

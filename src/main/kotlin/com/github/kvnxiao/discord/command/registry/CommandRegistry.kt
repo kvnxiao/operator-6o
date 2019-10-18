@@ -21,6 +21,7 @@ import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.Id
 import com.github.kvnxiao.discord.command.context.Arguments
 import mu.KotlinLogging
+import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger { }
 
@@ -54,6 +55,7 @@ private fun register(
     return commandNode
 }
 
+@Component
 class PropertiesRegistry(private val registryNode: RegistryNode) {
     val topLevelAliasEntries: Set<Pair<Alias, Id>>
         get() = registryNode.aliasEntries
@@ -79,6 +81,7 @@ class PropertiesRegistry(private val registryNode: RegistryNode) {
     }
 }
 
+@Component
 class MapTreeRegistryRoot : RegistryNode {
 
     private val aliasToIdMap: MutableMap<Alias, Id> = mutableMapOf()

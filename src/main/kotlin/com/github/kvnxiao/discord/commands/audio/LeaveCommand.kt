@@ -21,8 +21,10 @@ import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("leave")
 @Descriptor(
     description = "Makes the bot leave the voice channel if it is in one.",

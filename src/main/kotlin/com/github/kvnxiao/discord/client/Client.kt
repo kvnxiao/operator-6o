@@ -20,30 +20,32 @@ import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.env.Environment
-import com.github.kvnxiao.discord.koin.getAll
-import com.github.kvnxiao.discord.koin.getProperty
 import discord4j.core.DiscordClient
 import discord4j.core.DiscordClientBuilder
 import discord4j.core.event.domain.guild.GuildCreateEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
 import mu.KotlinLogging
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.ApplicationArguments
+import org.springframework.boot.ApplicationRunner
+import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
 
-class Client : KoinComponent {
-    private val commandProcessor: CommandProcessor = get()
-    private val annotationProcessor: AnnotationProcessor = get()
-    private val rootRegistry: RegistryNode = get()
-
-    private val token: String = getProperty(Environment.TOKEN)
+@Component
+class Client(
+    private val commandProcessor: CommandProcessor,
+    annotationProcessor: AnnotationProcessor,
+    rootRegistry: RegistryNode,
+    commands: List<Command>,
+    @Value(Environment.TOKEN) private val token: String
+) : ApplicationRunner {
 
     private val client: DiscordClient = DiscordClientBuilder(token).build()
 
     init {
-        registerCommands()
+        annotationProcessor.process(commands, rootRegistry)
 
         client.eventDispatcher.apply {
             on(ReadyEvent::class.java)
@@ -66,12 +68,7 @@ class Client : KoinComponent {
         }
     }
 
-    fun run() {
+    override fun run(args: ApplicationArguments) {
         client.login().subscribe()
-    }
-
-    private fun registerCommands() {
-        val executables: List<Command> = getAll()
-        annotationProcessor.process(executables, rootRegistry)
     }
 }

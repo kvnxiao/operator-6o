@@ -24,8 +24,10 @@ import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.embeds.displayTrack
 import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("now_playing")
 @Alias(["np", "playing"])
 @Descriptor(

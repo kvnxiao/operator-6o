@@ -21,8 +21,10 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import java.util.concurrent.ThreadLocalRandom
+import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
+@Component
 @Id("8ball")
 @Descriptor(
     description = "The magic 8-ball sees all.",
