@@ -15,7 +15,7 @@
  */
 package com.github.kvnxiao.discord.embeds
 
-import com.github.kvnxiao.discord.ReactionUnicode
+import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import discord4j.core.`object`.entity.User
 import discord4j.core.spec.EmbedCreateSpec

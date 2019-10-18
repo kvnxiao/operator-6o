@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord
+package com.github.kvnxiao.discord.reaction
 
 object ReactionUnicode {
     const val ARROW_FORWARD = "\u25b6"

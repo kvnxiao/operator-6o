@@ -15,11 +15,11 @@
  */
 package com.github.kvnxiao.discord.commands.`fun`
 
-import com.github.kvnxiao.discord.ReactionUnicode.EIGHTBALL
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.reaction.ReactionUnicode.EIGHTBALL
 import java.util.concurrent.ThreadLocalRandom
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
