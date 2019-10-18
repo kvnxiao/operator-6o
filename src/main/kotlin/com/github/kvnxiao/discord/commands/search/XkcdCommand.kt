@@ -92,8 +92,8 @@ private object Xkcd {
 @Component
 @Id("xkcd")
 @Descriptor(
-    description = "Displays a random post from XKCD, or the latest post from XKCD with `latest`.",
-    usage = "%A | %A <post number> | %A `latest`"
+    description = "Displays a random post from XKCD, or a specific post using its number ID.",
+    usage = "%A | %A <post number>"
 )
 @SubCommand([XkcdLatestCommand::class])
 class XkcdCommand(
@@ -144,7 +144,7 @@ class XkcdCommand(
 @Id("xkcd.latest")
 @Alias(["latest"])
 @Descriptor(
-    description = "Displays the latest post from XKCD with `latest`.",
+    description = "Displays the latest post from XKCD.",
     usage = "%A"
 )
 class XkcdLatestCommand(
