@@ -17,6 +17,7 @@ package com.github.kvnxiao.discord.commands.`fun`
 
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
+import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.reaction.ReactionUnicode.EIGHTBALL
@@ -30,6 +31,7 @@ import reactor.core.publisher.Mono
     description = "The magic 8-ball sees all.",
     usage = "%A <question>"
 )
+@Permissions(allowDirectMessaging = true)
 class EightBallCommand : Command {
     companion object {
         private val LINES = listOf(

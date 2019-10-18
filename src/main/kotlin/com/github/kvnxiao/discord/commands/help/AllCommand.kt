@@ -18,6 +18,7 @@ package com.github.kvnxiao.discord.commands.help
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
+import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
@@ -32,6 +33,7 @@ import reactor.core.publisher.Mono
     description = "Displays all available top-level commands.",
     usage = "%A"
 )
+@Permissions(allowDirectMessaging = true)
 class AllCommand(
     private val prefixSettings: PrefixSettings,
     private val propertiesRegistry: PropertiesRegistry

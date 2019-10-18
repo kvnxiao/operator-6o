@@ -17,6 +17,7 @@ package com.github.kvnxiao.discord.commands.system
 
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
+import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import org.springframework.stereotype.Component
@@ -28,6 +29,7 @@ import reactor.core.publisher.Mono
     description = "Replies with 'pong!' from the bot.",
     usage = "%A"
 )
+@Permissions(allowDirectMessaging = true)
 class PingCommand : Command {
     override fun execute(ctx: Context): Mono<Void> =
         ctx.channel.createMessage("pong!")

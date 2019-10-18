@@ -17,6 +17,7 @@ package com.github.kvnxiao.discord.commands.system
 
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
+import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import java.time.Duration
@@ -30,6 +31,7 @@ import reactor.core.publisher.Mono
     description = "Shows how long the bot has been running for.",
     usage = "%A"
 )
+@Permissions(allowDirectMessaging = true)
 class UptimeCommand : Command {
 
     private val startTime: Instant = Instant.now()

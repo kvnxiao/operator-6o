@@ -19,6 +19,7 @@ import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
+import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
@@ -33,6 +34,7 @@ import reactor.core.publisher.Mono
     description = "Displays the manual for a provided command alias.",
     usage = "%A <command alias>"
 )
+@Permissions(allowDirectMessaging = true)
 class HelpCommand(
     private val prefixSettings: PrefixSettings,
     private val propertiesRegistry: PropertiesRegistry
