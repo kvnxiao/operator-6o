@@ -35,6 +35,28 @@ import reactor.netty.ByteBufMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.http.client.HttpClientResponse
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+private data class SearchResponse(
+    val items: List<Item>,
+    val kind: String,
+    val searchInformation: SearchInformation
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class Item(
+    val link: String,
+    val snippet: String,
+    val title: String
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SearchInformation(
+    val formattedSearchTime: String,
+    val formattedTotalResults: String,
+    val searchTime: Double,
+    val totalResults: String
+)
+
 @Component
 @Id("google")
 @Alias(["g", "google"])
@@ -55,28 +77,6 @@ class GoogleCommand(
                 .setHost("www.googleapis.com")
                 .setPath("customsearch/v1")
     }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    data class SearchResponse(
-        val items: List<Item>,
-        val kind: String,
-        val searchInformation: SearchInformation
-    )
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    data class Item(
-        val link: String,
-        val snippet: String,
-        val title: String
-    )
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    data class SearchInformation(
-        val formattedSearchTime: String,
-        val formattedTotalResults: String,
-        val searchTime: Double,
-        val totalResults: String
-    )
 
     override fun execute(ctx: Context): Mono<Void> =
         Mono.justOrEmpty(ctx.args.arguments)
@@ -112,9 +112,10 @@ class GoogleCommand(
         ctx.channel.createMessage("An error occurred while searching for ${ctx.args.arguments} on Google.\n${response.status().code()} - ${response.status().reasonPhrase()}")
 
     private fun formatMessage(query: String?, response: SearchResponse): String {
+        if (response.items.isEmpty()) return "**No results for `$query`**"
         val top = "**Results for: `$query`**\n"
         val body = response.items.joinToString(separator = "\n") { item ->
-            "**${item.title}**\n\u00A0\u00A0\u00A0\u00A0<${item.link}>"
+            "**${item.title}**\n\u00A0\u00A0\u00A0\u00A0${item.link}"
         }
         return "$top\n$body"
     }
