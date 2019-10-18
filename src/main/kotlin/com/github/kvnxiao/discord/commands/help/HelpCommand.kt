@@ -42,27 +42,27 @@ class HelpCommand(
     override fun execute(ctx: Context): Mono<Void> {
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
         return Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
-            .flatMap { (props, subAliases) ->
+            .flatMap { (props, subAliases, pathList) ->
+                val replacement = "$prefix${pathList.joinToString(separator = " ")}"
                 ctx.channel.createMessage { spec ->
                     spec.setEmbed { embedSpec ->
                         embedSpec.setTitle("Command Manual")
                             .addField("ID", props.id, true)
                             .addField("Aliases", props.aliases.joinToString(), true)
-                            .addField(
-                                "Sub-commands",
-                                if (subAliases.isEmpty()) "N/A" else subAliases.joinToString(),
-                                false
-                            )
-                            .addField("Permissions", props.formatPermissions(), false)
+                            .addField("Permissions Required", props.formatPermissions(), false)
                             .addField("Description", props.descriptor.description, false)
-                            .addField("Usage", props.formatUsage(prefix), false)
+                            .addField("Usage", formatUsage(props, replacement), false)
+                            .addField("Sub-commands", formatSubCommands(subAliases, replacement), false)
                     }
                 }
             }.then()
     }
 
-    private fun CommandProperties.formatUsage(prefix: String): String =
-        this.descriptor.usage.replace("%A", this.aliases.joinToString(separator = "/") { "`$prefix$it`" })
+    private fun formatUsage(props: CommandProperties, replacement: String): String =
+        props.descriptor.usage.replace("%A", replacement)
+
+    private fun formatSubCommands(subAliases: List<String>, replacement: String): String =
+        if (subAliases.isEmpty()) "N/A" else subAliases.joinToString { "$it: `$replacement $it ...`" }
 
     private fun CommandProperties.formatPermissions(): String {
         return this.permissions.let { perms ->
