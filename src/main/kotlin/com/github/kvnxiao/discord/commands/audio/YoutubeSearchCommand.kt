@@ -44,8 +44,8 @@ import reactor.core.publisher.Mono
 @Id("youtube_search")
 @Alias(["yts"])
 @Descriptor(
-    description = "Searches on YouTube and plays the first search result, or plays a specified youtube link.",
-    usage = "%A <query> | %A <youtube URL>"
+    description = "Searches on YouTube for a list of audio selections to pick and queue up.",
+    usage = "%A <query>"
 )
 @Permissions(allowDirectMessaging = false)
 class YoutubeSearchCommand(
