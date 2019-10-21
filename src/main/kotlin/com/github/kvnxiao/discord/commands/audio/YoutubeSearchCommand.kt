@@ -143,7 +143,7 @@ class YoutubeSearchCommand(
         audioManager: AudioManager
     ): Mono<Int> {
         val index = event.emoji.asUnicodeEmoji().map { ReactionUnicode.getIndexFromDigits(it.raw) }.orElse(-1)
-        if (index < 0 || index >= tracks.size) return Mono.empty()
+        if (index !in tracks.indices)  return Mono.empty()
         val track = tracks[index]
         audioManager.offer(listOf(track), member)
         return channel.createEmbed { spec ->
