@@ -18,5 +18,7 @@ package com.github.kvnxiao.discord.guild.audio
 enum class SourceType {
     UNKNOWN,
     YOUTUBE,
+    YOUTUBE_DIRECT,
+    YOUTUBE_PLAYLIST,
     SOUNDCLOUD,
 }

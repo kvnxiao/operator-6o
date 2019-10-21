@@ -24,8 +24,11 @@ import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.embeds.addedToQueueDescription
 import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
+import com.github.kvnxiao.discord.guild.audio.AudioManager
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
+import discord4j.core.`object`.entity.Member
+import discord4j.core.`object`.entity.Message
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -40,6 +43,13 @@ import reactor.core.publisher.Mono
 class YoutubeCommand(
     private val guildAudioState: GuildAudioState
 ) : Command {
+    companion object {
+        val singleLink: Regex = Regex("^https://(www|m|music)\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$")
+        val singleDirectLink: Regex = Regex("^https://youtu\\.be/[a-zA-Z0-9_-]{11}$")
+        val playlistLink: Regex =
+            Regex("^https://(www|m|music)\\.youtube\\.com/(watch\\?v=[a-zA-Z0-9_-]{11}&list=|playlist\\?list=)(PL|LL|FL|UU)[a-zA-Z0-9_-]+.*$")
+    }
+
     override fun execute(ctx: Context): Mono<Void> =
         if (ctx.guild == null || ctx.args.arguments == null) Mono.empty()
         else {
@@ -48,21 +58,40 @@ class YoutubeCommand(
             ctx.event.message.authorAsMember
                 .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
                 .flatMap { member ->
-                    audioManager.query(query, SourceType.YOUTUBE)
-                        .collectList()
-                        .filter { it.isNotEmpty() }
-                        .doOnNext { tracks -> audioManager.offer(tracks, member) }
-                        .flatMap { tracks ->
-                            ctx.channel.createEmbed { spec ->
-                                spec.setAudioEmbedTitle()
-                                    .addedToQueueDescription(tracks)
-                                    .setAudioEmbedFooter(audioManager.remainingTracks, member)
-                            }
-                        }
-                        .onErrorResume {
-                            ctx.channel.createMessage("An error occurred with querying for **$query**: ${it.message}")
-                        }
+                    youtube(ctx, member, query, audioManager, sourceType(query))
                 }
                 .then()
         }
+
+    private fun sourceType(query: String): SourceType {
+        return if (singleLink.matches(query) || singleDirectLink.matches(query)) {
+            SourceType.YOUTUBE_DIRECT
+        } else if (playlistLink.matches(query)) {
+            SourceType.YOUTUBE_PLAYLIST
+        } else {
+            SourceType.YOUTUBE
+        }
+    }
+
+    private fun youtube(
+        ctx: Context,
+        member: Member,
+        query: String,
+        audioManager: AudioManager,
+        sourceType: SourceType
+    ): Mono<Message> =
+        audioManager.query(query, sourceType, sourceType == SourceType.YOUTUBE_PLAYLIST)
+            .collectList()
+            .filter { it.isNotEmpty() }
+            .doOnNext { tracks -> audioManager.offer(tracks, member) }
+            .flatMap { tracks ->
+                ctx.channel.createEmbed { spec ->
+                    spec.setAudioEmbedTitle()
+                        .addedToQueueDescription(tracks)
+                        .setAudioEmbedFooter(audioManager.remainingTracks, member)
+                }
+            }
+            .onErrorResume {
+                ctx.channel.createMessage("An error occurred with querying for **$query**: ${it.message}")
+            }
 }

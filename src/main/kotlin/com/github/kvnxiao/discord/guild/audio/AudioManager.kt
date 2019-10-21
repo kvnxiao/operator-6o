@@ -46,6 +46,8 @@ class AudioManager(
     ): Flux<AudioTrack> {
         val lavaplayerQuery = when (sourceType) {
             SourceType.UNKNOWN -> query
+            SourceType.YOUTUBE_DIRECT,
+            SourceType.YOUTUBE_PLAYLIST -> query
             SourceType.YOUTUBE -> "ytsearch:$query"
             SourceType.SOUNDCLOUD -> "scsearch:$query"
         }
