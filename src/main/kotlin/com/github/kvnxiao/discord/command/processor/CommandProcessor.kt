@@ -24,6 +24,7 @@ import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.command.validation.context.ContextValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import discord4j.core.`object`.entity.channel.GuildChannel
+import discord4j.core.`object`.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -52,7 +53,7 @@ class CommandProcessor(
     /**
      * Loads custom alias prefixes for each guild.
      */
-    fun loadPrefixSettings() = prefixSettings.loadGuildPrefixes()
+    fun loadPrefixSettings(guildIds: List<Snowflake>): Mono<List<String>> = prefixSettings.loadGuildPrefixes(guildIds)
 
     /**
      * Validates and processes [MessageCreateEvent]s into potential commands, creating a context and executing the

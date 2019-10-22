@@ -54,8 +54,9 @@ class Client(
                 .flatMap { size ->
                     this.on(GuildCreateEvent::class.java)
                         .take(size.toLong())
-                        .last()
-                        .doOnNext { commandProcessor.loadPrefixSettings() }
+                        .map { it.guild.id }
+                        .collectList()
+                        .flatMap { commandProcessor.loadPrefixSettings(it) }
                         .info(logger) { "Done loading $size guilds." }
                 }
                 .info(logger) { "Ready to receive commands." }

@@ -55,6 +55,8 @@ dependencies {
     implementation "com.discord4j:discord4j-core:$discord4j_version"
     implementation "io.projectreactor:reactor-core:$reactor_version"
     implementation "org.springframework.boot:spring-boot-starter-webflux:$spring_boot_version"
+    implementation "io.lettuce:lettuce-core:5.2.0.RELEASE"
+    implementation "org.springframework.data:spring-data-redis:$spring_boot_version"
     implementation "io.micrometer:micrometer-core:$micrometer_version"
     implementation "org.slf4j:slf4j-api:$slf4j_version"
     implementation "ch.qos.logback:logback-classic:$logback_version"

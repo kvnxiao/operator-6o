@@ -17,20 +17,33 @@ package com.github.kvnxiao.discord.command.prefix
 
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.util.Snowflake
+import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Component
-class PrefixSettings {
+class PrefixSettings(
+    private val redis: ReactiveRedisTemplate<String, String>
+) {
     companion object {
         const val DEFAULT_PREFIX: String = "!"
     }
 
     private val guildPrefix: MutableMap<Snowflake, String> = mutableMapOf()
 
-    fun loadGuildPrefixes() {
-        // TODO
-        guildPrefix[Snowflake.of(171867128314593280L)] = "?"
-    }
+    fun loadGuildPrefixes(guildIds: List<Snowflake>): Mono<List<String>> =
+        Flux.fromIterable(guildIds)
+            .flatMap(this::loadPrefix)
+            .collectList()
+
+    fun loadPrefix(guildId: Snowflake): Mono<String> =
+        redis.opsForHash<String, String>().get("guild:${guildId.asString()}", "prefix")
+            .doOnNext { result -> guildPrefix[guildId] = result }
+
+    fun setPrefix(guildId: Snowflake, value: String): Mono<Boolean> =
+        redis.opsForHash<String, String>().put("guild:${guildId.asString()}", "prefix", value)
+            .doOnNext { guildPrefix[guildId] = value }
 
     /**
      * Gets the command alias prefix for a specified guild based on a guild's ID snowflake value.
