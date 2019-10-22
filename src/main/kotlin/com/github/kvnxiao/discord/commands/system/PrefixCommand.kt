@@ -29,13 +29,13 @@ import reactor.core.publisher.Mono
 @Component
 @Id("prefix")
 @SubCommand([PrefixGetCommand::class, PrefixSetCommand::class])
-@Permissions(requireGuildOwner = true)
+@Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixCommand : StubCommand
 
 @Component
 @Id("prefix.set")
 @Alias(["set"])
-@Permissions(requireGuildOwner = true)
+@Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixSetCommand(
     private val prefixSettings: PrefixSettings
 ) : Command {
@@ -47,7 +47,7 @@ class PrefixSetCommand(
 @Component
 @Id("prefix.get")
 @Alias(["get"])
-@Permissions(requireGuildOwner = true)
+@Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixGetCommand(
     private val prefixSettings: PrefixSettings
 ) : Command {

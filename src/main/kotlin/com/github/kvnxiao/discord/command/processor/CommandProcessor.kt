@@ -18,9 +18,9 @@ package com.github.kvnxiao.discord.command.processor
 import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.context.Arguments
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.isMention
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.RegistryNode
+import com.github.kvnxiao.discord.command.startsWithMention
 import com.github.kvnxiao.discord.command.validation.context.ContextValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import discord4j.core.`object`.entity.channel.GuildChannel
@@ -80,15 +80,22 @@ class CommandProcessor(
         command.executable.execute(context)
 
     private fun getCommandWithContext(event: MessageCreateEvent): Mono<Tuple2<DiscordCommand, Context>> {
-        val prefix = event.guildId.map { prefixSettings.getPrefixOrDefault(it) }
-            .orElse(PrefixSettings.DEFAULT_PREFIX)
-        return Mono.justOrEmpty(event.message.content)
-            .filter { content -> content.startsWith(prefix) }
-            .map { content -> content.substring(prefix.length) }
+        val prefix = event.guildId.map { prefixSettings.getPrefixOrDefault(it) }.orElse(PrefixSettings.DEFAULT_PREFIX)
+
+        val content = event.message.content.orElse("")
+
+        val mentionIndex = event.message.client.selfId.map { content.startsWithMention(it.asString()) }.orElse(0)
+        val wasBotMentioned = mentionIndex > 0
+        val isValidPrefix = content.startsWith(prefix)
+
+        if (!wasBotMentioned && !isValidPrefix) {
+            return Mono.empty()
+        }
+
+        return Mono.just(content)
+            .map { if (wasBotMentioned) content.substring(mentionIndex) else content.substring(prefix.length) }
             .flatMap { strippedContent ->
                 val initialArgs = Arguments.from(strippedContent)
-                val wasBotMentioned: Boolean =
-                    event.message.client.selfId.map { initialArgs.alias.isMention(it.asString()) }.orElse(false)
                 val arguments: Arguments = if (wasBotMentioned) initialArgs.next() else initialArgs
 
                 getCommandFromAlias(arguments)
