@@ -15,6 +15,7 @@
  */
 package com.github.kvnxiao.discord.commands.help
 
+import com.github.kvnxiao.discord.botMention
 import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
@@ -43,9 +44,16 @@ class HelpCommand(
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
         return Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
             .flatMap { (props, subAliases, pathList) ->
-                val replacement = "$prefix${pathList.joinToString(separator = " ")}"
                 ctx.channel.createMessage { spec ->
                     spec.setEmbed { embedSpec ->
+                        val fullCommandPath = pathList.joinToString(separator = " ")
+                        val replacement = if (props.permissions.requireBotMention) {
+                            val mention = ctx.event.client.botMention()
+                            "$mention `$fullCommandPath`"
+                        } else {
+                            "`$prefix$fullCommandPath`"
+                        }
+
                         embedSpec.setTitle("Command Manual")
                             .addField("ID", props.id, true)
                             .addField("Aliases", props.aliases.joinToString(), true)
@@ -62,7 +70,9 @@ class HelpCommand(
         props.descriptor.usage.replace("%A", replacement)
 
     private fun formatSubCommands(subAliases: List<String>, replacement: String): String =
-        if (subAliases.isEmpty()) "N/A" else subAliases.joinToString { "$it: `$replacement $it ...`" }
+        if (subAliases.isEmpty()) "N/A" else subAliases.joinToString(separator = "\n") {
+            "$it: $replacement `$it` `...`"
+        }
 
     private fun CommandProperties.formatPermissions(): String {
         return this.permissions.let { perms ->

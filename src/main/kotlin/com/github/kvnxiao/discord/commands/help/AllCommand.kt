@@ -15,6 +15,7 @@
  */
 package com.github.kvnxiao.discord.commands.help
 
+import com.github.kvnxiao.discord.botMention
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
@@ -39,29 +40,37 @@ class AllCommand(
     private val propertiesRegistry: PropertiesRegistry
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
+        val botMention = ctx.event.client.botMention()
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
-        val prefixedAliases = propertiesRegistry.topLevelProperties
+        val validProperties = propertiesRegistry.topLevelProperties
             .filter { props -> !ctx.isDirectMessage || props.permissions.allowDirectMessaging }
             .filter { props -> !props.permissions.requireBotOwner || ctx.isBotOwner }
             .filter { props ->
                 if (ctx.guild != null) {
                     !props.permissions.requireGuildOwner || ctx.guild.ownerId == ctx.user.id
                 } else true
-            }
+            }.partition { props -> !props.permissions.requireBotMention }
+
+        val prefixedAliases = validProperties.first
             .flatMap { it.aliases }
-            .map { prefix + it }
+            .sorted()
+        val mentionAliases = validProperties.second
+            .flatMap { it.aliases }
             .sorted()
         return ctx.channel.createMessage { spec ->
             spec.setEmbed { embedSpec ->
                 embedSpec.setTitle("Command Manual")
                     .addField(
                         "List of all top-level commands",
-                        prefixedAliases.joinToString(
-                            separator = "`, `",
-                            prefix = "`",
-                            postfix = "`"
-                        ),
+                        prefixedAliases.joinToString { "`$prefix$it`" },
                         false
+                    ).addField(
+                        "List of commands requiring bot mention",
+                        mentionAliases.joinToString { "$botMention `$it`" },
+                        false
+                    ).setFooter(
+                        "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
+                        ctx.user.avatarUrl
                     )
             }
         }.then()
