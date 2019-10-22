@@ -18,4 +18,12 @@ package com.github.kvnxiao.discord.command
 typealias Alias = String
 typealias Id = String
 
-fun Alias.isMention(botId: String): Boolean = this == "<@$botId>" || this == "<@!$botId>"
+fun Alias.startsWithMention(botId: String): Int {
+    val mention = "<@$botId>"
+    val mentionNick = "<@!$botId>"
+    return when {
+        this.startsWith(mention) -> mention.length
+        this.startsWith(mentionNick) -> mentionNick.length
+        else -> 0
+    }
+}
