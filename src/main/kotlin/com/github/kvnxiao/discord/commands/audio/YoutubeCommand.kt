@@ -20,13 +20,14 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.command.executable.GuildCommand
 import com.github.kvnxiao.discord.embeds.addedToQueueDescription
 import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
 import com.github.kvnxiao.discord.guild.audio.AudioManager
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
+import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
 import discord4j.core.`object`.entity.Message
 import org.springframework.stereotype.Component
@@ -42,7 +43,7 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class YoutubeCommand(
     private val guildAudioState: GuildAudioState
-) : Command {
+) : GuildCommand {
     companion object {
         val singleLink: Regex = Regex("^https://(www|m|music)\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$")
         val singleDirectLink: Regex = Regex("^https://youtu\\.be/[a-zA-Z0-9_-]{11}$")
@@ -50,18 +51,17 @@ class YoutubeCommand(
             Regex("^https://(www|m|music)\\.youtube\\.com/(watch\\?v=[a-zA-Z0-9_-]{11}&list=|playlist\\?list=)(PL|LL|FL|UU)[a-zA-Z0-9_-]+.*$")
     }
 
-    override fun execute(ctx: Context): Mono<Void> =
-        if (ctx.guild == null || ctx.args.arguments == null) Mono.empty()
-        else {
-            val query: String = ctx.args.arguments
-            val audioManager = guildAudioState.getOrCreateForGuild(ctx.guild.id)
-            ctx.event.message.authorAsMember
-                .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
-                .flatMap { member ->
-                    youtube(ctx, member, query, audioManager, sourceType(query))
-                }
-                .then()
-        }
+    override fun execute(ctx: Context, guild: Guild): Mono<Void> =
+        Mono.justOrEmpty(ctx.args.arguments)
+            .flatMap { query ->
+                val audioManager = guildAudioState.getOrCreateForGuild(guild.id)
+                ctx.event.message.authorAsMember
+                    .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
+                    .flatMap { member ->
+                        youtube(ctx, member, query, audioManager, sourceType(query))
+                    }
+                    .then()
+            }
 
     private fun sourceType(query: String): SourceType {
         return if (singleLink.matches(query) || singleDirectLink.matches(query)) {
@@ -92,6 +92,6 @@ class YoutubeCommand(
                 }
             }
             .onErrorResume {
-                ctx.channel.createMessage("An error occurred with querying for **$query**: ${it.message}")
+                ctx.channel.createMessage("An error occurred querying for **$query**: ${it.message}")
             }
 }

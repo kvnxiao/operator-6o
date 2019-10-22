@@ -43,6 +43,7 @@ class PrefixSettings(
 
     fun setPrefix(guildId: Snowflake, value: String): Mono<Boolean> =
         redis.opsForHash<String, String>().put("guild:${guildId.asString()}", "prefix", value)
+            .filter { it }
             .doOnNext { guildPrefix[guildId] = value }
 
     /**

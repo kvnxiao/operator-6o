@@ -20,7 +20,7 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.command.executable.GuildCommand
 import com.github.kvnxiao.discord.embeds.addedToQueueDescription
 import com.github.kvnxiao.discord.embeds.formatIndexed
 import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
@@ -30,6 +30,7 @@ import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
 import discord4j.core.`object`.entity.Message
 import discord4j.core.`object`.entity.channel.MessageChannel
@@ -50,38 +51,42 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class YoutubeSearchCommand(
     private val guildAudioState: GuildAudioState
-) : Command {
-    override fun execute(ctx: Context): Mono<Void> =
-        if (ctx.guild == null || ctx.args.arguments == null) Mono.empty()
-        else {
-            val query: String = ctx.args.arguments
-            val audioManager = guildAudioState.getOrCreateForGuild(ctx.guild.id)
-            ctx.event.message.authorAsMember
-                .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
-                .flatMap { member ->
-                    audioManager.query(query, SourceType.YOUTUBE, true)
-                        .collectList()
-                        .filter { it.isNotEmpty() }
-                        .map { tracks -> tracks.take(8) }
-                        .flatMap { tracks ->
-                            ctx.channel.createEmbed { spec ->
-                                spec.setTitle("Audio Player - Youtube Search")
-                                    .setDescription(tracks.formatIndexed())
-                                    .setAudioEmbedFooter(audioManager.remainingTracks, member)
-                            }.flatMap { message ->
-                                Flux.fromIterable(ReactionUnicode.FIRST_8_DIGITS.take(tracks.size))
-                                    .flatMap { unicode -> message.addReaction(ReactionEmoji.unicode(unicode)) }
-                                    .then(Mono.just(message))
-                            }.flatMap { message ->
-                                handleReactions(ctx, message, member, tracks, audioManager)
+) : GuildCommand {
+
+    companion object {
+        const val SEARCH_SIZE: Int = 8
+    }
+
+    override fun execute(ctx: Context, guild: Guild): Mono<Void> =
+        Mono.justOrEmpty(ctx.args.arguments)
+            .flatMap { query ->
+                val audioManager = guildAudioState.getOrCreateForGuild(guild.id)
+                ctx.event.message.authorAsMember
+                    .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
+                    .flatMap { member ->
+                        audioManager.query(query, SourceType.YOUTUBE, true)
+                            .collectList()
+                            .filter { it.isNotEmpty() }
+                            .map { tracks -> tracks.take(SEARCH_SIZE) }
+                            .flatMap { tracks ->
+                                ctx.channel.createEmbed { spec ->
+                                    spec.setTitle("Audio Player - Youtube Search")
+                                        .setDescription(tracks.formatIndexed())
+                                        .setAudioEmbedFooter(audioManager.remainingTracks, member)
+                                }.flatMap { message ->
+                                    Flux.fromIterable(ReactionUnicode.DIGITS_FROM_1.take(tracks.size))
+                                        .flatMap { unicode -> message.addReaction(ReactionEmoji.unicode(unicode)) }
+                                        .then(Mono.just(message))
+                                }.flatMap { message ->
+                                    handleReactions(ctx, message, member, tracks, audioManager)
+                                }
+                            }.onErrorResume {
+                                ctx.channel.createMessage("An error occurred querying for **$query**: ${it.message}")
+                                    .then()
                             }
-                        }.onErrorResume {
-                            ctx.channel.createMessage("An error occurred with querying for **$query**: ${it.message}")
-                                .then()
-                        }
-                        .then()
-                }
-        }
+                            .then()
+                    }
+            }
 
     /**
      * Handles the reactions for the search result embed. Takes the first result
@@ -129,7 +134,7 @@ class YoutubeSearchCommand(
      */
     private fun cleanupReactions(message: Message, index: Int): Mono<Void> =
         message.removeAllReactions()
-            .then(message.addReaction(ReactionEmoji.unicode(ReactionUnicode.FIRST_8_DIGITS[index])))
+            .then(message.addReaction(ReactionEmoji.unicode(ReactionUnicode.DIGITS_FROM_1[index])))
 
     /**
      * Converts the selected reaction emoji into a valid index and offers the corresponding track to the audio player,
