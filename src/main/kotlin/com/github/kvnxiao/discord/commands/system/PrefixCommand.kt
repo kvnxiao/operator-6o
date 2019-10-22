@@ -41,7 +41,10 @@ class PrefixSetCommand(
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> =
         if (ctx.guild == null || ctx.args.arguments == null) Mono.empty()
-        else prefixSettings.setPrefix(ctx.guild.id, ctx.args.arguments).then()
+        else ctx.args.arguments.let { prefix ->
+            prefixSettings.setPrefix(ctx.guild.id, prefix)
+                .flatMap { ctx.channel.createMessage("The guild prefix has been changed to `$prefix`") }
+        }.then()
 }
 
 @Component
@@ -54,6 +57,6 @@ class PrefixGetCommand(
     override fun execute(ctx: Context): Mono<Void> =
         if (ctx.guild == null) Mono.empty()
         else prefixSettings.loadPrefix(ctx.guild.id)
-            .flatMap { ctx.channel.createMessage(it) }
+            .flatMap { prefix -> ctx.channel.createMessage("The current guild prefix is `$prefix`") }
             .then()
 }
