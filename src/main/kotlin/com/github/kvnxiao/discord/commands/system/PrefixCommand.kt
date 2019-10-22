@@ -17,6 +17,7 @@ package com.github.kvnxiao.discord.commands.system
 
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Id
+import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.annotation.SubCommand
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
@@ -28,11 +29,13 @@ import reactor.core.publisher.Mono
 @Component
 @Id("prefix")
 @SubCommand([PrefixGetCommand::class, PrefixSetCommand::class])
+@Permissions(requireGuildOwner = true)
 class PrefixCommand : StubCommand
 
 @Component
 @Id("prefix.set")
 @Alias(["set"])
+@Permissions(requireGuildOwner = true)
 class PrefixSetCommand(
     private val prefixSettings: PrefixSettings
 ) : Command {
@@ -44,6 +47,7 @@ class PrefixSetCommand(
 @Component
 @Id("prefix.get")
 @Alias(["get"])
+@Permissions(requireGuildOwner = true)
 class PrefixGetCommand(
     private val prefixSettings: PrefixSettings
 ) : Command {
