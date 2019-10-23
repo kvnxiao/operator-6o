@@ -13,14 +13,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command
+package com.github.kvnxiao.discord
 
-import com.github.kvnxiao.discord.command.executable.Command
-import com.github.kvnxiao.discord.command.ratelimit.CachedRateLimiter
-import com.github.kvnxiao.discord.command.ratelimit.RateLimiter
+import discord4j.core.DiscordClient
 
-data class DiscordCommand(
-    val properties: CommandProperties,
-    val executable: Command,
-    val rateLimiter: RateLimiter = CachedRateLimiter(properties.id, properties.rateLimits)
-)
+fun DiscordClient.botMention() = this.selfId.map { "<@${it.asString()}>" }.orElse("@bot")

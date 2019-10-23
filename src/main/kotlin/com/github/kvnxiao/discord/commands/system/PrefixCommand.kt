@@ -20,40 +20,44 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.annotation.SubCommand
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.command.executable.GuildCommand
 import com.github.kvnxiao.discord.command.executable.StubCommand
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
+import discord4j.core.`object`.entity.Guild
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
 @Id("prefix")
 @SubCommand([PrefixGetCommand::class, PrefixSetCommand::class])
-@Permissions(requireGuildOwner = true)
+@Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixCommand : StubCommand
 
 @Component
 @Id("prefix.set")
 @Alias(["set"])
-@Permissions(requireGuildOwner = true)
+@Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixSetCommand(
     private val prefixSettings: PrefixSettings
-) : Command {
-    override fun execute(ctx: Context): Mono<Void> =
-        if (ctx.guild == null || ctx.args.arguments == null) Mono.empty()
-        else prefixSettings.setPrefix(ctx.guild.id, ctx.args.arguments).then()
+) : GuildCommand {
+    override fun execute(ctx: Context, guild: Guild): Mono<Void> =
+        Mono.justOrEmpty(ctx.args.arguments)
+            .flatMap { prefix ->
+                prefixSettings.setPrefix(guild.id, prefix)
+                    .flatMap { ctx.channel.createMessage("The guild prefix has been changed to `$prefix`") }
+            }
+            .then()
 }
 
 @Component
 @Id("prefix.get")
 @Alias(["get"])
-@Permissions(requireGuildOwner = true)
+@Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixGetCommand(
     private val prefixSettings: PrefixSettings
-) : Command {
-    override fun execute(ctx: Context): Mono<Void> =
-        if (ctx.guild == null) Mono.empty()
-        else prefixSettings.loadPrefix(ctx.guild.id)
-            .flatMap { ctx.channel.createMessage(it) }
+) : GuildCommand {
+    override fun execute(ctx: Context, guild: Guild): Mono<Void> =
+        prefixSettings.loadPrefix(guild.id)
+            .flatMap { prefix -> ctx.channel.createMessage("The current guild prefix is `$prefix`") }
             .then()
 }

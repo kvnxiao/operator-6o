@@ -32,7 +32,7 @@ object ReactionUnicode {
     const val DIGIT_10 = "\uD83D\uDD1F"
     const val TIMER = "\u23F2"
 
-    val FIRST_8_DIGITS = listOf(
+    val DIGITS_FROM_1 = listOf(
         DIGIT_1,
         DIGIT_2,
         DIGIT_3,
@@ -40,7 +40,9 @@ object ReactionUnicode {
         DIGIT_5,
         DIGIT_6,
         DIGIT_7,
-        DIGIT_8
+        DIGIT_8,
+        DIGIT_9,
+        DIGIT_10
     )
 
     fun getIndexFromDigits(digit: String): Int {
@@ -53,6 +55,8 @@ object ReactionUnicode {
             DIGIT_6 -> 5
             DIGIT_7 -> 6
             DIGIT_8 -> 7
+            DIGIT_9 -> 8
+            DIGIT_10 -> 9
             else -> -1
         }
     }

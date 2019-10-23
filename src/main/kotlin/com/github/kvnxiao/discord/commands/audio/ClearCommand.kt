@@ -19,10 +19,11 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.command.executable.GuildCommand
 import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
 import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import discord4j.core.`object`.entity.Guild
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -35,10 +36,9 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class ClearCommand(
     private val guildAudioState: GuildAudioState
-) : Command {
-    override fun execute(ctx: Context): Mono<Void> {
-        return if (ctx.guild == null) Mono.empty()
-        else Mono.justOrEmpty(guildAudioState.getState(ctx.guild.id))
+) : GuildCommand {
+    override fun execute(ctx: Context, guild: Guild): Mono<Void> =
+        Mono.justOrEmpty(guildAudioState.getState(guild.id))
             .filter { audioManager -> audioManager.queueList.isNotEmpty() }
             .flatMap { audioManager ->
                 ctx.channel.createEmbed { spec ->
@@ -49,5 +49,4 @@ class ClearCommand(
                 }
             }
             .then()
-    }
 }

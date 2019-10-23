@@ -13,14 +13,11 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command
+package com.github.kvnxiao.discord.command.ratelimit
 
-import com.github.kvnxiao.discord.command.executable.Command
-import com.github.kvnxiao.discord.command.ratelimit.CachedRateLimiter
-import com.github.kvnxiao.discord.command.ratelimit.RateLimiter
+import discord4j.core.`object`.entity.Guild
+import discord4j.core.`object`.entity.User
 
-data class DiscordCommand(
-    val properties: CommandProperties,
-    val executable: Command,
-    val rateLimiter: RateLimiter = CachedRateLimiter(properties.id, properties.rateLimits)
-)
+class NoopRateLimiter : RateLimiter {
+    override fun isNotRateLimited(guild: Guild?, user: User): Boolean = true
+}

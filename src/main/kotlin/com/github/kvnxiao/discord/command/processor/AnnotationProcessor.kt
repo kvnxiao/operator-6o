@@ -25,7 +25,10 @@ import com.github.kvnxiao.discord.command.annotation.RateLimits
 import com.github.kvnxiao.discord.command.annotation.SubCommand
 import com.github.kvnxiao.discord.command.descriptor.Descriptor as CommandDescriptor
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.command.executable.StubCommand
 import com.github.kvnxiao.discord.command.permission.Permissions as CommandPermissions
+import com.github.kvnxiao.discord.command.ratelimit.CachedRateLimiter
+import com.github.kvnxiao.discord.command.ratelimit.NoopRateLimiter
 import com.github.kvnxiao.discord.command.ratelimit.RateLimits as CommandRateLimits
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import discord4j.core.`object`.util.PermissionSet
@@ -82,7 +85,8 @@ class AnnotationProcessor {
             // Create command package from parsed information
             val command = DiscordCommand(
                 CommandProperties(id, aliases, descriptor, rateLimits, permissions),
-                executable
+                executable,
+                if (executable is StubCommand) NoopRateLimiter() else CachedRateLimiter(id, rateLimits)
             )
             // Add list of sub-command classes if sub-commands do exist
             subCommandKClasses?.let {

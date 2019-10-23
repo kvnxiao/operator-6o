@@ -13,14 +13,14 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command
+package com.github.kvnxiao.discord.command.executable
 
-import com.github.kvnxiao.discord.command.executable.Command
-import com.github.kvnxiao.discord.command.ratelimit.CachedRateLimiter
-import com.github.kvnxiao.discord.command.ratelimit.RateLimiter
+import com.github.kvnxiao.discord.command.context.Context
+import discord4j.core.`object`.entity.Guild
+import reactor.core.publisher.Mono
 
-data class DiscordCommand(
-    val properties: CommandProperties,
-    val executable: Command,
-    val rateLimiter: RateLimiter = CachedRateLimiter(properties.id, properties.rateLimits)
-)
+interface GuildCommand : Command {
+    override fun execute(ctx: Context): Mono<Void> = if (ctx.guild == null) Mono.empty() else execute(ctx, ctx.guild)
+
+    fun execute(ctx: Context, guild: Guild): Mono<Void>
+}
