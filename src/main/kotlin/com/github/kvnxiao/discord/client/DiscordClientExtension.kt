@@ -13,19 +13,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.http
+package com.github.kvnxiao.discord.client
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import reactor.netty.http.client.HttpClientResponse
+import discord4j.core.GatewayDiscordClient
 
-fun HttpClientResponse.isSuccessCode(): Boolean = this.status().code() in 200..299
-
-@Configuration
-class HttpClientConfiguration {
-    @Bean
-    fun objectMapper(): ObjectMapper =
-        ObjectMapper().registerModule(KotlinModule())
-}
+fun GatewayDiscordClient.botMention() = "<@${this.selfId.asString()}>"

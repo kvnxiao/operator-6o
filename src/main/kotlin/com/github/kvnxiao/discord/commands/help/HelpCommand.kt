@@ -15,7 +15,7 @@
  */
 package com.github.kvnxiao.discord.commands.help
 
-import com.github.kvnxiao.discord.botMention
+import com.github.kvnxiao.discord.client.botMention
 import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
