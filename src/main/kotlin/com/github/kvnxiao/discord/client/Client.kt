@@ -36,40 +36,36 @@ private val logger = KotlinLogging.logger {}
 @Component
 class Client(
     private val commandProcessor: CommandProcessor,
-    annotationProcessor: AnnotationProcessor,
-    rootRegistry: RegistryNode,
-    commands: List<Command>,
+    private val annotationProcessor: AnnotationProcessor,
+    private val rootRegistry: RegistryNode,
+    private val commands: List<Command>,
     @Value(Environment.TOKEN) private val token: String
 ) : ApplicationRunner {
 
     private val client: DiscordClient = DiscordClientBuilder(token).build()
 
-    init {
+    override fun run(args: ApplicationArguments) {
         annotationProcessor.process(commands, rootRegistry)
 
-        client.eventDispatcher.apply {
-            on(ReadyEvent::class.java)
-                .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
-                .map { event -> event.guilds.size }
-                .flatMap { size ->
-                    this.on(GuildCreateEvent::class.java)
-                        .take(size.toLong())
-                        .map { it.guild.id }
-                        .collectList()
-                        .flatMap { commandProcessor.loadPrefixSettings(it) }
-                        .info(logger) { "Done loading $size guilds." }
-                }
-                .info(logger) { "Ready to receive commands." }
-                .flatMap {
-                    // All guilds have been loaded at this point
-                    this.on(MessageCreateEvent::class.java)
-                        .flatMap(commandProcessor::processMessageCreateEvent)
-                }
-                .subscribe()
-        }
-    }
-
-    override fun run(args: ApplicationArguments) {
-        client.login().subscribe()
+        client.login()
+            .flatMapMany { gateway ->
+                gateway.on(ReadyEvent::class.java)
+                    .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
+                    .map { event -> event.guilds.size }
+                    .flatMap { size ->
+                        gateway.on(GuildCreateEvent::class.java)
+                            .take(size.toLong())
+                            .map { it.guild.id }
+                            .collectList()
+                            .flatMap { commandProcessor.loadPrefixSettings(it) }
+                            .info(logger) { "Done loading $size guilds." }
+                    }
+                    .info(logger) { "Ready to receive commands." }
+                    .flatMap {
+                        // All guilds have been loaded at this point
+                        gateway.on(MessageCreateEvent::class.java)
+                            .flatMap(commandProcessor::processMessageCreateEvent)
+                    }
+            }.subscribe()
     }
 }

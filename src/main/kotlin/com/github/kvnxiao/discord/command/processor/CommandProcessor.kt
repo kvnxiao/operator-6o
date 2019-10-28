@@ -82,7 +82,7 @@ class CommandProcessor(
 
         val content = event.message.content.orElse("")
 
-        val mentionIndex = event.message.client.selfId.map { content.startsWithMention(it.asString()) }.orElse(0)
+        val mentionIndex = content.startsWithMention(event.client.selfId.asString())
         val wasBotMentioned = mentionIndex > 0
         val isValidPrefix = content.startsWith(prefix)
 

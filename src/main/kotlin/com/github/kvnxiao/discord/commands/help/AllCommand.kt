@@ -45,9 +45,9 @@ class AllCommand(
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
         val validProperties = propertiesRegistry.topLevelProperties
             .filter { props ->
-                validDirectMessage(ctx, props)
-                        && validOwner(ctx, props)
-                        && validGuildOwner(ctx, props)
+                validDirectMessage(ctx, props) &&
+                        validOwner(ctx, props) &&
+                        validGuildOwner(ctx, props)
             }.partition { props -> !props.permissions.requireBotMention }
 
         val prefixedAliases = validProperties.first

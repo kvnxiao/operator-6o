@@ -15,6 +15,6 @@
  */
 package com.github.kvnxiao.discord
 
-import discord4j.core.DiscordClient
+import discord4j.core.GatewayDiscordClient
 
-fun DiscordClient.botMention() = this.selfId.map { "<@${it.asString()}>" }.orElse("@bot")
+fun GatewayDiscordClient.botMention() = "<@${this.selfId.asString()}>"
