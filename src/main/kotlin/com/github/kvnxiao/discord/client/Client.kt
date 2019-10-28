@@ -47,25 +47,25 @@ class Client(
     override fun run(args: ApplicationArguments) {
         annotationProcessor.process(commands, rootRegistry)
 
-        client.login()
-            .flatMapMany { gateway ->
-                gateway.on(ReadyEvent::class.java)
-                    .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
-                    .map { event -> event.guilds.size }
-                    .flatMap { size ->
-                        gateway.on(GuildCreateEvent::class.java)
-                            .take(size.toLong())
-                            .map { it.guild.id }
-                            .collectList()
-                            .flatMap { commandProcessor.loadPrefixSettings(it) }
-                            .info(logger) { "Done loading $size guilds." }
-                    }
-                    .info(logger) { "Ready to receive commands." }
-                    .flatMap {
-                        // All guilds have been loaded at this point
-                        gateway.on(MessageCreateEvent::class.java)
-                            .flatMap(commandProcessor::processMessageCreateEvent)
-                    }
-            }.subscribe()
+        client.withGateway { gateway ->
+            gateway.on(ReadyEvent::class.java)
+                .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
+                .map { event -> event.guilds.size }
+                .flatMap { size ->
+                    gateway.on(GuildCreateEvent::class.java)
+                        .take(size.toLong())
+                        .map { it.guild.id }
+                        .collectList()
+                        .flatMap { commandProcessor.loadPrefixSettings(it) }
+                        .info(logger) { "Done loading $size guilds." }
+                }
+                .info(logger) { "Ready to receive commands." }
+                .flatMap {
+                    // All guilds have been loaded at this point
+                    gateway.on(MessageCreateEvent::class.java)
+                        .flatMap(commandProcessor::processMessageCreateEvent)
+                }
+                .then()
+        }.subscribe()
     }
 }
