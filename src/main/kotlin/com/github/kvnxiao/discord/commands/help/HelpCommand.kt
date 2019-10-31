@@ -41,7 +41,7 @@ class HelpCommand(
     private val propertiesRegistry: PropertiesRegistry
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
-        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
+        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
         return Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
             .flatMap { (props, subAliases, pathList) ->
                 ctx.channel.createMessage { spec ->

@@ -15,46 +15,33 @@
  */
 package com.github.kvnxiao.discord.command.prefix
 
-import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.util.Snowflake
-import org.springframework.data.redis.core.ReactiveRedisTemplate
-import org.springframework.stereotype.Component
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@Component
-class PrefixSettings(
-    private val redis: ReactiveRedisTemplate<String, String>
-) {
+/**
+ * Interface with methods defined to load command prefixes for each guild.
+ */
+interface PrefixSettings {
     companion object {
         const val DEFAULT_PREFIX: String = "!"
     }
 
-    private val guildPrefix: MutableMap<Snowflake, String> = mutableMapOf()
-
-    fun loadGuildPrefixes(guildIds: List<Snowflake>): Mono<List<String>> =
-        Flux.fromIterable(guildIds)
-            .flatMap(this::loadPrefix)
-            .collectList()
-
-    fun loadPrefix(guildId: Snowflake): Mono<String> =
-        redis.opsForHash<String, String>().get("guild:${guildId.asString()}", "prefix")
-            .doOnNext { result -> guildPrefix[guildId] = result }
-
-    fun setPrefix(guildId: Snowflake, value: String): Mono<Boolean> =
-        redis.opsForHash<String, String>().put("guild:${guildId.asString()}", "prefix", value)
-            .filter { it }
-            .doOnNext { guildPrefix[guildId] = value }
+    /**
+     * Loads the guild specific prefix for a single guild ID snowflake.
+     * @return a [Mono] containing the guild prefix loaded for the guild, or an empty [Mono] upon failure to load.
+     */
+    fun loadPrefixForGuild(guildId: Snowflake): Mono<String>
 
     /**
-     * Gets the command alias prefix for a specified guild based on a guild's ID snowflake value.
-     * Returns [DEFAULT_PREFIX] if the guild ID does not match with the custom internal mapping.
+     * Sets the guild specific prefix for a single guild ID snowflake.
+     * @return a non-empty [Mono] containing a boolean denoting the status of saving the guild prefix.
      */
-    fun getPrefixOrDefault(guildId: Snowflake): String = guildPrefix[guildId] ?: DEFAULT_PREFIX
+    fun setPrefixForGuild(guildId: Snowflake, value: String): Mono<Boolean>
 
     /**
-     * Gets the command alias prefix for a specified guild based on a nullable Guild parameter.
-     * Returns [DEFAULT_PREFIX] if the guild provided is null.
+     * Gets the guild specific prefix for a single guild ID snowflake, and defaults to a default value [DEFAULT_PREFIX]
+     * if the provided snowflake is null or if the guild does not have a custom prefix set.
+     * @return the prefix string for the specified guild if it exists, [DEFAULT_PREFIX] otherwise.
      */
-    fun getPrefixOrDefault(guild: Guild?): String = guildPrefix[guild?.id] ?: DEFAULT_PREFIX
+    fun getPrefixOrDefault(guildId: Snowflake?): String
 }

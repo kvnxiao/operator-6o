@@ -42,7 +42,7 @@ class AllCommand(
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
         val botMention = ctx.event.client.botMention()
-        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
+        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
         val validProperties = propertiesRegistry.topLevelProperties
             .filter { props ->
                 validDirectMessage(ctx, props) &&

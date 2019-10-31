@@ -43,7 +43,8 @@ class PrefixSetCommand(
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         Mono.justOrEmpty(ctx.args.arguments)
             .flatMap { prefix ->
-                prefixSettings.setPrefix(guild.id, prefix)
+                prefixSettings.setPrefixForGuild(guild.id, prefix)
+                    .filter { it }
                     .flatMap { ctx.channel.createMessage("The guild prefix has been changed to `$prefix`") }
             }
             .then()
@@ -57,7 +58,7 @@ class PrefixGetCommand(
     private val prefixSettings: PrefixSettings
 ) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
-        prefixSettings.loadPrefix(guild.id)
+        prefixSettings.loadPrefixForGuild(guild.id)
             .flatMap { prefix -> ctx.channel.createMessage("The current guild prefix is `$prefix`") }
             .then()
 }
