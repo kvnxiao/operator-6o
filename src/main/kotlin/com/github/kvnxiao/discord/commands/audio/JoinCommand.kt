@@ -35,7 +35,7 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class JoinCommand(
     private val guildAudioState: GuildAudioState
-) : GuildCommand {
+) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         guildAudioState.getOrCreateForGuild(guild.id).let { audioManager ->
             ctx.event.message.authorAsMember

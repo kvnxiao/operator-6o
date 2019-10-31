@@ -43,7 +43,7 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class YoutubeCommand(
     private val guildAudioState: GuildAudioState
-) : GuildCommand {
+) : GuildCommand() {
     companion object {
         val singleLink: Regex = Regex("^https://(www|m|music)\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$")
         val singleDirectLink: Regex = Regex("^https://youtu\\.be/[a-zA-Z0-9_-]{11}$")

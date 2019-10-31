@@ -51,7 +51,7 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class YoutubeSearchCommand(
     private val guildAudioState: GuildAudioState
-) : GuildCommand {
+) : GuildCommand() {
 
     companion object {
         const val SEARCH_SIZE: Int = 8

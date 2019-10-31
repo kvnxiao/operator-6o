@@ -18,6 +18,9 @@ package com.github.kvnxiao.discord.command.executable
 import com.github.kvnxiao.discord.command.context.Context
 import reactor.core.publisher.Mono
 
-interface StubCommand : Command {
+/**
+ * Abstract command class that represents an inheritable stub command which simply returns an empty Mono upon execution.
+ */
+abstract class StubCommand : Command {
     override fun execute(ctx: Context): Mono<Void> = Mono.empty()
 }
