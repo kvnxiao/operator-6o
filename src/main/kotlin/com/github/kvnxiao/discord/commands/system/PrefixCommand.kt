@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono
 @Id("prefix")
 @SubCommand([PrefixGetCommand::class, PrefixSetCommand::class])
 @Permissions(requireGuildOwner = true, requireBotMention = true)
-class PrefixCommand : StubCommand
+class PrefixCommand : StubCommand()
 
 @Component
 @Id("prefix.set")
@@ -39,11 +39,12 @@ class PrefixCommand : StubCommand
 @Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixSetCommand(
     private val prefixSettings: PrefixSettings
-) : GuildCommand {
+) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         Mono.justOrEmpty(ctx.args.arguments)
             .flatMap { prefix ->
-                prefixSettings.setPrefix(guild.id, prefix)
+                prefixSettings.setPrefixForGuild(guild.id, prefix)
+                    .filter { it }
                     .flatMap { ctx.channel.createMessage("The guild prefix has been changed to `$prefix`") }
             }
             .then()
@@ -55,9 +56,9 @@ class PrefixSetCommand(
 @Permissions(requireGuildOwner = true, requireBotMention = true)
 class PrefixGetCommand(
     private val prefixSettings: PrefixSettings
-) : GuildCommand {
+) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
-        prefixSettings.loadPrefix(guild.id)
+        prefixSettings.loadPrefixForGuild(guild.id)
             .flatMap { prefix -> ctx.channel.createMessage("The current guild prefix is `$prefix`") }
             .then()
 }

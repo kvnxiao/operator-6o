@@ -52,7 +52,10 @@ class CommandProcessor(
     /**
      * Loads custom alias prefixes for each guild.
      */
-    fun loadPrefixSettings(guildIds: List<Snowflake>): Mono<List<String>> = prefixSettings.loadGuildPrefixes(guildIds)
+    fun loadPrefixSettings(guildIds: List<Snowflake>): Mono<List<String>> =
+        Flux.fromIterable(guildIds)
+            .flatMap(prefixSettings::loadPrefixForGuild)
+            .collectList()
 
     /**
      * Validates and processes [MessageCreateEvent]s into potential commands, creating a context and executing the
@@ -78,11 +81,13 @@ class CommandProcessor(
         command.executable.execute(context)
 
     private fun getCommandWithContext(event: MessageCreateEvent): Mono<Tuple2<DiscordCommand, Context>> {
-        val prefix = event.guildId.map { prefixSettings.getPrefixOrDefault(it) }.orElse(PrefixSettings.DEFAULT_PREFIX)
+        val prefix = event.guildId
+            .map { prefixSettings.getPrefixOrDefault(it) }
+            .orElse(PrefixSettings.DEFAULT_PREFIX)
 
         val content = event.message.content.orElse("")
 
-        val mentionIndex = event.message.client.selfId.map { content.startsWithMention(it.asString()) }.orElse(0)
+        val mentionIndex = content.startsWithMention(event.client.selfId.asString())
         val wasBotMentioned = mentionIndex > 0
         val isValidPrefix = content.startsWith(prefix)
 

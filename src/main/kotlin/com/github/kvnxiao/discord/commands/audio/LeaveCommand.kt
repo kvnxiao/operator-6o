@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class LeaveCommand(
     private val guildAudioState: GuildAudioState
-) : GuildCommand {
+) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         Mono.justOrEmpty(guildAudioState.getState(guild.id))
             .doOnNext { audioManager ->

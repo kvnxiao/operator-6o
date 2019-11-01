@@ -19,8 +19,13 @@ import com.github.kvnxiao.discord.command.context.Context
 import discord4j.core.`object`.entity.Guild
 import reactor.core.publisher.Mono
 
-interface GuildCommand : Command {
-    override fun execute(ctx: Context): Mono<Void> = if (ctx.guild == null) Mono.empty() else execute(ctx, ctx.guild)
+/**
+ * Abstract command class specifying a command that only works in a guild. Performs a check on the guild in the context
+ * and returns an empty Mono if the guild is null.
+ */
+abstract class GuildCommand : Command {
+    final override fun execute(ctx: Context): Mono<Void> =
+        if (ctx.guild == null) Mono.empty() else execute(ctx, ctx.guild)
 
-    fun execute(ctx: Context, guild: Guild): Mono<Void>
+    abstract fun execute(ctx: Context, guild: Guild): Mono<Void>
 }

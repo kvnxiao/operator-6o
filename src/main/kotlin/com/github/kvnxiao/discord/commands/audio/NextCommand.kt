@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono
 @Permissions(allowDirectMessaging = false)
 class NextCommand(
     private val guildAudioState: GuildAudioState
-) : GuildCommand {
+) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         Mono.just(guildAudioState.getOrCreateForGuild(guild.id))
             .filter { audioManager -> audioManager.voiceConnectionManager.isVoiceConnected() }

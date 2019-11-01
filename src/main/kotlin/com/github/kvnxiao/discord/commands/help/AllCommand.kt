@@ -15,7 +15,7 @@
  */
 package com.github.kvnxiao.discord.commands.help
 
-import com.github.kvnxiao.discord.botMention
+import com.github.kvnxiao.discord.client.botMention
 import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
@@ -42,12 +42,12 @@ class AllCommand(
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
         val botMention = ctx.event.client.botMention()
-        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
+        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
         val validProperties = propertiesRegistry.topLevelProperties
             .filter { props ->
-                validDirectMessage(ctx, props)
-                        && validOwner(ctx, props)
-                        && validGuildOwner(ctx, props)
+                validDirectMessage(ctx, props) &&
+                        validOwner(ctx, props) &&
+                        validGuildOwner(ctx, props)
             }.partition { props -> !props.permissions.requireBotMention }
 
         val prefixedAliases = validProperties.first

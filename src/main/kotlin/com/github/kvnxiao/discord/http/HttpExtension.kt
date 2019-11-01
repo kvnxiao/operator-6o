@@ -13,14 +13,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command.executable
+package com.github.kvnxiao.discord.http
 
-import com.github.kvnxiao.discord.command.context.Context
-import reactor.core.publisher.Mono
+import reactor.netty.http.client.HttpClientResponse
 
-/**
- * Abstract command class that represents an inheritable stub command which simply returns an empty Mono upon execution.
- */
-abstract class StubCommand : Command {
-    override fun execute(ctx: Context): Mono<Void> = Mono.empty()
-}
+fun HttpClientResponse.isSuccessCode(): Boolean = this.status().code() in 200..299

@@ -13,8 +13,16 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord
+package com.github.kvnxiao.discord.http
 
-import discord4j.core.DiscordClient
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-fun DiscordClient.botMention() = this.selfId.map { "<@${it.asString()}>" }.orElse("@bot")
+@Configuration
+class HttpClientConfiguration {
+    @Bean
+    fun objectMapper(): ObjectMapper =
+        ObjectMapper().registerModule(KotlinModule())
+}

@@ -15,7 +15,7 @@
  */
 package com.github.kvnxiao.discord.commands.help
 
-import com.github.kvnxiao.discord.botMention
+import com.github.kvnxiao.discord.client.botMention
 import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
@@ -41,7 +41,7 @@ class HelpCommand(
     private val propertiesRegistry: PropertiesRegistry
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
-        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild)
+        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
         return Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
             .flatMap { (props, subAliases, pathList) ->
                 ctx.channel.createMessage { spec ->
