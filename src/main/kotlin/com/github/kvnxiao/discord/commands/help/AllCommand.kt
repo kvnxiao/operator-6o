@@ -71,6 +71,15 @@ class AllCommand(
                         "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
                         ctx.user.avatarUrl
                     )
+                propertiesRegistry.getTopLevelPropertyById("help")?.let { props ->
+                    val firstAlias = props.aliases.first()
+                    val aliases = props.aliases.joinToString(separator = " or ") { "`$prefix$it`" }
+                    embedSpec.addField(
+                        "More information about a command",
+                        "$aliases <command alias without prefix>\ne.g. `$prefix$firstAlias $firstAlias`",
+                        false
+                    )
+                }
             }
         }.then()
     }
