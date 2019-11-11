@@ -20,8 +20,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
-import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
+import com.github.kvnxiao.discord.embeds.initAudioEmbed
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import discord4j.core.`object`.entity.Guild
 import org.springframework.stereotype.Component
@@ -43,9 +42,8 @@ class ClearCommand(
             .flatMap { audioManager ->
                 ctx.channel.createEmbed { spec ->
                     audioManager.clearQueue()
-                    spec.setAudioEmbedTitle()
+                    spec.initAudioEmbed(0, ctx.user)
                         .setDescription("Queue has been cleared!")
-                        .setAudioEmbedFooter(0, ctx.user)
                 }
             }
             .then()

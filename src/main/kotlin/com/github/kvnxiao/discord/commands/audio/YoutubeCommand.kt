@@ -21,9 +21,8 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.embeds.addedToQueueDescription
-import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
-import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
+import com.github.kvnxiao.discord.embeds.addedToQueue
+import com.github.kvnxiao.discord.embeds.initAudioEmbed
 import com.github.kvnxiao.discord.guild.audio.AudioManager
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
@@ -86,9 +85,8 @@ class YoutubeCommand(
             .doOnNext { tracks -> audioManager.offer(tracks, member) }
             .flatMap { tracks ->
                 ctx.channel.createEmbed { spec ->
-                    spec.setAudioEmbedTitle()
-                        .addedToQueueDescription(tracks)
-                        .setAudioEmbedFooter(audioManager.remainingTracks, member)
+                    spec.initAudioEmbed(audioManager.remainingTracks, member)
+                        .addedToQueue(tracks)
                 }
             }
             .onErrorResume {
