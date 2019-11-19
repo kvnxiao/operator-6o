@@ -42,8 +42,9 @@ data class Arguments(val alias: Alias, val arguments: String?) {
             if (input.isNullOrBlank()) {
                 EMPTY
             } else {
-                val split = SPLIT_REGEX.split(input, 2)
-                Arguments(split[0], if (split.size == 1) null else split[1])
+                SPLIT_REGEX.split(input, 2).let { split ->
+                    Arguments(split[0], if (split.size == 1) null else split[1])
+                }
             }
     }
 
