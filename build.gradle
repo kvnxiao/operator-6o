@@ -105,7 +105,7 @@ license {
 }
 
 task formatAll {
-    group('linting')
+    group('formatting')
     dependsOn 'licenseFormat'
     dependsOn 'ktlintFormat'
     tasks.findByName('ktlintFormat').mustRunAfter 'licenseFormat'
