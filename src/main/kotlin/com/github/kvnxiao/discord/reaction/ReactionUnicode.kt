@@ -31,6 +31,8 @@ object ReactionUnicode {
     const val DIGIT_9 = "\u0039\u20E3"
     const val DIGIT_10 = "\uD83D\uDD1F"
     const val TIMER = "\u23F2"
+    const val CHECKMARK = "\u2714"
+    const val CROSSMARK = "\u274C"
 
     val DIGITS_FROM_1 = listOf(
         DIGIT_1,

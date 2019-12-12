@@ -4,6 +4,7 @@ buildscript {
     ext.kluent_version = '1.58'
     ext.spring_boot_version = '2.2.2.RELEASE'
     ext.lettuce_version = '5.2.1.RELEASE'
+    ext.graalvm_js_version = '19.3.0'
 
     // Discord libraries
     ext.discord4j_version = '3.1.0-SNAPSHOT'
@@ -73,6 +74,7 @@ dependencies {
     implementation "com.sedmelluq:lavaplayer:$lavaplayer_version"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
     implementation "io.projectreactor.kotlin:reactor-kotlin-extensions:$reactor_extensions"
+    implementation "org.graalvm.js:js:$graalvm_js_version"
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
     testImplementation "org.amshove.kluent:kluent:$kluent_version"
     testImplementation "io.projectreactor:reactor-test:$reactor_version"
