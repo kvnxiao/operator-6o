@@ -22,5 +22,5 @@ import reactor.core.publisher.Mono
  * Abstract command class that represents an inheritable stub command which simply returns an empty Mono upon execution.
  */
 abstract class StubCommand : Command {
-    override fun execute(ctx: Context): Mono<Void> = Mono.empty()
+    final override fun execute(ctx: Context): Mono<Void> = Mono.empty()
 }
