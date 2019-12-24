@@ -63,3 +63,5 @@ gradle-app.setting
 .gradletasknamecache
 
 !gradle-wrapper.jar
+
+run.sh
