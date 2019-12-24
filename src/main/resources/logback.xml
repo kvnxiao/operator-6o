@@ -27,6 +27,4 @@
     <appender-ref ref="STDOUT"/>
   </root>
 
-  <logger name="com.github.kvnxiao.discord.koin.ModulesLogger" level="OFF"/>
-
 </configuration>
