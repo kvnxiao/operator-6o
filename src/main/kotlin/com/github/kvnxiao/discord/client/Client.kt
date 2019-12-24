@@ -42,7 +42,7 @@ class Client(
     @Value(Environment.TOKEN) private val token: String
 ) : ApplicationRunner {
 
-    private val client: DiscordClient = DiscordClientBuilder(token).build()
+    private val client: DiscordClient = DiscordClientBuilder.create(token).build()
 
     override fun run(args: ApplicationArguments) {
         annotationProcessor.process(commands, rootRegistry)

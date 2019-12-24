@@ -13,14 +13,15 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command.executable
+package com.github.kvnxiao.discord.command
 
-import com.github.kvnxiao.discord.command.context.Context
+import com.github.kvnxiao.discord.command.prefix.PrefixSettings
+import discord4j.core.`object`.util.Snowflake
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 
-/**
- * Abstract command class that represents an inheritable stub command which simply returns an empty Mono upon execution.
- */
-abstract class StubCommand : Command {
-    final override fun execute(ctx: Context): Mono<Void> = Mono.empty()
+class NoopPrefixSettings : PrefixSettings {
+    override fun loadPrefixForGuild(guildId: Snowflake): Mono<String> = "".toMono()
+    override fun setPrefixForGuild(guildId: Snowflake, value: String): Mono<Boolean> = true.toMono()
+    override fun getPrefixOrDefault(guildId: Snowflake?): String = ""
 }

@@ -21,46 +21,43 @@ import discord4j.core.`object`.entity.User
 import discord4j.core.spec.EmbedCreateSpec
 import java.util.concurrent.TimeUnit
 
-// Embed create spec setters
+private const val TITLE = "Audio Player"
 
-fun EmbedCreateSpec.setAudioEmbedTitle(): EmbedCreateSpec =
-    this.setTitle("Audio Player")
+fun EmbedCreateSpec.initAudioEmbed(queueSize: Int, user: User): EmbedCreateSpec =
+    this.setTitle(TITLE)
+        .setFooter("$queueSize tracks left in the queue", user.avatarUrl)
 
-fun EmbedCreateSpec.setAudioEmbedFooter(queueSize: Int, user: User): EmbedCreateSpec =
-    this.setFooter("$queueSize tracks left in the queue", user.avatarUrl)
+fun EmbedCreateSpec.addedToQueue(track: AudioTrack): EmbedCreateSpec =
+    this.setDescription("Added **[${track.info.title}](${track.info.uri})** to the queue.")
 
-fun EmbedCreateSpec.addedToQueueDescription(track: AudioTrack): EmbedCreateSpec =
-    this.setDescription(
-        "Added **[${track.info.title}](${track.info.uri})** to the queue."
-    )
-
-fun EmbedCreateSpec.addedToQueueDescription(tracks: List<AudioTrack>): EmbedCreateSpec =
+fun EmbedCreateSpec.addedToQueue(tracks: List<AudioTrack>): EmbedCreateSpec =
     if (tracks.size > 1) {
         this.setDescription("Added ${tracks.size} tracks to the queue.")
     } else {
-        this.addedToQueueDescription(tracks[0])
+        this.addedToQueue(tracks[0])
     }
 
-fun EmbedCreateSpec.displayTrack(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
+fun EmbedCreateSpec.searchResultIndexed(tracks: List<AudioTrack>): EmbedCreateSpec =
+    this.setDescription(tracks.mapIndexed { index, audioTrack ->
+        "**${index + 1}. [${audioTrack.info.title}](${audioTrack.info.uri})**"
+    }.joinToString(separator = "\n"))
+
+fun EmbedCreateSpec.nowPlaying(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
     if (track == null) this.setDescription("No tracks are currently playing.")
-    else this.setDescription("${ReactionUnicode.ARROW_FORWARD} ${track.formatAsMarkdown()}\n${track.position.formatTime()}/${track.duration.formatTime()}")
-        .addField("Up Next", queueList.formatAsMarkdown(), false)
+    else this.setDescription(
+        ReactionUnicode.ARROW_FORWARD +
+                " ${track.markdown()}\n${track.position.formatTime()}/${track.duration.formatTime()}"
+    )
+        .addField("Up Next", queueList.markdown(), false)
 
-// Audio track formatting for embed descriptions
-
-fun AudioTrack.formatAsMarkdown(): String =
+private fun AudioTrack.markdown(): String =
     "**[${this.info.title}](${this.info.uri}) (${this.duration.formatTime()})**"
 
-fun List<AudioTrack>.formatAsMarkdown(): String =
+private fun List<AudioTrack>.markdown(): String =
     if (this.isEmpty()) "No tracks left."
-    else this.joinToString(separator = "\n") { it.formatAsMarkdown() }
+    else this.joinToString(separator = "\n", transform = AudioTrack::markdown)
 
-fun List<AudioTrack>.formatIndexed(): String =
-    this.mapIndexed { index, audioTrack ->
-        "**${index + 1}. [${audioTrack.info.title}](${audioTrack.info.uri})**"
-    }.joinToString(separator = "\n")
-
-fun Long.formatTime(): String {
+private fun Long.formatTime(): String {
     val h = TimeUnit.MILLISECONDS.toHours(this)
     val m = TimeUnit.MILLISECONDS.toMinutes(this)
     val s = TimeUnit.MILLISECONDS.toSeconds(this)

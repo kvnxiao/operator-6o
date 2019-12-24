@@ -21,10 +21,9 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.embeds.addedToQueueDescription
-import com.github.kvnxiao.discord.embeds.formatIndexed
-import com.github.kvnxiao.discord.embeds.setAudioEmbedFooter
-import com.github.kvnxiao.discord.embeds.setAudioEmbedTitle
+import com.github.kvnxiao.discord.embeds.addedToQueue
+import com.github.kvnxiao.discord.embeds.initAudioEmbed
+import com.github.kvnxiao.discord.embeds.searchResultIndexed
 import com.github.kvnxiao.discord.guild.audio.AudioManager
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
@@ -70,9 +69,8 @@ class YoutubeSearchCommand(
                             .map { tracks -> tracks.take(SEARCH_SIZE) }
                             .flatMap { tracks ->
                                 ctx.channel.createEmbed { spec ->
-                                    spec.setTitle("Audio Player - Youtube Search")
-                                        .setDescription(tracks.formatIndexed())
-                                        .setAudioEmbedFooter(audioManager.remainingTracks, member)
+                                    spec.initAudioEmbed(audioManager.remainingTracks, member)
+                                        .searchResultIndexed(tracks)
                                 }.flatMap { message ->
                                     Flux.fromIterable(ReactionUnicode.DIGITS_FROM_1.take(tracks.size))
                                         .flatMap { unicode -> message.addReaction(ReactionEmoji.unicode(unicode)) }
@@ -119,7 +117,7 @@ class YoutubeSearchCommand(
         event.messageId == message.id &&
                 event.userId == member.id &&
                 (event.emoji.asUnicodeEmoji()
-                    .map { ReactionUnicode.getIndexFromDigits(it.raw) > 0 }.orElse(false))
+                    .map { ReactionUnicode.getIndexFromDigits(it.raw) >= 0 }.orElse(false))
 
     /**
      * Cleans up all reactions from the search result embed, and then adds a :timer: emoji to signal that the search
@@ -152,9 +150,8 @@ class YoutubeSearchCommand(
         val track = tracks[index]
         audioManager.offer(listOf(track), member)
         return channel.createEmbed { spec ->
-            spec.setAudioEmbedTitle()
-                .addedToQueueDescription(track)
-                .setAudioEmbedFooter(audioManager.remainingTracks, member)
+            spec.initAudioEmbed(audioManager.remainingTracks, member)
+                .addedToQueue(track)
         }.map { index }
     }
 }

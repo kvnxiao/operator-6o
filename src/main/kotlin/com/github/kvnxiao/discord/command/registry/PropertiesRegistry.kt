@@ -52,4 +52,7 @@ class PropertiesRegistry(private val registryNode: RegistryNode) {
             null
         }
     }
+
+    fun getTopLevelPropertyById(id: Id): CommandProperties? =
+        registryNode.commandFromId(id)?.properties
 }

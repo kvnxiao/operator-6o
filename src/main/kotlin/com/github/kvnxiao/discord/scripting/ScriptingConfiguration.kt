@@ -13,14 +13,17 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.command.executable
+package com.github.kvnxiao.discord.scripting
 
-import com.github.kvnxiao.discord.command.context.Context
-import reactor.core.publisher.Mono
+import org.graalvm.polyglot.Context
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-/**
- * Abstract command class that represents an inheritable stub command which simply returns an empty Mono upon execution.
- */
-abstract class StubCommand : Command {
-    final override fun execute(ctx: Context): Mono<Void> = Mono.empty()
+@Configuration
+class ScriptingConfiguration {
+
+    @Bean
+    fun graalContext(): Context =
+        Context.newBuilder("js")
+            .build()
 }

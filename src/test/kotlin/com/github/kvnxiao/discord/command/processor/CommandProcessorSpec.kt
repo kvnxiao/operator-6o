@@ -15,6 +15,7 @@
  */
 package com.github.kvnxiao.discord.command.processor
 
+import com.github.kvnxiao.discord.command.NoopPrefixSettings
 import com.github.kvnxiao.discord.command.command
 import com.github.kvnxiao.discord.command.context.Arguments
 import com.github.kvnxiao.discord.command.registry.MapTreeRegistryRoot
@@ -36,7 +37,7 @@ class CommandProcessorSpec : Spek({
         this.register(c123).register(c456)
         this.register(abc)
     }
-    val processor = CommandProcessor(listOf(), listOf(), registry)
+    val processor = CommandProcessor(listOf(), listOf(), registry, NoopPrefixSettings())
 
     describe("Command registry with commands (test1->d1->d2, 123->456, abc)") {
         describe("testing for commands test1->d1->d2") {
