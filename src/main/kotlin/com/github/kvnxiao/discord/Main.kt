@@ -15,8 +15,13 @@
  */
 package com.github.kvnxiao.discord
 
+import com.oracle.js.parser.ScriptEnvironment
+import java.nio.file.FileSystems
 import org.springframework.boot.SpringApplication
 
 fun main(args: Array<String>) {
+    ScriptEnvironment::class.java.classLoader.getResource("/META-INF/truffle/language")?.let { res ->
+        FileSystems.newFileSystem(res.toURI(), HashMap<String, Any>())
+    }
     SpringApplication.run(Application::class.java, *args)
 }
