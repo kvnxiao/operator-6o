@@ -63,7 +63,11 @@ class CommandProcessor(
      */
     fun processMessageCreateEvent(event: MessageCreateEvent): Mono<Void> = Mono.just(event)
         .filterWhen(this::validateMessageCreateEvent)
-        .flatMap(this::getCommandWithContext)
+        .flatMap {
+            event.client.selfId.flatMap { selfId ->
+                getCommandWithContext(event, selfId)
+            }
+        }
         .filter { (command, context) -> command.rateLimiter.isNotRateLimited(context.guild, context.user) }
         .flatMap { (command, context) -> execute(command, context) }
 
@@ -80,14 +84,14 @@ class CommandProcessor(
     private fun execute(command: DiscordCommand, context: Context): Mono<Void> =
         command.executable.execute(context)
 
-    private fun getCommandWithContext(event: MessageCreateEvent): Mono<Tuple2<DiscordCommand, Context>> {
+    private fun getCommandWithContext(event: MessageCreateEvent, selfId: Snowflake): Mono<Tuple2<DiscordCommand, Context>> {
         val prefix = event.guildId
             .map { prefixSettings.getPrefixOrDefault(it) }
             .orElse(PrefixSettings.DEFAULT_PREFIX)
 
         val content = event.message.content.orElse("")
 
-        val mentionIndex = content.startsWithMention(event.client.selfId.asString())
+        val mentionIndex = content.startsWithMention(selfId.asString())
         val wasBotMentioned = mentionIndex > 0
         val isValidPrefix = content.startsWith(prefix)
 

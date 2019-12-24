@@ -42,28 +42,29 @@ class HelpCommand(
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
         val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
-        return Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
-            .flatMap { (props, subAliases, pathList) ->
-                ctx.channel.createMessage { spec ->
-                    spec.setEmbed { embedSpec ->
-                        val fullCommandPath = pathList.joinToString(separator = " ")
-                        val replacement = if (props.permissions.requireBotMention) {
-                            val mention = ctx.event.client.botMention()
-                            "$mention `$fullCommandPath`"
-                        } else {
-                            "`$prefix$fullCommandPath`"
-                        }
+        return ctx.event.client.botMention().flatMap { mention ->
+            Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
+                .flatMap { (props, subAliases, pathList) ->
+                    ctx.channel.createMessage { spec ->
+                        spec.setEmbed { embedSpec ->
+                            val fullCommandPath = pathList.joinToString(separator = " ")
+                            val replacement = if (props.permissions.requireBotMention) {
+                                "$mention `$fullCommandPath`"
+                            } else {
+                                "`$prefix$fullCommandPath`"
+                            }
 
-                        embedSpec.setTitle("Command Manual")
-                            .addField("ID", props.id, true)
-                            .addField("Aliases", props.aliases.joinToString(), true)
-                            .addField("Permissions Required", props.formatPermissions(), false)
-                            .addField("Description", props.descriptor.description, false)
-                            .addField("Usage", formatUsage(props, replacement), false)
-                            .addField("Sub-commands", formatSubCommands(subAliases, replacement), false)
+                            embedSpec.setTitle("Command Manual")
+                                .addField("ID", props.id, true)
+                                .addField("Aliases", props.aliases.joinToString(), true)
+                                .addField("Permissions Required", props.formatPermissions(), false)
+                                .addField("Description", props.descriptor.description, false)
+                                .addField("Usage", formatUsage(props, replacement), false)
+                                .addField("Sub-commands", formatSubCommands(subAliases, replacement), false)
+                        }
                     }
                 }
-            }.then()
+        }.then()
     }
 
     private fun formatUsage(props: CommandProperties, replacement: String): String =

@@ -3,10 +3,11 @@ package com.github.kvnxiao.discord.commands.scripting
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
-import com.github.kvnxiao.discord.command.context.Context
+import com.github.kvnxiao.discord.command.context.Context as CommandContext
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import discord4j.core.`object`.reaction.ReactionEmoji
+import org.graalvm.polyglot.Context
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -18,9 +19,9 @@ import reactor.core.publisher.Mono
 )
 @Permissions(allowDirectMessaging = true)
 class EvalCommand(
-    private val graalContext: org.graalvm.polyglot.Context
+    private val graalContext: Context
 ) : Command {
-    override fun execute(ctx: Context): Mono<Void> =
+    override fun execute(ctx: CommandContext): Mono<Void> =
         Mono.justOrEmpty(ctx.args.arguments)
             .map { graalContext.eval("js", it) }
             .flatMap { value ->

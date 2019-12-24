@@ -41,44 +41,46 @@ class AllCommand(
     private val propertiesRegistry: PropertiesRegistry
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
-        val botMention = ctx.event.client.botMention()
-        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
-        val validProperties = propertiesRegistry.topLevelProperties
-            .filter { props ->
-                validDirectMessage(ctx, props) &&
-                        validOwner(ctx, props) &&
-                        validGuildOwner(ctx, props)
-            }.partition { props -> !props.permissions.requireBotMention }
+        return ctx.event.client.botMention().flatMap { botMention ->
+            val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
+            val validProperties = propertiesRegistry.topLevelProperties
+                .filter { props ->
+                    validDirectMessage(ctx, props) &&
+                            validOwner(ctx, props) &&
+                            validGuildOwner(ctx, props)
+                }.partition { props -> !props.permissions.requireBotMention }
 
-        val prefixedAliases = validProperties.first
-            .flatMap { it.aliases }
-            .sorted()
-        val mentionAliases = validProperties.second
-            .flatMap { it.aliases }
-            .sorted()
-        return ctx.channel.createMessage { spec ->
-            spec.setEmbed { embedSpec ->
-                embedSpec.setTitle("Command Manual")
-                    .addField(
-                        "List of all top-level commands",
-                        prefixedAliases.joinToString { "`$prefix$it`" },
-                        false
-                    ).addField(
-                        "List of commands requiring bot mention",
-                        mentionAliases.joinToString { "$botMention `$it`" },
-                        false
-                    ).setFooter(
-                        "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
-                        ctx.user.avatarUrl
-                    )
-                propertiesRegistry.getTopLevelPropertyById("help")?.let { props ->
-                    val firstAlias = props.aliases.first()
-                    val aliases = props.aliases.joinToString(separator = " or ") { "`$prefix$it`" }
-                    embedSpec.addField(
-                        "More information about a command",
-                        "$aliases <command alias without prefix>\ne.g. `$prefix$firstAlias $firstAlias`",
-                        false
-                    )
+            val prefixedAliases = validProperties.first
+                .flatMap { it.aliases }
+                .sorted()
+            val mentionAliases = validProperties.second
+                .flatMap { it.aliases }
+                .sorted()
+
+            ctx.channel.createMessage { spec ->
+                spec.setEmbed { embedSpec ->
+                    embedSpec.setTitle("Command Manual")
+                        .addField(
+                            "List of all top-level commands",
+                            prefixedAliases.joinToString { "`$prefix$it`" },
+                            false
+                        ).addField(
+                            "List of commands requiring bot mention",
+                            mentionAliases.joinToString { "$botMention `$it`" },
+                            false
+                        ).setFooter(
+                            "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
+                            ctx.user.avatarUrl
+                        )
+                    propertiesRegistry.getTopLevelPropertyById("help")?.let { props ->
+                        val firstAlias = props.aliases.first()
+                        val aliases = props.aliases.joinToString(separator = " or ") { "`$prefix$it`" }
+                        embedSpec.addField(
+                            "More information about a command",
+                            "$aliases <command alias without prefix>\ne.g. `$prefix$firstAlias $firstAlias`",
+                            false
+                        )
+                    }
                 }
             }
         }.then()
