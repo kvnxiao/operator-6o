@@ -39,6 +39,7 @@ class LeaveCommand(
         Mono.justOrEmpty(guildAudioState.getState(guild.id))
             .doOnNext { audioManager ->
                 audioManager.stop()
+            }.flatMap { audioManager ->
                 audioManager.voiceConnectionManager.disconnectVoiceConnection()
             }
             .then()

@@ -16,6 +16,7 @@
 package com.github.kvnxiao.discord.guild.audio
 
 import discord4j.voice.VoiceConnection
+import reactor.core.publisher.Mono
 
 /**
  * Class that keeps track of the current voice connection for a specific guild
@@ -33,9 +34,10 @@ class VoiceConnectionManager {
     /**
      * Disconnects from the current voice connection for this guild, if the connection is active.
      */
-    fun disconnectVoiceConnection() {
-        voiceConnection?.disconnect()
-        voiceConnection = null
+    fun disconnectVoiceConnection(): Mono<Void> {
+        return Mono.justOrEmpty(voiceConnection)
+            .flatMap { it.disconnect() }
+            .thenEmpty { voiceConnection = null }
     }
 
     /**
