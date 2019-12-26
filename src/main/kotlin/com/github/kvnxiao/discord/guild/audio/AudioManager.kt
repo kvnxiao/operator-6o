@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
 import discord4j.core.`object`.entity.Member
 import java.util.concurrent.BlockingDeque
 import java.util.concurrent.LinkedBlockingDeque
@@ -108,4 +109,10 @@ class AudioManager(
         get() = queueList.size
 
     fun clearQueue() = queue.clear()
+
+    override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
+        if (endReason.mayStartNext) {
+            next()
+        }
+    }
 }
