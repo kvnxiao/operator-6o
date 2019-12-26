@@ -96,6 +96,14 @@ class AudioManager(
         player.startTrack(queue.poll(), noInterrupt)
     }
 
+    fun shuffle() {
+        if (remainingTracks > 0) {
+            val shuffledTemp = queue.shuffled()
+            queue.clear()
+            queue.addAll(shuffledTemp)
+        }
+    }
+
     fun stop() {
         if (player.playingTrack != null) player.stopTrack()
     }
