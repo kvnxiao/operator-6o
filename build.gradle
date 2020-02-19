@@ -4,7 +4,7 @@ buildscript {
     ext.kluent_version = '1.60'
     ext.spring_boot_version = '2.2.4.RELEASE'
     ext.lettuce_version = '5.2.2.RELEASE'
-    ext.graalvm_js_version = '19.2.1'
+    ext.graalvm_js_version = '20.0.0'
 
     // Discord libraries
     ext.discord4j_version = '3.1.0-SNAPSHOT'
