@@ -25,7 +25,7 @@ buildscript {
     ext.shadow_version = '5.2.0'
     ext.gradle_ktlint_version = '9.2.1'
     ext.license_plugin_version = '0.15.0'
-    ext.gradle_versions_plugin = '0.27.0'
+    ext.gradle_versions_plugin = '0.28.0'
 }
 
 plugins {
