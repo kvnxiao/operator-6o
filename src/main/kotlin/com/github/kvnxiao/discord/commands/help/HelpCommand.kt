@@ -25,26 +25,65 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.PropertiesRegistry
+import discord4j.core.`object`.entity.Message
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import com.github.kvnxiao.discord.command.descriptor.Descriptor as DescriptorString
 
 @Component
 @Id("help")
 @Alias(["help", "man"])
 @Descriptor(
     description = "Displays the manual for a provided command alias.",
-    usage = "%A <command alias>"
+    usage = "%A <command alias without prefix>"
 )
 @Permissions(allowDirectMessaging = true)
 class HelpCommand(
     private val prefixSettings: PrefixSettings,
     private val propertiesRegistry: PropertiesRegistry
 ) : Command {
-    override fun execute(ctx: Context): Mono<Void> {
-        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
-        return ctx.event.client.botMention().flatMap { mention ->
-            Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
-                .flatMap { (props, subAliases, pathList) ->
+    override fun execute(ctx: Context): Mono<Void> =
+        Mono.just(prefixSettings.getPrefixOrDefault(ctx.guild?.id))
+            .flatMap { prefix ->
+                commandUsage(ctx, prefix, propertiesRegistry)
+                    .switchIfEmpty(defaultMessage(ctx, prefix, propertiesRegistry))
+            }
+            .then()
+
+    private fun defaultMessage(
+        ctx: Context,
+        prefix: String,
+        propertiesRegistry: PropertiesRegistry
+    ): Mono<Message> =
+        ctx.channel.createMessage { spec ->
+            spec.setEmbed { embedSpec ->
+                val commandPath = "$prefix${ctx.args.alias}"
+                embedSpec.setTitle("Command Manual")
+                    .setDescription("Welcome to the help manual!")
+                    .addField(
+                        "How to use",
+                        "To see a command's usage, type\n`${formatUsage(ctx.descriptor, commandPath)}`\ne.g. `$commandPath ping` will show information about the ping command.",
+                        false
+                    )
+                propertiesRegistry.getTopLevelPropertyById("all")?.let { props ->
+                    val aliases = props.aliases.joinToString(separator = " or ") { "`$prefix$it`" }
+                    embedSpec.addField(
+                        "See all available top-level commands",
+                        "To view all available commands, type\n$aliases",
+                        false
+                    )
+                }
+            }
+        }
+
+    private fun commandUsage(
+        ctx: Context,
+        prefix: String,
+        propertiesRegistry: PropertiesRegistry
+    ): Mono<Message> =
+        Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
+            .flatMap { (props, subAliases, pathList) ->
+                ctx.event.client.botMention().flatMap { mention ->
                     ctx.channel.createMessage { spec ->
                         spec.setEmbed { embedSpec ->
                             val fullCommandPath = pathList.joinToString(separator = " ")
@@ -59,16 +98,15 @@ class HelpCommand(
                                 .addField("Aliases", props.aliases.joinToString(), true)
                                 .addField("Permissions Required", props.formatPermissions(), false)
                                 .addField("Description", props.descriptor.description, false)
-                                .addField("Usage", formatUsage(props, replacement), false)
+                                .addField("Usage", formatUsage(props.descriptor, replacement), false)
                                 .addField("Sub-commands", formatSubCommands(subAliases, replacement), false)
                         }
                     }
                 }
-        }.then()
-    }
+            }
 
-    private fun formatUsage(props: CommandProperties, replacement: String): String =
-        props.descriptor.usage.replace("%A", replacement)
+    private fun formatUsage(descriptor: DescriptorString, replacement: String): String =
+        descriptor.usage.replace("%A", replacement)
 
     private fun formatSubCommands(subAliases: List<String>, replacement: String): String =
         if (subAliases.isEmpty()) "N/A" else subAliases.joinToString(separator = "\n") {
