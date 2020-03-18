@@ -49,6 +49,7 @@ class Client(
 
         client.withGateway { gateway ->
             gateway.on(ReadyEvent::class.java)
+                .take(1)
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
                 .map { event -> event.guilds.size }
                 .flatMap { size ->
