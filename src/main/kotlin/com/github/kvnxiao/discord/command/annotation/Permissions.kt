@@ -16,7 +16,7 @@
 package com.github.kvnxiao.discord.command.annotation
 
 import com.github.kvnxiao.discord.command.permission.Permissions
-import discord4j.core.`object`.util.Permission
+import discord4j.rest.util.Permission
 
 annotation class Permissions(
     val requireBotOwner: Boolean = Permissions.REQUIRE_BOT_OWNER,

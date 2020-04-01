@@ -24,8 +24,8 @@ import com.github.kvnxiao.discord.command.startsWithMention
 import com.github.kvnxiao.discord.command.validation.context.ContextValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import discord4j.core.`object`.entity.channel.GuildChannel
-import discord4j.core.`object`.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.rest.util.Snowflake
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -89,8 +89,7 @@ class CommandProcessor(
             .map { prefixSettings.getPrefixOrDefault(it) }
             .orElse(PrefixSettings.DEFAULT_PREFIX)
 
-        val content = event.message.content.orElse("")
-
+        val content = event.message.content
         val mentionIndex = content.startsWithMention(selfId.asString())
         val wasBotMentioned = mentionIndex > 0
         val isValidPrefix = content.startsWith(prefix)

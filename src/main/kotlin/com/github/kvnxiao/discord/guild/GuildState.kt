@@ -15,7 +15,7 @@
  */
 package com.github.kvnxiao.discord.guild
 
-import discord4j.core.`object`.util.Snowflake
+import discord4j.rest.util.Snowflake
 
 interface GuildState<T> {
     /**

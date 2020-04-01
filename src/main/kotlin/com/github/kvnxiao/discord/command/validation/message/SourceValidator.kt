@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono
 class SourceValidator : MessageValidator {
     override fun validate(value: Message): Mono<Boolean> =
         Mono.just(
-            value.content.map(String::isNotBlank).orElse(false) &&
+            value.content.isNotBlank() &&
                     value.author.isPresent &&
                     value.author.map { !it.isBot }.orElse(false)
         )

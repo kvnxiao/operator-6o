@@ -20,13 +20,13 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.kvnxiao.discord.command.Id
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.User
-import discord4j.core.`object`.util.Snowflake
+import discord4j.rest.util.Snowflake
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.Bucket4j
-import java.time.Duration
 import mu.KLogger
 import mu.KotlinLogging
+import java.time.Duration
 
 private val logger: KLogger = KotlinLogging.logger { }
 

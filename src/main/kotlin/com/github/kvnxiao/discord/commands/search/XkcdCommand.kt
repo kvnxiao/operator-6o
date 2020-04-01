@@ -26,14 +26,14 @@ import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.http.HttpResponseHandler
 import com.github.kvnxiao.discord.http.isSuccessCode
 import discord4j.core.`object`.entity.Message
-import java.awt.Color
-import java.util.concurrent.ThreadLocalRandom
 import org.apache.http.client.utils.URIBuilder
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.netty.ByteBufMono
 import reactor.netty.http.client.HttpClient
 import reactor.netty.http.client.HttpClientResponse
+import java.awt.Color
+import java.util.concurrent.ThreadLocalRandom
 
 private data class XKCDResponse(
     val month: String,
