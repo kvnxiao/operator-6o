@@ -3,8 +3,6 @@ name: Build on commit
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 # Build workflow
 jobs:
