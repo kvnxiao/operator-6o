@@ -15,8 +15,8 @@
  */
 package com.github.kvnxiao.discord.command.context
 
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeNull
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -26,23 +26,23 @@ class ArgumentsSpec : Spek({
     describe("An alias/argument pair") {
         context("input string is null") {
             it("null should return default arguments") {
-                Arguments.from(null) shouldEqual Arguments.EMPTY
+                Arguments.from(null) shouldBeEqualTo Arguments.EMPTY
             }
         }
 
         context("input string is empty/blank") {
             it("empty should return default arguments") {
-                Arguments.from("") shouldEqual Arguments.EMPTY
+                Arguments.from("") shouldBeEqualTo Arguments.EMPTY
             }
             it("blank should return default arguments") {
-                Arguments.from("  \t   ") shouldEqual Arguments.EMPTY
+                Arguments.from("  \t   ") shouldBeEqualTo Arguments.EMPTY
             }
         }
 
         context("input string is single word") {
             it("should return with null arguments") {
                 val (alias, arguments) = Arguments.from("test")
-                alias shouldEqual "test"
+                alias shouldBeEqualTo "test"
                 arguments.shouldBeNull()
             }
         }
@@ -50,19 +50,19 @@ class ArgumentsSpec : Spek({
         context("input string is multi-word") {
             it("should return with non-null arguments") {
                 val (alias, arguments) = Arguments.from("test 123 abc")
-                alias shouldEqual "test"
+                alias shouldBeEqualTo "test"
                 arguments.shouldNotBeNull()
-                arguments shouldEqual "123 abc"
+                arguments shouldBeEqualTo "123 abc"
             }
 
             it("should be able to call next() and return non-null arguments") {
                 val arg1 = Arguments.from("test 123 abc")
-                arg1 shouldEqual Arguments("test", "123 abc")
+                arg1 shouldBeEqualTo Arguments("test", "123 abc")
                 val arg2 = arg1.next()
-                arg2 shouldEqual Arguments("123", "abc")
+                arg2 shouldBeEqualTo Arguments("123", "abc")
                 val arg3 = arg2.next()
-                arg3 shouldEqual Arguments("abc", null)
-                arg3.next() shouldEqual Arguments.EMPTY
+                arg3 shouldBeEqualTo Arguments("abc", null)
+                arg3.next() shouldBeEqualTo Arguments.EMPTY
             }
         }
     }
