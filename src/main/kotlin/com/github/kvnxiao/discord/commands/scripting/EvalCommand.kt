@@ -18,13 +18,13 @@ package com.github.kvnxiao.discord.commands.scripting
 import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
+import com.github.kvnxiao.discord.command.context.Context as CommandContext
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import discord4j.core.`object`.reaction.ReactionEmoji
 import org.graalvm.polyglot.Context
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import com.github.kvnxiao.discord.command.context.Context as CommandContext
 
 @Component
 @Id("eval")

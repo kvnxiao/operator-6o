@@ -21,9 +21,9 @@ import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.reaction.ReactionUnicode.EIGHTBALL
+import java.util.concurrent.ThreadLocalRandom
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import java.util.concurrent.ThreadLocalRandom
 
 @Component
 @Id("8ball")
