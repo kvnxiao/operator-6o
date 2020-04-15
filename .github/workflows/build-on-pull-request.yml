@@ -1,7 +1,7 @@
-name: Build on commit
+name: Build on pull request
 
 on:
-  push:
+  pull_request:
     branches: [ master ]
 
 # Build workflow
@@ -17,7 +17,3 @@ jobs:
       - uses: eskatos/gradle-command-action@v1
         with:
           arguments: build
-      - uses: actions/upload-artifact@v1
-        with:
-          name: libs
-          path: build/libs
