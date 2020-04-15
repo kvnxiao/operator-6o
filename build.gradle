@@ -103,7 +103,9 @@ ktlint {
 
 license {
     header rootProject.file('docs/LICENSE_HEADER')
+    skipExistingHeaders true
     strictCheck true
+    exclude "*.so"
 }
 
 task formatAll {
