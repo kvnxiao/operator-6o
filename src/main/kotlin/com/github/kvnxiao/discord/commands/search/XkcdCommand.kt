@@ -26,7 +26,7 @@ import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.http.HttpResponseHandler
 import com.github.kvnxiao.discord.http.isSuccessCode
 import discord4j.core.`object`.entity.Message
-import java.awt.Color
+import discord4j.rest.util.Color
 import java.util.concurrent.ThreadLocalRandom
 import org.apache.http.client.utils.URIBuilder
 import org.springframework.stereotype.Component
@@ -57,7 +57,7 @@ private object Xkcd {
 
     const val DEFAULT_PATH = "info.0.json"
 
-    val EMBED_COLOR = Color(150, 168, 200)
+    val EMBED_COLOR = Color.of(150, 168, 200)
 
     fun client(path: String = DEFAULT_PATH): HttpClient.ResponseReceiver<*> =
         HttpClient.create()
