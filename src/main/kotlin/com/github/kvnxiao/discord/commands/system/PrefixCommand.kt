@@ -60,5 +60,8 @@ class PrefixGetCommand(
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         prefixSettings.loadPrefixForGuild(guild.id)
             .flatMap { prefix -> ctx.channel.createMessage("The current guild prefix is `$prefix`") }
+            .switchIfEmpty(
+                ctx.channel.createMessage("No custom prefix has been set, the default guild prefix is ${PrefixSettings.DEFAULT_PREFIX}")
+            )
             .then()
 }
