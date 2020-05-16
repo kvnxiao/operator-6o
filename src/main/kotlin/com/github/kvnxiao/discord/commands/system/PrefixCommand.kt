@@ -61,7 +61,7 @@ class PrefixGetCommand(
         prefixSettings.loadPrefixForGuild(guild.id)
             .flatMap { prefix -> ctx.channel.createMessage("The current guild prefix is `$prefix`") }
             .switchIfEmpty(
-                ctx.channel.createMessage("No custom prefix has been set, the default guild prefix is ${PrefixSettings.DEFAULT_PREFIX}")
+                ctx.channel.createMessage("No custom prefix has been set, the default guild prefix is `${PrefixSettings.DEFAULT_PREFIX}`")
             )
             .then()
 }
