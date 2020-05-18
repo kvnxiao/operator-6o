@@ -62,10 +62,10 @@ class AllCommand(
                     embedSpec.setTitle("Command Manual")
                         .addField(
                             "List of all top-level commands",
-                            prefixedAliases.joinToString { "`$prefix$it`" },
+                            prefixedAliases.joinToString(separator = " ") { "`$prefix$it`" },
                             false
                         ).addField(
-                            "List of commands requiring bot mention",
+                            "Commands that require an `@` mention to the bot",
                             mentionAliases.joinToString { "$botMention `$it`" },
                             false
                         ).setFooter(
