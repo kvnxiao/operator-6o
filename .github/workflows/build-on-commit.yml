@@ -19,8 +19,16 @@ jobs:
           arguments: build
       - uses: actions/upload-artifact@v1
         with:
-          name: libs
+          name: build-libs.zip
           path: build/libs
+      - name: Temporarily stop the service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: sudo systemctl stop operator-6o
       - name: Deploy .jar file
         uses: appleboy/scp-action@master
         with:
@@ -31,3 +39,11 @@ jobs:
           strip_components: 2
           source: "build/libs/operator-6o.jar"
           target: "/opt/operator-6o/"
+      - name: Restart the service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: sudo systemctl start operator-6o
