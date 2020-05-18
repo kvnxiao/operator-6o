@@ -15,7 +15,6 @@
  */
 package com.github.kvnxiao.discord.commands.help
 
-import com.github.kvnxiao.discord.client.botMention
 import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.annotation.Alias
 import com.github.kvnxiao.discord.command.annotation.Descriptor
@@ -25,6 +24,8 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.PropertiesRegistry
+import com.github.kvnxiao.discord.d4j.botMention
+import com.github.kvnxiao.discord.d4j.embed
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -57,32 +58,34 @@ class AllCommand(
                 .flatMap { it.aliases }
                 .sorted()
 
-            ctx.channel.createMessage { spec ->
-                spec.setEmbed { embedSpec ->
-                    embedSpec.setTitle("Command Manual")
-                        .addField(
-                            "List of all top-level commands",
-                            prefixedAliases.joinToString(separator = " ") { "`$prefix$it`" },
-                            false
-                        ).addField(
-                            "Commands that require an `@` mention to the bot",
-                            mentionAliases.joinToString { "$botMention `$it`" },
-                            false
-                        ).setFooter(
-                            "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
-                            ctx.user.avatarUrl
-                        )
+            ctx.channel.createEmbed(
+                embed {
+                    setTitle("Command Manual")
+                    addField(
+                        "List of all top-level commands",
+                        prefixedAliases.joinToString(separator = " ") { "`$prefix$it`" },
+                        false
+                    )
+                    addField(
+                        "Commands that require an `@` mention to the bot",
+                        mentionAliases.joinToString { "$botMention `$it`" },
+                        false
+                    )
+                    setFooter(
+                        "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
+                        ctx.user.avatarUrl
+                    )
                     propertiesRegistry.getTopLevelPropertyById("help")?.let { props ->
                         val firstAlias = props.aliases.first()
                         val aliases = props.aliases.joinToString(separator = " or ") { "`$prefix$it`" }
-                        embedSpec.addField(
+                        addField(
                             "More information about a command",
                             "$aliases <command alias without prefix>\ne.g. `$prefix$firstAlias $firstAlias`",
                             false
                         )
                     }
                 }
-            }
+            )
         }.then()
     }
 

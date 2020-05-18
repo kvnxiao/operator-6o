@@ -23,6 +23,7 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.http.HttpResponseHandler
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import discord4j.core.`object`.entity.Message
@@ -113,16 +114,19 @@ class WikipediaSearch(
         body.asInputStream()
             .map { objectMapper.readValue<SearchResult>(it) }
             .flatMap { search ->
-                ctx.channel.createMessage { spec ->
-                    spec.setEmbed { embedSpec ->
-                        embedSpec.setTitle("${ReactionUnicode.MAG_RIGHT} Wikipedia Search")
-                            .setDescription(formatMessage(ctx.args.arguments, search))
+                ctx.channel.createEmbed(
+                    embed {
+                        setTitle("${ReactionUnicode.MAG_RIGHT} Wikipedia Search")
+                        setDescription(formatMessage(ctx.args.arguments, search))
                     }
-                }
+                )
             }
 
     override fun handleError(ctx: Context, response: HttpClientResponse): Mono<Message> =
-        ctx.channel.createMessage("An error occurred while searching for ${ctx.args.arguments} on Wikipedia.\n${response.status().code()} - ${response.status().reasonPhrase()}")
+        ctx.channel.createMessage(
+            "An error occurred while searching for ${ctx.args.arguments} on Wikipedia.\n${response.status()
+                .code()} - ${response.status().reasonPhrase()}"
+        )
 
     private fun formatMessage(query: String?, response: SearchResult): String {
         if (response.query.search.isEmpty()) return "**No results for `$query`**"

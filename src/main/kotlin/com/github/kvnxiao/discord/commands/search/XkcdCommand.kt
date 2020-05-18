@@ -23,6 +23,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.SubCommand
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.http.HttpResponseHandler
 import com.github.kvnxiao.discord.http.isSuccessCode
 import discord4j.core.`object`.entity.Message
@@ -68,19 +69,18 @@ private object Xkcd {
         body.asInputStream()
             .map { objectMapper.readValue<XKCDResponse>(it) }
             .flatMap { response ->
-                ctx.channel.createMessage { spec ->
-                    spec.setEmbed { embedSpec ->
-                        embedSpec
-                            .setTitle("${response.title} (#${response.num})")
-                            .setDescription(response.alt)
-                            .setImage(response.img)
-                            .setFooter(
-                                "xkcd #${response.num} | ${response.year}-${response.month}-${response.day}",
-                                null
-                            )
-                            .setColor(EMBED_COLOR)
+                ctx.channel.createEmbed(
+                    embed {
+                        setTitle("${response.title} (#${response.num})")
+                        setDescription(response.alt)
+                        setImage(response.img)
+                        setFooter(
+                            "xkcd #${response.num} | ${response.year}-${response.month}-${response.day}",
+                            null
+                        )
+                        setColor(EMBED_COLOR)
                     }
-                }
+                )
             }
 
     fun handleError(ctx: Context, response: HttpClientResponse): Mono<Message> =

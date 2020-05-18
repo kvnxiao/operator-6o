@@ -21,9 +21,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.embeds.addedToQueue
-import com.github.kvnxiao.discord.embeds.initAudioEmbed
-import com.github.kvnxiao.discord.embeds.searchResultIndexed
+import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.guild.audio.AudioManager
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
@@ -39,6 +37,9 @@ import java.time.Duration
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
+import reactor.kotlin.core.util.function.component1
+import reactor.kotlin.core.util.function.component2
 
 @Component
 @Id("youtube_search")
@@ -68,10 +69,12 @@ class YoutubeSearchCommand(
                             .filter { it.isNotEmpty() }
                             .map { tracks -> tracks.take(SEARCH_SIZE) }
                             .flatMap { tracks ->
-                                ctx.channel.createEmbed { spec ->
-                                    spec.initAudioEmbed(audioManager.remainingTracks, member)
-                                        .searchResultIndexed(tracks)
-                                }.flatMap { message ->
+                                ctx.channel.createEmbed(
+                                    embed {
+                                        initAudioEmbed(audioManager.remainingTracks, member)
+                                        searchResultIndexed(tracks)
+                                    }
+                                ).flatMap { message ->
                                     Flux.fromIterable(ReactionUnicode.DIGITS_FROM_1.take(tracks.size))
                                         .flatMap { unicode -> message.addReaction(ReactionEmoji.unicode(unicode)) }
                                         .then(Mono.just(message))
@@ -145,13 +148,16 @@ class YoutubeSearchCommand(
         member: Member,
         audioManager: AudioManager
     ): Mono<Int> {
-        val index = event.emoji.asUnicodeEmoji().map { ReactionUnicode.getIndexFromDigits(it.raw) }.orElse(-1)
-        if (index !in tracks.indices) return Mono.empty()
-        val track = tracks[index]
-        audioManager.offer(listOf(track), member)
-        return channel.createEmbed { spec ->
-            spec.initAudioEmbed(audioManager.remainingTracks, member)
-                .addedToQueue(track)
-        }.map { index }
+        return Mono.just(event.emoji.asUnicodeEmoji().map { ReactionUnicode.getIndexFromDigits(it.raw) }.orElse(-1))
+            .filter { index -> index in tracks.indices }
+            .zipWhen { index -> tracks[index].toMono() }
+            .flatMap { (index, track) ->
+                channel.createEmbed(
+                    embed {
+                        initAudioEmbed(audioManager.remainingTracks, member)
+                        addedToQueue(track)
+                    }
+                ).thenReturn(index)
+            }
     }
 }

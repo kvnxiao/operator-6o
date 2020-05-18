@@ -21,8 +21,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.embeds.initAudioEmbed
-import com.github.kvnxiao.discord.embeds.nowPlaying
+import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import discord4j.core.`object`.entity.Guild
 import org.springframework.stereotype.Component
@@ -45,10 +44,12 @@ class NowPlayingCommand(
             .flatMap { audioManager ->
                 val currentTrack = audioManager.getCurrentTrack()
                 val queueList = audioManager.queueList
-                ctx.channel.createEmbed { spec ->
-                    spec.initAudioEmbed(audioManager.remainingTracks, ctx.user)
-                        .nowPlaying(currentTrack, queueList)
-                }
+                ctx.channel.createEmbed(
+                    embed {
+                        initAudioEmbed(audioManager.remainingTracks, ctx.user)
+                        nowPlaying(currentTrack, queueList)
+                    }
+                )
             }
             .then()
 }

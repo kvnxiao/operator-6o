@@ -21,8 +21,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.embeds.addedToQueue
-import com.github.kvnxiao.discord.embeds.initAudioEmbed
+import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.guild.audio.AudioManager
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import com.github.kvnxiao.discord.guild.audio.SourceType
@@ -84,10 +83,12 @@ class YoutubeCommand(
             .filter { it.isNotEmpty() }
             .doOnNext { tracks -> audioManager.offer(tracks, member) }
             .flatMap { tracks ->
-                ctx.channel.createEmbed { spec ->
-                    spec.initAudioEmbed(audioManager.remainingTracks, member)
-                        .addedToQueue(tracks)
-                }
+                ctx.channel.createEmbed(
+                    embed {
+                        initAudioEmbed(audioManager.remainingTracks, member)
+                        addedToQueue(tracks)
+                    }
+                )
             }
             .onErrorResume {
                 ctx.channel.createMessage("An error occurred querying for **$query**: ${it.message}")

@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.embeds
+package com.github.kvnxiao.discord.commands.audio
 
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
@@ -23,26 +23,26 @@ import java.util.concurrent.TimeUnit
 
 private const val TITLE = "Audio Player"
 
-fun EmbedCreateSpec.initAudioEmbed(queueSize: Int, user: User): EmbedCreateSpec =
+internal fun EmbedCreateSpec.initAudioEmbed(queueSize: Int, user: User): EmbedCreateSpec =
     this.setTitle(TITLE)
         .setFooter("$queueSize tracks left in the queue", user.avatarUrl)
 
-fun EmbedCreateSpec.addedToQueue(track: AudioTrack): EmbedCreateSpec =
+internal fun EmbedCreateSpec.addedToQueue(track: AudioTrack): EmbedCreateSpec =
     this.setDescription("Added **[${track.info.title}](${track.info.uri})** to the queue.")
 
-fun EmbedCreateSpec.addedToQueue(tracks: List<AudioTrack>): EmbedCreateSpec =
+internal fun EmbedCreateSpec.addedToQueue(tracks: List<AudioTrack>): EmbedCreateSpec =
     if (tracks.size > 1) {
         this.setDescription("Added ${tracks.size} tracks to the queue.")
     } else {
         this.addedToQueue(tracks[0])
     }
 
-fun EmbedCreateSpec.searchResultIndexed(tracks: List<AudioTrack>): EmbedCreateSpec =
+internal fun EmbedCreateSpec.searchResultIndexed(tracks: List<AudioTrack>): EmbedCreateSpec =
     this.setDescription(tracks.mapIndexed { index, audioTrack ->
         "**${index + 1}. [${audioTrack.info.title}](${audioTrack.info.uri})**"
     }.joinToString(separator = "\n"))
 
-fun EmbedCreateSpec.nowPlaying(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
+internal fun EmbedCreateSpec.nowPlaying(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
     if (track == null) this.setDescription("No tracks are currently playing.")
     else this.setDescription(
         ReactionUnicode.ARROW_FORWARD +

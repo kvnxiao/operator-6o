@@ -20,6 +20,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.d4j.embed
 import discord4j.common.GitProperties.GIT_COMMIT_ID_DESCRIBE
 import java.time.Instant
 import java.time.ZoneId
@@ -44,9 +45,9 @@ class VersionCommand(
 ) : Command {
 
     companion object {
-        const val BUILD_VERSION = "build.version"
-        const val COMMIT_TIME = "commit.time"
-        val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
+        private const val BUILD_VERSION = "build.version"
+        private const val COMMIT_TIME = "commit.time"
+        private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
     }
 
     private val shortCommitId: String = gitProperties.shortCommitId
@@ -58,11 +59,13 @@ class VersionCommand(
     private val discord4jVersion: String = discord4jProperties.getProperty(GIT_COMMIT_ID_DESCRIBE)
 
     override fun execute(ctx: Context): Mono<Void> =
-        ctx.channel.createEmbed { spec ->
-            spec.setTitle("Version Info")
-                .addField("Commit ID", shortCommitId, true)
-                .addField("Commit Time", commitTime, true)
-                .addField("Version", buildVersion, false)
-                .addField("Discord4J Version", discord4jVersion, false)
-        }.then()
+        ctx.channel.createEmbed(
+            embed {
+                setTitle("Version Info")
+                addField("Commit ID", shortCommitId, true)
+                addField("Commit Time", commitTime, true)
+                addField("Version", buildVersion, false)
+                addField("Discord4J Version", discord4jVersion, false)
+            }
+        ).then()
 }

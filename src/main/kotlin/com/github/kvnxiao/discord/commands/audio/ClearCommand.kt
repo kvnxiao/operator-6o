@@ -20,7 +20,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.embeds.initAudioEmbed
+import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.guild.audio.GuildAudioState
 import discord4j.core.`object`.entity.Guild
 import org.springframework.stereotype.Component
@@ -39,12 +39,14 @@ class ClearCommand(
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         Mono.justOrEmpty(guildAudioState.getState(guild.id))
             .filter { audioManager -> audioManager.queueList.isNotEmpty() }
-            .flatMap { audioManager ->
-                ctx.channel.createEmbed { spec ->
-                    audioManager.clearQueue()
-                    spec.initAudioEmbed(0, ctx.user)
-                        .setDescription("Queue has been cleared!")
-                }
+            .doOnNext { audioManager -> audioManager.clearQueue() }
+            .flatMap {
+                ctx.channel.createEmbed(
+                    embed {
+                        initAudioEmbed(0, ctx.user)
+                        setDescription("Queue has been cleared!")
+                    }
+                )
             }
             .then()
 }
