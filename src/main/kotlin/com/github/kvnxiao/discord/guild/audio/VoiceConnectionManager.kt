@@ -34,10 +34,11 @@ class VoiceConnectionManager {
     /**
      * Disconnects from the current voice connection for this guild, if the connection is active.
      */
-    fun disconnectVoiceConnection(): Mono<Void> =
+    fun disconnectVoiceConnection(): Mono<Boolean> =
         Mono.justOrEmpty(voiceConnection)
-            .flatMap { it.disconnect() }
-            .thenEmpty { voiceConnection = null }
+            .flatMap { it.disconnect().thenReturn(true) }
+            .doOnNext { voiceConnection = null }
+            .switchIfEmpty(Mono.just(false))
 
     /**
      * Checks whether a current voice connection exists or not.

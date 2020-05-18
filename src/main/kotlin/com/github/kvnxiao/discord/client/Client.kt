@@ -20,34 +20,32 @@ import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.env.Environment
-import discord4j.core.DiscordClient
 import discord4j.core.DiscordClientBuilder
 import discord4j.core.event.domain.guild.GuildCreateEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
 import mu.KotlinLogging
+import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.ApplicationArguments
-import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
+import reactor.core.Disposable
 
 private val logger = KotlinLogging.logger {}
 
-@Component
+@Component("client")
 class Client(
     private val commandProcessor: CommandProcessor,
-    private val annotationProcessor: AnnotationProcessor,
-    private val rootRegistry: RegistryNode,
-    private val commands: List<Command>,
+    annotationProcessor: AnnotationProcessor,
+    rootRegistry: RegistryNode,
+    commands: List<Command>,
     @Value(Environment.TOKEN) private val token: String
-) : ApplicationRunner {
+) : DisposableBean {
 
-    private val client: DiscordClient = DiscordClientBuilder.create(token).build()
+    private val client: Disposable
 
-    override fun run(args: ApplicationArguments) {
+    init {
         annotationProcessor.process(commands, rootRegistry)
-
-        client.withGateway { gateway ->
+        client = DiscordClientBuilder.create(token).build().withGateway { gateway ->
             gateway.on(ReadyEvent::class.java)
                 .take(1)
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
@@ -68,5 +66,10 @@ class Client(
                 }
                 .then()
         }.subscribe()
+    }
+
+    override fun destroy() {
+        logger.info { "Shutting down..." }
+        client.dispose()
     }
 }

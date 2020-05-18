@@ -37,10 +37,7 @@ class LeaveCommand(
 ) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         Mono.justOrEmpty(guildAudioState.getState(guild.id))
-            .doOnNext { audioManager ->
-                audioManager.stop()
-            }.flatMap { audioManager ->
-                audioManager.voiceConnectionManager.disconnectVoiceConnection()
-            }
+            .doOnNext { audioManager -> audioManager.stop() }
+            .flatMap { audioManager -> audioManager.voiceConnectionManager.disconnectVoiceConnection() }
             .then()
 }

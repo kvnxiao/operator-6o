@@ -21,10 +21,12 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer
 import discord4j.rest.util.Snowflake
+import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Component
+import reactor.kotlin.core.publisher.toFlux
 
 @Component
-class GuildAudioState : GuildState<AudioManager> {
+class GuildAudioState : GuildState<AudioManager>, DisposableBean {
     companion object {
         private val playerManager: AudioPlayerManager = DefaultAudioPlayerManager().apply {
             this.configuration.setFrameBufferFactory { bufferDuration, format, stopping ->
@@ -44,4 +46,14 @@ class GuildAudioState : GuildState<AudioManager> {
 
     override fun createForGuild(guildId: Snowflake): AudioManager =
         AudioManager(playerManager).apply { guildAudioManager[guildId] = this }
+
+    override fun destroy() {
+        guildAudioManager.values.toFlux()
+            .doOnNext { manager ->
+                manager.stop()
+                manager.clearQueue()
+            }
+            .flatMap { manager -> manager.voiceConnectionManager.disconnectVoiceConnection() }
+            .blockLast()
+    }
 }

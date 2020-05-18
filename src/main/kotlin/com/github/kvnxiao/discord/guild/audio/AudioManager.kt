@@ -53,7 +53,7 @@ class AudioManager(
             SourceType.SOUNDCLOUD -> "scsearch:$query"
         }
 
-        return Flux.create<AudioTrack> { emitter ->
+        return Flux.create { emitter ->
             playerManager.loadItem(lavaplayerQuery, object : AudioLoadResultHandler {
                 override fun loadFailed(exception: FriendlyException) {
                     emitter.error(exception)
