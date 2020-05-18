@@ -103,9 +103,12 @@ class YoutubeSearchCommand(
             .filter { event -> validateReactionEvent(event, message, member) }
             .take(1).take(Duration.ofSeconds(10))
             .next()
-            .flatMap { event -> chooseSelection(event, ctx.channel, tracks, member, audioManager) }
-            .flatMap { index -> cleanupReactions(message, index) }
+            .flatMap { event ->
+                chooseSelection(event, ctx.channel, tracks, member, audioManager)
+                    .flatMap { index -> cleanupReactions(message, index) }
+            }
             .switchIfEmpty(timeoutReactions(message))
+            .then()
 
     /**
      * Filter validation for selecting only valid reaction events where the message id matches that of the original
@@ -126,16 +129,18 @@ class YoutubeSearchCommand(
      * Cleans up all reactions from the search result embed, and then adds a :timer: emoji to signal that the search
      * result embed has timed out from listening for the original user who issued the command.
      */
-    private fun timeoutReactions(message: Message): Mono<Void> =
+    private fun timeoutReactions(message: Message): Mono<Boolean> =
         message.removeAllReactions().then(message.addReaction(ReactionEmoji.unicode(ReactionUnicode.TIMER)))
+            .thenReturn(true)
 
     /**
      * Cleans up all reactions from the search result embed, and then adds the corresponding number digit emoji to
      * signal the selected track to offer to the audio player.
      */
-    private fun cleanupReactions(message: Message, index: Int): Mono<Void> =
+    private fun cleanupReactions(message: Message, index: Int): Mono<Boolean> =
         message.removeAllReactions()
             .then(message.addReaction(ReactionEmoji.unicode(ReactionUnicode.DIGITS_FROM_1[index])))
+            .thenReturn(true)
 
     /**
      * Converts the selected reaction emoji into a valid index and offers the corresponding track to the audio player,
@@ -151,6 +156,7 @@ class YoutubeSearchCommand(
         return Mono.just(event.emoji.asUnicodeEmoji().map { ReactionUnicode.getIndexFromDigits(it.raw) }.orElse(-1))
             .filter { index -> index in tracks.indices }
             .zipWhen { index -> tracks[index].toMono() }
+            .doOnNext { (_, track) -> audioManager.offer(listOf(track), member) }
             .flatMap { (index, track) ->
                 channel.createEmbed(
                     embed {
