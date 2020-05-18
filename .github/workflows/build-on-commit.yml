@@ -28,5 +28,6 @@ jobs:
           username: ${{ secrets.USER }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
+          strip_components: 2
           source: "build/libs/operator-6o.jar"
           target: "/opt/operator-6o/"
