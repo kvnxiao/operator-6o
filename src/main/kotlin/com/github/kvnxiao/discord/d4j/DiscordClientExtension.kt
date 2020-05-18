@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.kvnxiao.discord.client
+package com.github.kvnxiao.discord.d4j
 
 import discord4j.core.GatewayDiscordClient
 import reactor.core.publisher.Mono
