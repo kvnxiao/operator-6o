@@ -25,21 +25,21 @@ buildscript {
     ext.gradle_ktlint_version = '9.2.1'
     ext.license_plugin_version = '0.15.0'
     ext.gradle_versions_plugin = '0.28.0'
+    ext.git_properties_version = '2.2.2'
 }
 
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$kotlin_version"
     id "org.jlleitschuh.gradle.ktlint" version "$gradle_ktlint_version"
     id "com.github.hierynomus.license" version "$license_plugin_version"
+    id "com.gorylenko.gradle-git-properties" version "$git_properties_version"
     id "com.github.ben-manes.versions" version "$gradle_versions_plugin"
     id "org.jetbrains.kotlin.plugin.spring" version "$kotlin_version"
-    id 'org.springframework.boot' version "$spring_boot_version"
+    id "org.springframework.boot" version "$spring_boot_version"
 }
 
 group 'com.github.kvnxiao'
 version '0.1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
 
 jar {
     manifest {
@@ -115,4 +115,16 @@ task formatAll {
 
 bootJar {
     archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+}
+
+gitProperties {
+    keys = [
+            'git.branch',
+            'git.build.version',
+            'git.commit.id',
+            'git.commit.id.abbrev',
+            'git.commit.message.full',
+            'git.commit.message.short',
+            'git.commit.time'
+    ]
 }
