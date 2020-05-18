@@ -21,3 +21,12 @@ jobs:
         with:
           name: libs
           path: build/libs
+      - name: Deploy .jar file
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          source: "build/libs/operator-6o.jar"
+          target: "/opt/operator-6o/"
