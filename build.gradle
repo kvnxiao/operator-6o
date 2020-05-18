@@ -103,7 +103,7 @@ license {
     header rootProject.file('docs/LICENSE_HEADER')
     skipExistingHeaders true
     strictCheck true
-    exclude "*.so"
+    exclude "**/*.so"
 }
 
 task formatAll {
