@@ -20,7 +20,6 @@ import com.github.kvnxiao.discord.command.CommandProperties
 import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.Id
 import com.github.kvnxiao.discord.command.context.Arguments
-import org.springframework.stereotype.Component
 
 data class PropertiesSearch(
     val properties: CommandProperties,
@@ -28,7 +27,6 @@ data class PropertiesSearch(
     val pathList: List<String>
 )
 
-@Component
 class PropertiesRegistry(private val registryNode: RegistryNode) {
     val topLevelIds: List<Id>
         get() = registryNode.idEntries

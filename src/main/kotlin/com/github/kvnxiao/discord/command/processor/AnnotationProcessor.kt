@@ -35,7 +35,6 @@ import discord4j.rest.util.PermissionSet
 import kotlin.reflect.KClass
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.stereotype.Component
 
 private val logger: KLogger = KotlinLogging.logger { }
 
@@ -44,7 +43,6 @@ typealias CommandKClass = KClass<out Command>
 /**
  * Runtime annotation processor for creating a command tree to be added to a root-level command registry node.
  */
-@Component
 class AnnotationProcessor {
 
     companion object {

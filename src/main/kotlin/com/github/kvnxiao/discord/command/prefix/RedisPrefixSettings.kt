@@ -17,10 +17,8 @@ package com.github.kvnxiao.discord.command.prefix
 
 import discord4j.rest.util.Snowflake
 import org.springframework.data.redis.core.ReactiveRedisTemplate
-import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
-@Component
 class RedisPrefixSettings(
     private val redis: ReactiveRedisTemplate<String, String>
 ) : PrefixSettings {

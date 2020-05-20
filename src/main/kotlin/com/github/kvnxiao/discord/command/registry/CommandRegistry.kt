@@ -19,7 +19,6 @@ import com.github.kvnxiao.discord.command.Alias
 import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.Id
 import mu.KotlinLogging
-import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger { }
 
@@ -53,7 +52,6 @@ private fun register(
     return commandNode
 }
 
-@Component
 class MapTreeRegistryRoot : RegistryNode {
 
     private val aliasToIdMap: MutableMap<Alias, Id> = mutableMapOf()

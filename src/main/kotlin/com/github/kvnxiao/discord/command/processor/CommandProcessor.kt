@@ -26,7 +26,6 @@ import com.github.kvnxiao.discord.command.validation.message.MessageValidator
 import discord4j.core.`object`.entity.channel.GuildChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.rest.util.Snowflake
-import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.util.function.component1
@@ -38,7 +37,6 @@ import reactor.util.function.Tuples
  * Command processing handler which consumes [MessageCreateEvent]s from Discord, parses the message contents into
  * arguments, and attempts to retrieve and execute commands that match the arguments if they exist.
  */
-@Component
 class CommandProcessor(
     messageValidators: List<MessageValidator>,
     contextValidators: List<ContextValidator>,

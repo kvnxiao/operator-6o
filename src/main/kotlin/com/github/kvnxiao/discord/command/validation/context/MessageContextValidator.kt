@@ -16,10 +16,8 @@
 package com.github.kvnxiao.discord.command.validation.context
 
 import com.github.kvnxiao.discord.command.context.Context
-import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
-@Component
 class MessageContextValidator : ContextValidator {
     override fun validate(value: Context): Mono<Boolean> {
         return Mono.just(

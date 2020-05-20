@@ -17,11 +17,9 @@ package com.github.kvnxiao.discord.command.validation.context
 
 import com.github.kvnxiao.discord.command.context.Context
 import discord4j.core.`object`.entity.channel.TextChannel
-import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-@Component
 class PermissionValidator : ContextValidator {
     override fun validate(value: Context): Mono<Boolean> =
         if (value.isDirectMessage) true.toMono()
