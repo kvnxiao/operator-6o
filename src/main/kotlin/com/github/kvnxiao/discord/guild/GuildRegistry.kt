@@ -15,17 +15,15 @@
  */
 package com.github.kvnxiao.discord.guild
 
-import discord4j.rest.util.Snowflake
+import reactor.core.publisher.Mono
 
-interface GuildState<T> {
+interface GuildRegistry<T> {
     /**
-     * Gets the generic value associated with this guild state.
+     * Gets the T value associated with this guild state.
      */
-    fun getState(guildId: Snowflake): T?
-    /**
-     * Creates a new generic value for this guild state, and returns it.
-     */
-    fun createForGuild(guildId: Snowflake): T
+    fun get(guildId: Long): Mono<T>
 
-    fun getOrCreateForGuild(guildId: Snowflake): T = getState(guildId) ?: createForGuild(guildId)
+    fun create(guildId: Long): Mono<T>
+
+    fun getOrCreateFirst(guildId: Long): Mono<T> = get(guildId).switchIfEmpty(create(guildId))
 }

@@ -15,45 +15,47 @@
  */
 package com.github.kvnxiao.discord.guild.audio
 
-import com.github.kvnxiao.discord.guild.GuildState
+import com.github.kvnxiao.discord.guild.GuildRegistry
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer
-import discord4j.rest.util.Snowflake
+import java.util.concurrent.ConcurrentHashMap
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
 
 @Component
-class GuildAudioState : GuildState<AudioManager>, DisposableBean {
+class GuildAudioRegistry : GuildRegistry<AudioManager>, DisposableBean {
     companion object {
-        private val playerManager: AudioPlayerManager = DefaultAudioPlayerManager().apply {
-            this.configuration.setFrameBufferFactory { bufferDuration, format, stopping ->
-                NonAllocatingAudioFrameBuffer(
-                    bufferDuration,
-                    format,
-                    stopping
-                )
+        private val playerManager: AudioPlayerManager =
+            DefaultAudioPlayerManager().apply {
+                configuration.setFrameBufferFactory { bufferDuration, format, stopping ->
+                    NonAllocatingAudioFrameBuffer(
+                        bufferDuration,
+                        format,
+                        stopping
+                    )
+                }
+                AudioSourceManagers.registerRemoteSources(this)
             }
-            AudioSourceManagers.registerRemoteSources(this)
-        }
     }
 
-    private val guildAudioManager: MutableMap<Snowflake, AudioManager> = mutableMapOf()
+    private val map: MutableMap<Long, AudioManager> = ConcurrentHashMap()
 
-    override fun getState(guildId: Snowflake): AudioManager? = guildAudioManager[guildId]
+    override fun get(guildId: Long): Mono<AudioManager> =
+        Mono.fromCallable { map[guildId] }
 
-    override fun createForGuild(guildId: Snowflake): AudioManager =
-        AudioManager(playerManager).apply { guildAudioManager[guildId] = this }
+    override fun create(guildId: Long): Mono<AudioManager> =
+        Mono.fromCallable { map.put(guildId, AudioManager(playerManager)) }
 
     override fun destroy() {
-        guildAudioManager.values.toFlux()
-            .doOnNext { manager ->
+        map.entries.toFlux()
+            .doOnNext { (_, manager) ->
                 manager.stop()
                 manager.clearQueue()
             }
-            .flatMap { manager -> manager.voiceConnectionManager.disconnectVoiceConnection() }
             .blockLast()
     }
 }
