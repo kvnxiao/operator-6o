@@ -35,9 +35,9 @@ import org.springframework.stereotype.Component
 
 private val logger = KotlinLogging.logger {}
 
-@Component("client")
+@Component
 class Client(
-    private val commandProcessor: CommandProcessor,
+    commandProcessor: CommandProcessor,
     annotationProcessor: AnnotationProcessor,
     rootRegistry: RegistryNode,
     commands: List<Command>,
