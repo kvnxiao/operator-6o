@@ -84,7 +84,10 @@ class CommandProcessor(
     private fun execute(command: DiscordCommand, context: Context): Mono<Void> =
         command.executable.execute(context)
 
-    private fun getCommandWithContext(event: MessageCreateEvent, selfId: Snowflake): Mono<Tuple2<DiscordCommand, Context>> {
+    private fun getCommandWithContext(
+        event: MessageCreateEvent,
+        selfId: Snowflake
+    ): Mono<Tuple2<DiscordCommand, Context>> {
         val prefix = event.guildId
             .map { prefixSettings.getPrefixOrDefault(it) }
             .orElse(PrefixSettings.DEFAULT_PREFIX)
@@ -163,16 +166,18 @@ class CommandProcessor(
             .filterWhen(this::validateContext)
 
     internal fun getCommandFromAlias(args: Arguments): Mono<Tuple2<DiscordCommand, Arguments>> {
-        var currArgs: Arguments = args
-        var prevArgs: Arguments = args
-        var currNode: RegistryNode? = rootRegistry
-        var currCommand: DiscordCommand? = null
-        while (currNode != null && currArgs.alias.isNotEmpty() && currNode.subNodeFromAlias(currArgs.alias) != null) {
-            currCommand = currNode.commandFromAlias(currArgs.alias)
-            currNode = currNode.subNodeFromAlias(currArgs.alias)
-            prevArgs = currArgs
-            currArgs = currArgs.next()
+        return Mono.fromCallable {
+            var currArgs: Arguments = args
+            var prevArgs: Arguments = args
+            var currNode: RegistryNode? = rootRegistry
+            var currCommand: DiscordCommand? = null
+            while (currNode != null && currArgs.alias.isNotEmpty() && currNode.subNodeFromAlias(currArgs.alias) != null) {
+                currCommand = currNode.commandFromAlias(currArgs.alias)
+                currNode = currNode.subNodeFromAlias(currArgs.alias)
+                prevArgs = currArgs
+                currArgs = currArgs.next()
+            }
+            if (currCommand == null) null else Tuples.of(currCommand, prevArgs)
         }
-        return if (currCommand == null) Mono.empty() else Mono.just(Tuples.of(currCommand, prevArgs))
     }
 }
