@@ -63,11 +63,8 @@ class CommandProcessor(
      */
     fun processMessageCreateEvent(event: MessageCreateEvent): Mono<Void> = Mono.just(event)
         .filterWhen(this::validateMessageCreateEvent)
-        .flatMap {
-            event.client.selfId.flatMap { selfId ->
-                getCommandWithContext(event, selfId)
-            }
-        }
+        .flatMap { event.client.selfId }
+        .flatMap { selfId -> getCommandWithContext(event, selfId) }
         .filter { (command, context) -> command.rateLimiter.isNotRateLimited(context.guild, context.user) }
         .flatMap { (command, context) -> execute(command, context) }
 
@@ -87,32 +84,30 @@ class CommandProcessor(
     private fun getCommandWithContext(
         event: MessageCreateEvent,
         selfId: Snowflake
-    ): Mono<Tuple2<DiscordCommand, Context>> {
-        val prefix = event.guildId
-            .map { prefixSettings.getPrefixOrDefault(it) }
-            .orElse(PrefixSettings.DEFAULT_PREFIX)
+    ): Mono<Tuple2<DiscordCommand, Context>> =
+        Mono.just(event.message.content.startsWithMention(selfId.asString()))
+            .flatMap { mentionIndex ->
+                Mono.fromCallable<Arguments> {
+                    val wasBotMentioned = mentionIndex > 0
+                    val content = event.message.content
+                    val prefix = event.guildId
+                        .map { prefixSettings.getPrefixOrDefault(it) }
+                        .orElse(PrefixSettings.DEFAULT_PREFIX)
+                    val isValidPrefix = content.startsWith(prefix)
 
-        val content = event.message.content
-        val mentionIndex = content.startsWithMention(selfId.asString())
-        val wasBotMentioned = mentionIndex > 0
-        val isValidPrefix = content.startsWith(prefix)
+                    if (!wasBotMentioned && !isValidPrefix) {
+                        return@fromCallable null
+                    }
 
-        if (!wasBotMentioned && !isValidPrefix) {
-            return Mono.empty()
-        }
-
-        return Mono.just(content)
-            .map { if (wasBotMentioned) content.substring(mentionIndex) else content.substring(prefix.length) }
-            .flatMap { strippedContent ->
-                val initialArgs = Arguments.from(strippedContent)
-                val arguments: Arguments = if (wasBotMentioned) initialArgs.next() else initialArgs
-
-                getCommandFromAlias(arguments)
+                    val stripped =
+                        if (wasBotMentioned) content.substring(mentionIndex) else content.substring(prefix.length)
+                    val initialArgs = Arguments.from(stripped)
+                    return@fromCallable if (wasBotMentioned) initialArgs.next() else initialArgs
+                }.flatMap { arguments -> getCommandFromAlias(arguments) }
                     .flatMap { (command, args) ->
-                        Mono.just(command).zipWith(createContext(event, command, args, wasBotMentioned))
+                        Mono.just(command).zipWith(createContext(event, command, args, mentionIndex > 0))
                     }
             }
-    }
 
     private fun createContext(
         event: MessageCreateEvent,
