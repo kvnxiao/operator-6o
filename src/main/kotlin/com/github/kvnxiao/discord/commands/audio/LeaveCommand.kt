@@ -20,10 +20,12 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import com.github.kvnxiao.discord.guild.audio.GuildAudioRegistry
 import discord4j.core.`object`.entity.Guild
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.util.function.component1
+import reactor.kotlin.core.util.function.component2
 
 @Component
 @Id("leave")
@@ -33,11 +35,15 @@ import reactor.core.publisher.Mono
 )
 @Permissions(allowDirectMessaging = false)
 class LeaveCommand(
-    private val guildAudioState: GuildAudioState
+    private val audioRegistry: GuildAudioRegistry
 ) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
-        Mono.justOrEmpty(guildAudioState.getState(guild.id))
-            .doOnNext { audioManager -> audioManager.stop() }
-            .flatMap { audioManager -> audioManager.voiceConnectionManager.disconnectVoiceConnection() }
+        Mono.zip(
+            audioRegistry.getOrCreateFirst(guild.id.asLong()),
+            ctx.voiceConnections.getVoiceConnection(guild.id.asLong())
+        )
+            .filterWhen { (_, voiceConnection) -> voiceConnection.isConnected }
+            .doOnNext { (audioManager) -> audioManager.stop() }
+            .flatMap { ctx.voiceConnections.disconnect(guild.id.asLong()) }
             .then()
 }

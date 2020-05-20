@@ -28,8 +28,7 @@ import java.util.concurrent.LinkedBlockingDeque
 import reactor.core.publisher.Flux
 
 class AudioManager(
-    private val playerManager: AudioPlayerManager,
-    val voiceConnectionManager: VoiceConnectionManager = VoiceConnectionManager()
+    private val playerManager: AudioPlayerManager
 ) : AudioEventAdapter {
     // Create an audio player for this guild
     private val player: AudioPlayer = playerManager.createPlayer().apply {

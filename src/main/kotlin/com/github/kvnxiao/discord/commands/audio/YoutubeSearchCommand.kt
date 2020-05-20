@@ -23,7 +23,7 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
 import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.guild.audio.AudioManager
-import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import com.github.kvnxiao.discord.guild.audio.GuildAudioRegistry
 import com.github.kvnxiao.discord.guild.audio.SourceType
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
@@ -40,6 +40,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import reactor.kotlin.core.util.function.component1
 import reactor.kotlin.core.util.function.component2
+import reactor.kotlin.core.util.function.component3
 
 @Component
 @Id("youtube_search")
@@ -50,7 +51,7 @@ import reactor.kotlin.core.util.function.component2
 )
 @Permissions(allowDirectMessaging = false)
 class YoutubeSearchCommand(
-    private val guildAudioState: GuildAudioState
+    private val audioRegistry: GuildAudioRegistry
 ) : GuildCommand() {
 
     companion object {
@@ -58,11 +59,14 @@ class YoutubeSearchCommand(
     }
 
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
-        Mono.justOrEmpty(ctx.args.arguments)
-            .flatMap { query ->
-                val audioManager = guildAudioState.getOrCreateForGuild(guild.id)
+        Mono.zip(
+            Mono.justOrEmpty(ctx.args.arguments),
+            audioRegistry.getOrCreateFirst(guild.id.asLong()),
+            ctx.voiceConnections.getVoiceConnection(guild.id.asLong())
+        )
+            .filterWhen { (_, _, voiceConnection) -> voiceConnection.isConnected }
+            .flatMap { (query, audioManager) ->
                 ctx.event.message.authorAsMember
-                    .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
                     .flatMap { member ->
                         audioManager.query(query, SourceType.YOUTUBE, true)
                             .collectList()
@@ -85,9 +89,9 @@ class YoutubeSearchCommand(
                                 ctx.channel.createMessage("An error occurred querying for **$query**: ${it.message}")
                                     .then()
                             }
-                            .then()
                     }
             }
+            .then()
 
     /**
      * Handles the reactions for the search result embed. Takes the first result

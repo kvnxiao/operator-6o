@@ -20,15 +20,18 @@ import com.github.kvnxiao.discord.command.processor.AnnotationProcessor
 import com.github.kvnxiao.discord.command.processor.CommandProcessor
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.env.Environment
-import discord4j.core.DiscordClientBuilder
+import discord4j.core.DiscordClient
+import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.guild.GuildCreateEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.shard.GatewayBootstrap
+import discord4j.core.shard.ShardingStrategy
+import discord4j.gateway.GatewayOptions
 import mu.KotlinLogging
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import reactor.core.Disposable
 
 private val logger = KotlinLogging.logger {}
 
@@ -41,17 +44,21 @@ class Client(
     @Value(Environment.TOKEN) private val token: String
 ) : DisposableBean {
 
-    private val client: Disposable
+    private val gatewayBootstrap: GatewayBootstrap<GatewayOptions> =
+        DiscordClient.create(token)
+            .gateway()
+            .setSharding(ShardingStrategy.recommended())
+    private val gatewayClient: GatewayDiscordClient
 
     init {
         annotationProcessor.process(commands, rootRegistry)
-        client = DiscordClientBuilder.create(token).build().withGateway { gateway ->
-            gateway.on(ReadyEvent::class.java)
-                .take(1)
+
+        gatewayClient = gatewayBootstrap.withEventDispatcher { ed ->
+            ed.on(ReadyEvent::class.java)
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
                 .map { event -> event.guilds.size }
                 .flatMap { size ->
-                    gateway.on(GuildCreateEvent::class.java)
+                    ed.on(GuildCreateEvent::class.java)
                         .take(size.toLong())
                         .map { it.guild.id }
                         .collectList()
@@ -61,15 +68,16 @@ class Client(
                 .info(logger) { "Ready to receive commands." }
                 .flatMap {
                     // All guilds have been loaded at this point
-                    gateway.on(MessageCreateEvent::class.java)
+                    ed.on(MessageCreateEvent::class.java)
                         .flatMap(commandProcessor::processMessageCreateEvent)
                 }
-                .then()
-        }.subscribe()
+        }
+            .login()
+            .block() ?: throw RuntimeException("Failed to connect to the Discord gateway.")
     }
 
     override fun destroy() {
         logger.info { "Shutting down..." }
-        client.dispose()
+        gatewayClient.logout().block()
     }
 }

@@ -24,6 +24,7 @@ import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.User
 import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.voice.VoiceConnectionRegistry
 
 /**
  * A context data class that contains all the information a Discord command would need to successfully execute.
@@ -43,4 +44,7 @@ data class Context(
     val isBotOwner: Boolean,
     val isDirectMessage: Boolean,
     val wasBotMentioned: Boolean
-)
+) {
+    val voiceConnections: VoiceConnectionRegistry
+        get() = event.client.voiceConnectionRegistry
+}

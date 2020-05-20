@@ -20,7 +20,7 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
-import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import com.github.kvnxiao.discord.guild.audio.GuildAudioRegistry
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
 import org.springframework.stereotype.Component
@@ -34,17 +34,15 @@ import reactor.core.publisher.Mono
 )
 @Permissions(allowDirectMessaging = false)
 class JoinCommand(
-    private val guildAudioState: GuildAudioState
+    private val audioRegistry: GuildAudioRegistry
 ) : GuildCommand() {
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
-        guildAudioState.getOrCreateForGuild(guild.id).let { audioManager ->
+        audioRegistry.getOrCreateFirst(guild.id.asLong()).flatMap { audioManager ->
             ctx.event.message.authorAsMember
                 .flatMap(Member::getVoiceState)
-                .filter { !audioManager.voiceConnectionManager.isVoiceConnected() }
                 .flatMap { voiceState ->
                     voiceState.channel.flatMap { voiceChannel ->
                         voiceChannel.join { spec -> spec.setProvider(audioManager.provider) }
-                            .doOnNext { audioManager.voiceConnectionManager.saveVoiceConnection(it) }
                     }
                 }
                 .then()

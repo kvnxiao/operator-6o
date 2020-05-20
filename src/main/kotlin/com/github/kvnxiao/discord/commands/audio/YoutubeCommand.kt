@@ -23,13 +23,16 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.GuildCommand
 import com.github.kvnxiao.discord.d4j.embed
 import com.github.kvnxiao.discord.guild.audio.AudioManager
-import com.github.kvnxiao.discord.guild.audio.GuildAudioState
+import com.github.kvnxiao.discord.guild.audio.GuildAudioRegistry
 import com.github.kvnxiao.discord.guild.audio.SourceType
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
 import discord4j.core.`object`.entity.Message
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.util.function.component1
+import reactor.kotlin.core.util.function.component2
+import reactor.kotlin.core.util.function.component3
 
 @Component
 @Id("youtube")
@@ -40,7 +43,7 @@ import reactor.core.publisher.Mono
 )
 @Permissions(allowDirectMessaging = false)
 class YoutubeCommand(
-    private val guildAudioState: GuildAudioState
+    private val audioRegistry: GuildAudioRegistry
 ) : GuildCommand() {
     companion object {
         val singleLink: Regex = Regex("^https://(www|m|music)\\.youtube\\.com/watch\\?v=[a-zA-Z0-9_-]{11}$")
@@ -50,16 +53,18 @@ class YoutubeCommand(
     }
 
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
-        Mono.justOrEmpty(ctx.args.arguments)
-            .flatMap { query ->
-                val audioManager = guildAudioState.getOrCreateForGuild(guild.id)
+        Mono.zip(
+            Mono.justOrEmpty(ctx.args.arguments),
+            audioRegistry.getOrCreateFirst(guild.id.asLong()),
+            ctx.voiceConnections.getVoiceConnection(guild.id.asLong())
+        )
+            .filterWhen { (_, _, voiceConnection) -> voiceConnection.isConnected }
+            .flatMap { (query, audioManager) ->
                 ctx.event.message.authorAsMember
-                    .filter { audioManager.voiceConnectionManager.isVoiceConnected() }
                     .flatMap { member ->
                         youtube(ctx, member, query, audioManager, sourceType(query))
                     }
-                    .then()
-            }
+            }.then()
 
     private fun sourceType(query: String): SourceType {
         return if (singleLink.matches(query) || singleDirectLink.matches(query)) {
