@@ -16,7 +16,7 @@
 package com.github.kvnxiao.discord.command
 
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
-import discord4j.rest.util.Snowflake
+import discord4j.common.util.Snowflake
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
