@@ -62,7 +62,7 @@ class YoutubeSearchCommand(
         Mono.zip(
             Mono.justOrEmpty(ctx.args.arguments),
             audioRegistry.getOrCreateFirst(guild.id.asLong()),
-            ctx.voiceConnections.getVoiceConnection(guild.id.asLong())
+            ctx.voiceConnections.getVoiceConnection(guild.id)
         )
             .filterWhen { (_, _, voiceConnection) -> voiceConnection.isConnected }
             .flatMap { (query, audioManager) ->

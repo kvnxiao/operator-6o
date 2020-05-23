@@ -40,10 +40,10 @@ class LeaveCommand(
     override fun execute(ctx: Context, guild: Guild): Mono<Void> =
         Mono.zip(
             audioRegistry.getOrCreateFirst(guild.id.asLong()),
-            ctx.voiceConnections.getVoiceConnection(guild.id.asLong())
+            ctx.voiceConnections.getVoiceConnection(guild.id)
         )
             .filterWhen { (_, voiceConnection) -> voiceConnection.isConnected }
             .doOnNext { (audioManager) -> audioManager.stop() }
-            .flatMap { ctx.voiceConnections.disconnect(guild.id.asLong()) }
+            .flatMap { ctx.voiceConnections.disconnect(guild.id) }
             .then()
 }

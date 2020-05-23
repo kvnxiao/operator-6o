@@ -23,9 +23,9 @@ import com.github.kvnxiao.discord.command.registry.RegistryNode
 import com.github.kvnxiao.discord.command.startsWithMention
 import com.github.kvnxiao.discord.command.validation.context.ContextValidator
 import com.github.kvnxiao.discord.command.validation.message.MessageValidator
+import discord4j.common.util.Snowflake
 import discord4j.core.`object`.entity.channel.GuildChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
-import discord4j.rest.util.Snowflake
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.util.function.component1

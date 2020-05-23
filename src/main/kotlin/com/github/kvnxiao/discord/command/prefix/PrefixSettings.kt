@@ -15,7 +15,7 @@
  */
 package com.github.kvnxiao.discord.command.prefix
 
-import discord4j.rest.util.Snowflake
+import discord4j.common.util.Snowflake
 import reactor.core.publisher.Mono
 
 /**
