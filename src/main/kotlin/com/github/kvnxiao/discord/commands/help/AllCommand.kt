@@ -42,51 +42,50 @@ class AllCommand(
     private val propertiesRegistry: PropertiesRegistry
 ) : Command {
     override fun execute(ctx: Context): Mono<Void> {
-        return ctx.event.client.botMention().flatMap { botMention ->
-            val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
-            val validProperties = propertiesRegistry.topLevelProperties
-                .filter { props ->
-                    validDirectMessage(ctx, props) &&
-                            validOwner(ctx, props) &&
-                            validGuildOwner(ctx, props)
-                }.partition { props -> !props.permissions.requireBotMention }
+        val prefix = prefixSettings.getPrefixOrDefault(ctx.guild?.id)
+        val validProperties = propertiesRegistry.topLevelProperties
+            .filter { props ->
+                validDirectMessage(ctx, props) &&
+                        validOwner(ctx, props) &&
+                        validGuildOwner(ctx, props)
+            }.partition { props -> !props.permissions.requireBotMention }
 
-            val prefixedAliases = validProperties.first
-                .flatMap { it.aliases }
-                .sorted()
-            val mentionAliases = validProperties.second
-                .flatMap { it.aliases }
-                .sorted()
+        val prefixedAliases = validProperties.first
+            .flatMap { it.aliases }
+            .sorted()
+        val mentionAliases = validProperties.second
+            .flatMap { it.aliases }
+            .sorted()
+        val botMention = ctx.event.client.botMention()
 
-            ctx.channel.createEmbed(
-                embed {
-                    setTitle("Command Manual")
+        return ctx.channel.createEmbed(
+            embed {
+                setTitle("Command Manual")
+                addField(
+                    "List of all top-level commands",
+                    prefixedAliases.joinToString(separator = " ") { "`$prefix$it`" },
+                    false
+                )
+                addField(
+                    "Commands that require an `@` mention to the bot",
+                    mentionAliases.joinToString { "$botMention `$it`" },
+                    false
+                )
+                setFooter(
+                    "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
+                    ctx.user.avatarUrl
+                )
+                propertiesRegistry.getTopLevelPropertyById("help")?.let { props ->
+                    val firstAlias = props.aliases.first()
+                    val aliases = props.aliases.joinToString(separator = " or ") { "`$prefix$it`" }
                     addField(
-                        "List of all top-level commands",
-                        prefixedAliases.joinToString(separator = " ") { "`$prefix$it`" },
+                        "More information about a command",
+                        "$aliases <command alias without prefix>\ne.g. `$prefix$firstAlias $firstAlias`",
                         false
                     )
-                    addField(
-                        "Commands that require an `@` mention to the bot",
-                        mentionAliases.joinToString { "$botMention `$it`" },
-                        false
-                    )
-                    setFooter(
-                        "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
-                        ctx.user.avatarUrl
-                    )
-                    propertiesRegistry.getTopLevelPropertyById("help")?.let { props ->
-                        val firstAlias = props.aliases.first()
-                        val aliases = props.aliases.joinToString(separator = " or ") { "`$prefix$it`" }
-                        addField(
-                            "More information about a command",
-                            "$aliases <command alias without prefix>\ne.g. `$prefix$firstAlias $firstAlias`",
-                            false
-                        )
-                    }
                 }
-            )
-        }.then()
+            }
+        ).then()
     }
 
     private fun validDirectMessage(ctx: Context, props: CommandProperties): Boolean =

@@ -16,6 +16,5 @@
 package com.github.kvnxiao.discord.d4j
 
 import discord4j.core.GatewayDiscordClient
-import reactor.core.publisher.Mono
 
-fun GatewayDiscordClient.botMention(): Mono<String> = this.selfId.map { "<@${it.asString()}>" }
+fun GatewayDiscordClient.botMention(): String = "<@${this.selfId}>"

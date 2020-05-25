@@ -87,26 +87,25 @@ class HelpCommand(
     ): Mono<Message> =
         Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
             .flatMap { (props, subAliases, pathList) ->
-                ctx.event.client.botMention().flatMap { mention ->
-                    ctx.channel.createEmbed(
-                        embed {
-                            val fullCommandPath = pathList.joinToString(separator = " ")
-                            val replacement = if (props.permissions.requireBotMention) {
-                                "$mention `$fullCommandPath`"
-                            } else {
-                                "`$prefix$fullCommandPath`"
-                            }
-
-                            setTitle("Command Manual")
-                            addField("ID", props.id, true)
-                            addField("Aliases", props.aliases.joinToString(), true)
-                            addField("Permissions Required", props.formatPermissions(), false)
-                            addField("Description", props.descriptor.description, false)
-                            addField("Usage", formatUsage(props.descriptor, replacement), false)
-                            addField("Sub-commands", formatSubCommands(subAliases, replacement), false)
+                val mention = ctx.event.client.botMention()
+                ctx.channel.createEmbed(
+                    embed {
+                        val fullCommandPath = pathList.joinToString(separator = " ")
+                        val replacement = if (props.permissions.requireBotMention) {
+                            "$mention `$fullCommandPath`"
+                        } else {
+                            "`$prefix$fullCommandPath`"
                         }
-                    )
-                }
+
+                        setTitle("Command Manual")
+                        addField("ID", props.id, true)
+                        addField("Aliases", props.aliases.joinToString(), true)
+                        addField("Permissions Required", props.formatPermissions(), false)
+                        addField("Description", props.descriptor.description, false)
+                        addField("Usage", formatUsage(props.descriptor, replacement), false)
+                        addField("Sub-commands", formatSubCommands(subAliases, replacement), false)
+                    }
+                )
             }
 
     private fun formatUsage(descriptor: DescriptorString, replacement: String): String =
