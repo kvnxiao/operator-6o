@@ -28,6 +28,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.shard.GatewayBootstrap
 import discord4j.core.shard.ShardingStrategy
 import discord4j.gateway.GatewayOptions
+import java.util.concurrent.atomic.AtomicBoolean
 import mu.KotlinLogging
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Value
@@ -44,6 +45,7 @@ class Client(
     @Value(Environment.TOKEN) private val token: String
 ) : DisposableBean {
 
+    private val ready: AtomicBoolean = AtomicBoolean(false)
     private val gatewayBootstrap: GatewayBootstrap<GatewayOptions> =
         DiscordClient.create(token)
             .gateway()
@@ -55,8 +57,10 @@ class Client(
 
         gatewayClient = gatewayBootstrap.withEventDispatcher { ed ->
             ed.on(ReadyEvent::class.java)
+                .filter { !ready.get() }
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
-                .map { event -> event.guilds.size }
+                .doOnNext { ready.set(true) }
+                .map { readyEvent -> readyEvent.guilds.size }
                 .flatMap { size ->
                     ed.on(GuildCreateEvent::class.java)
                         .take(size.toLong())
@@ -71,9 +75,7 @@ class Client(
                     ed.on(MessageCreateEvent::class.java)
                         .flatMap(commandProcessor::processMessageCreateEvent)
                 }
-        }
-            .login()
-            .block() ?: throw RuntimeException("Failed to connect to the Discord gateway.")
+        }.login().block() ?: throw RuntimeException("Failed to connect to the Discord gateway.")
     }
 
     override fun destroy() {
