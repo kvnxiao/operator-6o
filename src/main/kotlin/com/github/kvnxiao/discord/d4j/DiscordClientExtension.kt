@@ -17,4 +17,4 @@ package com.github.kvnxiao.discord.d4j
 
 import discord4j.core.GatewayDiscordClient
 
-fun GatewayDiscordClient.botMention(): String = "<@${this.selfId}>"
+fun GatewayDiscordClient.botMention(): String = "<@${this.selfId.asLong()}>"
