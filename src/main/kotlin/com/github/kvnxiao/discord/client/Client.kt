@@ -28,13 +28,13 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.shard.GatewayBootstrap
 import discord4j.core.shard.ShardingStrategy
 import discord4j.gateway.GatewayOptions
-import java.util.concurrent.atomic.AtomicBoolean
+import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
-private val logger = KotlinLogging.logger {}
+private val logger: KLogger = KotlinLogging.logger {}
 
 @Component
 class Client(
@@ -45,7 +45,6 @@ class Client(
     @Value(Environment.TOKEN) private val token: String
 ) : DisposableBean {
 
-    private val ready: AtomicBoolean = AtomicBoolean(false)
     private val gatewayBootstrap: GatewayBootstrap<GatewayOptions> =
         DiscordClient.create(token)
             .gateway()
@@ -57,9 +56,8 @@ class Client(
 
         gatewayClient = gatewayBootstrap.withEventDispatcher { ed ->
             ed.on(ReadyEvent::class.java)
-                .filter { !ready.get() }
+                .next()
                 .info(logger) { event -> "Logged in as ${event.self.username}#${event.self.discriminator}" }
-                .doOnNext { ready.set(true) }
                 .map { readyEvent -> readyEvent.guilds.size }
                 .flatMap { size ->
                     ed.on(GuildCreateEvent::class.java)
@@ -67,14 +65,13 @@ class Client(
                         .map { it.guild.id }
                         .collectList()
                         .flatMap { commandProcessor.loadPrefixSettings(it) }
-                        .info(logger) { "Done loading $size guilds." }
+                        .info(logger) { "Done loading $size guilds' settings." }
                 }
                 .info(logger) { "Ready to receive commands." }
-                .flatMap {
-                    // All guilds have been loaded at this point
+                .thenMany(
                     ed.on(MessageCreateEvent::class.java)
                         .flatMap(commandProcessor::processMessageCreateEvent)
-                }
+                )
         }.login().block() ?: throw RuntimeException("Failed to connect to the Discord gateway.")
     }
 

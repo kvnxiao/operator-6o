@@ -18,9 +18,10 @@ package com.github.kvnxiao.discord.command.registry
 import com.github.kvnxiao.discord.command.Alias
 import com.github.kvnxiao.discord.command.DiscordCommand
 import com.github.kvnxiao.discord.command.Id
+import mu.KLogger
 import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger { }
+private val logger: KLogger = KotlinLogging.logger { }
 
 private fun register(
     command: DiscordCommand,
