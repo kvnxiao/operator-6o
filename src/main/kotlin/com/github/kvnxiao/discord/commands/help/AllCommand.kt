@@ -58,19 +58,18 @@ class AllCommand(
             .sorted()
         val botMention = ctx.event.client.botMention()
 
+        val topLevelCommands =
+            if (prefixedAliases.isNotEmpty()) prefixedAliases.joinToString(separator = " ") { "`$prefix$it`" }
+            else "N/A"
+        val mentionCommands =
+            if (mentionAliases.isNotEmpty()) mentionAliases.joinToString { "$botMention `$it`" }
+            else "N/A"
+
         return ctx.channel.createEmbed(
             embed {
                 setTitle("Command Manual")
-                addField(
-                    "List of all top-level commands",
-                    prefixedAliases.joinToString(separator = " ") { "`$prefix$it`" },
-                    false
-                )
-                addField(
-                    "Commands that require an `@` mention to the bot",
-                    mentionAliases.joinToString { "$botMention `$it`" },
-                    false
-                )
+                addField("List of all top-level commands", topLevelCommands, false)
+                addField("Commands that require an `@` mention to the bot", mentionCommands, false)
                 setFooter(
                     "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
                     ctx.user.avatarUrl
