@@ -64,7 +64,7 @@ class CommandProcessor(
         .map { event.client.selfId }
         .flatMap { selfId -> getCommandWithContext(event, selfId) }
         .filter { (command, context) -> command.rateLimiter.isNotRateLimited(context.guild, context.user) }
-        .flatMap { (command, context) -> execute(command, context) }
+        .flatMap { (command, context) -> execute(command, context).onErrorResume { Mono.empty() } }
 
     private fun validateMessageCreateEvent(event: MessageCreateEvent): Mono<Boolean> =
         messageValidators
