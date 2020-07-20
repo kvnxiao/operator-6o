@@ -22,7 +22,7 @@ buildscript {
     ext.reactor_extensions = '1.0.2.RELEASE'
 
     // Build plugins
-    ext.gradle_ktlint_version = '9.2.1'
+    ext.gradle_ktlint_version = '9.3.0'
     ext.license_plugin_version = '0.15.0'
     ext.gradle_versions_plugin = '0.28.0'
     ext.git_properties_version = '2.2.2'
