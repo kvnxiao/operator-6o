@@ -20,10 +20,10 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
-import java.time.Duration
-import java.time.Instant
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import java.time.Duration
+import java.time.Instant
 
 @Component
 @Id("uptime")

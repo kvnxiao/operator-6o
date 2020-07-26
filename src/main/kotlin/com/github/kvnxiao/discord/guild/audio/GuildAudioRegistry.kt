@@ -20,11 +20,11 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer
-import java.util.concurrent.ConcurrentHashMap
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toFlux
+import java.util.concurrent.ConcurrentHashMap
 
 @Component
 class GuildAudioRegistry : GuildRegistry<AudioManager>, DisposableBean {

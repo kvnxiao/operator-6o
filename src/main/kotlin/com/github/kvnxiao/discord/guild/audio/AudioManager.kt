@@ -23,9 +23,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
 import discord4j.core.`object`.entity.Member
+import reactor.core.publisher.Flux
 import java.util.concurrent.BlockingDeque
 import java.util.concurrent.LinkedBlockingDeque
-import reactor.core.publisher.Flux
 
 class AudioManager(
     private val playerManager: AudioPlayerManager
@@ -53,31 +53,34 @@ class AudioManager(
         }
 
         return Flux.create { emitter ->
-            playerManager.loadItem(lavaplayerQuery, object : AudioLoadResultHandler {
-                override fun loadFailed(exception: FriendlyException) {
-                    emitter.error(exception)
-                }
-
-                override fun trackLoaded(track: AudioTrack) {
-                    emitter.next(track)
-                    emitter.complete()
-                }
-
-                override fun noMatches() {
-                    emitter.complete()
-                }
-
-                override fun playlistLoaded(playlist: AudioPlaylist) {
-                    if (isPlaylist) {
-                        playlist.tracks.forEach { track ->
-                            emitter.next(track)
-                        }
-                    } else {
-                        emitter.next(playlist.tracks[0])
+            playerManager.loadItem(
+                lavaplayerQuery,
+                object : AudioLoadResultHandler {
+                    override fun loadFailed(exception: FriendlyException) {
+                        emitter.error(exception)
                     }
-                    emitter.complete()
+
+                    override fun trackLoaded(track: AudioTrack) {
+                        emitter.next(track)
+                        emitter.complete()
+                    }
+
+                    override fun noMatches() {
+                        emitter.complete()
+                    }
+
+                    override fun playlistLoaded(playlist: AudioPlaylist) {
+                        if (isPlaylist) {
+                            playlist.tracks.forEach { track ->
+                                emitter.next(track)
+                            }
+                        } else {
+                            emitter.next(playlist.tracks[0])
+                        }
+                        emitter.complete()
+                    }
                 }
-            })
+            )
         }
     }
 

@@ -22,10 +22,10 @@ class MessageContextValidator : ContextValidator {
     override fun validate(value: Context): Mono<Boolean> {
         return Mono.just(
             passesHasBotMention(value) &&
-                    passesRequireDirectMessage(value) &&
-                    passesAllowDirectMessage(value) &&
-                    passesIsGuildOwner(value) &&
-                    passesIsBotOwner(value)
+                passesRequireDirectMessage(value) &&
+                passesAllowDirectMessage(value) &&
+                passesIsGuildOwner(value) &&
+                passesIsBotOwner(value)
         )
     }
 

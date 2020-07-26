@@ -23,18 +23,18 @@ import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.annotation.RateLimits
 import com.github.kvnxiao.discord.command.annotation.SubCommand
-import com.github.kvnxiao.discord.command.descriptor.Descriptor as CommandDescriptor
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.executable.StubCommand
-import com.github.kvnxiao.discord.command.permission.Permissions as CommandPermissions
 import com.github.kvnxiao.discord.command.ratelimit.CachedRateLimiter
 import com.github.kvnxiao.discord.command.ratelimit.NoopRateLimiter
-import com.github.kvnxiao.discord.command.ratelimit.RateLimits as CommandRateLimits
 import com.github.kvnxiao.discord.command.registry.RegistryNode
 import discord4j.rest.util.PermissionSet
-import kotlin.reflect.KClass
 import mu.KLogger
 import mu.KotlinLogging
+import kotlin.reflect.KClass
+import com.github.kvnxiao.discord.command.descriptor.Descriptor as CommandDescriptor
+import com.github.kvnxiao.discord.command.permission.Permissions as CommandPermissions
+import com.github.kvnxiao.discord.command.ratelimit.RateLimits as CommandRateLimits
 
 private val logger: KLogger = KotlinLogging.logger { }
 

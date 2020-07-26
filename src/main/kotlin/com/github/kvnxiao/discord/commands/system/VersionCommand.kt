@@ -22,15 +22,15 @@ import com.github.kvnxiao.discord.command.context.Context
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.d4j.embed
 import discord4j.common.GitProperties.GIT_COMMIT_ID_DESCRIBE
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.info.GitProperties
+import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.info.GitProperties
-import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 
 @Component
 @Id("version")
