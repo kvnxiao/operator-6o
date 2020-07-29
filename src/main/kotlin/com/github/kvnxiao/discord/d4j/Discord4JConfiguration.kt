@@ -16,9 +16,9 @@
 package com.github.kvnxiao.discord.d4j
 
 import discord4j.common.GitProperties
-import java.util.Properties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import java.util.Properties
 
 @Configuration
 class Discord4JConfiguration {

@@ -38,15 +38,17 @@ internal fun EmbedCreateSpec.addedToQueue(tracks: List<AudioTrack>): EmbedCreate
     }
 
 internal fun EmbedCreateSpec.searchResultIndexed(tracks: List<AudioTrack>): EmbedCreateSpec =
-    this.setDescription(tracks.mapIndexed { index, audioTrack ->
-        "**${index + 1}. [${audioTrack.info.title}](${audioTrack.info.uri})**"
-    }.joinToString(separator = "\n"))
+    this.setDescription(
+        tracks.mapIndexed { index, audioTrack ->
+            "**${index + 1}. [${audioTrack.info.title}](${audioTrack.info.uri})**"
+        }.joinToString(separator = "\n")
+    )
 
 internal fun EmbedCreateSpec.nowPlaying(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
     if (track == null) this.setDescription("No tracks are currently playing.")
     else this.setDescription(
         ReactionUnicode.ARROW_FORWARD +
-                " ${track.markdown()}\n${track.position.formatTime()}/${track.duration.formatTime()}"
+            " ${track.markdown()}\n${track.position.formatTime()}/${track.duration.formatTime()}"
     )
         .addField("Up Next", queueList.markdown(), false)
 

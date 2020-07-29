@@ -33,7 +33,6 @@ import discord4j.core.`object`.entity.Message
 import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.`object`.reaction.ReactionEmoji
 import discord4j.core.event.domain.message.ReactionAddEvent
-import java.time.Duration
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -41,6 +40,7 @@ import reactor.kotlin.core.publisher.toMono
 import reactor.kotlin.core.util.function.component1
 import reactor.kotlin.core.util.function.component2
 import reactor.kotlin.core.util.function.component3
+import java.time.Duration
 
 @Component
 @Id("youtube_search")
@@ -125,9 +125,11 @@ class YoutubeSearchCommand(
         member: Member
     ): Boolean =
         event.messageId == message.id &&
-                event.userId == member.id &&
-                (event.emoji.asUnicodeEmoji()
-                    .map { ReactionUnicode.getIndexFromDigits(it.raw) >= 0 }.orElse(false))
+            event.userId == member.id &&
+            (
+                event.emoji.asUnicodeEmoji()
+                    .map { ReactionUnicode.getIndexFromDigits(it.raw) >= 0 }.orElse(false)
+                )
 
     /**
      * Cleans up all reactions from the search result embed, and then adds a :timer: emoji to signal that the search

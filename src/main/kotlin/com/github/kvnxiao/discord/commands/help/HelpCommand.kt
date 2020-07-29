@@ -21,7 +21,6 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.context.Context
-import com.github.kvnxiao.discord.command.descriptor.Descriptor as DescriptorString
 import com.github.kvnxiao.discord.command.executable.Command
 import com.github.kvnxiao.discord.command.prefix.PrefixSettings
 import com.github.kvnxiao.discord.command.registry.PropertiesRegistry
@@ -30,6 +29,7 @@ import com.github.kvnxiao.discord.d4j.embed
 import discord4j.core.`object`.entity.Message
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import com.github.kvnxiao.discord.command.descriptor.Descriptor as DescriptorString
 
 @Component
 @Id("help")
