@@ -114,7 +114,7 @@ class WolframAlphaCommand(
             .flatMap { result ->
                 ctx.channel.createEmbed(
                     embed {
-                        setTitle("${ReactionUnicode.MAG_RIGHT} Wolfram Alpha")
+                        setTitle("${ReactionUnicode.MAG_RIGHT} WolframAlpha")
                         setThumbnail(THUMBNAIL)
                         setColor(EMBED_COLOR)
                         setFooter("Query took ${result.timing}s", null)
@@ -139,7 +139,7 @@ class WolframAlphaCommand(
 
     override fun handleError(ctx: Context, response: HttpClientResponse): Mono<Message> =
         ctx.channel.createMessage(
-            "An error occurred while searching for ${ctx.args.arguments} on Wolfram Alpha.\n${response.status()
+            "An error occurred while searching for ${ctx.args.arguments} on WolframAlpha.\n${response.status()
                 .code()} - ${response.status().reasonPhrase()}"
         )
 }
