@@ -19,4 +19,5 @@ object Environment {
     const val TOKEN = "\${TOKEN}"
     const val GOOGLE_SEARCH_ENGINE = "\${GS_ENGINE}"
     const val GOOGLE_API_KEY = "\${GS_API_KEY}"
+    const val WOLFRAM_ALPHA_APP_ID = "\${WOLFRAMALPHA_APPID}"
 }
