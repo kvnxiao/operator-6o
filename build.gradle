@@ -18,7 +18,7 @@ buildscript {
     ext.kotlin_logging_version = '1.8.3'
     ext.logback_version = '1.2.3'
     ext.slf4j_version = '1.7.30'
-    ext.micrometer_version = '1.5.3'
+    ext.micrometer_version = '1.5.4'
     ext.reactor_extensions = '1.0.2.RELEASE'
 
     // Build plugins
