@@ -25,7 +25,7 @@ buildscript {
     ext.gradle_ktlint_version = '9.4.1'
     ext.license_plugin_version = '0.15.0'
     ext.gradle_versions_plugin = '0.33.0'
-    ext.git_properties_version = '2.2.3'
+    ext.git_properties_version = '2.2.4'
 }
 
 plugins {
