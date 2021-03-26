@@ -2,7 +2,7 @@ buildscript {
     ext.kotlin_version = '1.4.31'
     ext.spek_version = '2.0.15'
     ext.kluent_version = '1.65'
-    ext.spring_boot_version = '2.4.3'
+    ext.spring_boot_version = '2.4.4'
     ext.lettuce_version = '6.0.3.RELEASE'
     ext.graalvm_js_version = '21.0.0.2'
 
