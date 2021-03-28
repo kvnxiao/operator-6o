@@ -19,8 +19,6 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.executable.Command
-import com.github.kvnxiao.discord.reaction.ReactionUnicode
-import discord4j.core.`object`.reaction.ReactionEmoji
 import org.graalvm.polyglot.Context
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -36,15 +34,31 @@ import com.github.kvnxiao.discord.command.context.Context as CommandContext
 class EvalCommand(
     private val graalContext: Context
 ) : Command {
+
+    private fun stripCodeblocks(s: String): String = s.trim().let {
+        when {
+            it.startsWith("```") && it.endsWith("```") -> it.substring(3, it.length - 3).trim()
+            it.startsWith("`") && it.endsWith("`") -> it.substring(1, it.length - 1).trim()
+            else -> it
+        }
+    }
+
     override fun execute(ctx: CommandContext): Mono<Void> =
         Mono.justOrEmpty(ctx.args.arguments)
-            .map { graalContext.eval("js", it) }
-            .flatMap { value ->
-                ctx.channel.createMessage(value.toString())
-                    .then(ctx.event.message.addReaction(ReactionEmoji.unicode(ReactionUnicode.CHECKMARK)))
+            .map(::stripCodeblocks)
+            .flatMap { strippedArgs ->
+                Mono.just(graalContext.eval("js", strippedArgs))
+                    .flatMap { value ->
+                        ctx.channel.createMessage { spec ->
+                            spec.setMessageReference(ctx.event.message.id)
+                                .setContent("```\n${value}\n```")
+                        }
+                    }
             }
             .onErrorResume {
-                ctx.channel.createMessage(it.message)
-                    .then(ctx.event.message.addReaction(ReactionEmoji.unicode(ReactionUnicode.CROSSMARK)))
+                ctx.channel.createMessage { spec ->
+                    spec.setMessageReference(ctx.event.message.id).setContent("```\n${it.message}\n```")
+                }
             }
+            .then()
 }
