@@ -1,0 +1,24 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "10:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: io.lettuce:lettuce-core
+    versions:
+    - 6.1.1.RELEASE
+  - dependency-name: com.gorylenko.gradle-git-properties
+    versions:
+    - 2.3.0
+  - dependency-name: org.springframework.boot
+    versions:
+    - 2.4.4
+  - dependency-name: org.springframework.data:spring-data-redis
+    versions:
+    - 2.4.4
+  - dependency-name: org.springframework.boot:spring-boot-starter-webflux
+    versions:
+    - 2.4.4
