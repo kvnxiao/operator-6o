@@ -50,7 +50,6 @@ jar {
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
