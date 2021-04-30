@@ -84,12 +84,12 @@ test {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "14"
+    kotlinOptions.jvmTarget = "11"
     kotlinOptions.freeCompilerArgs = ["-Xjsr305=strict"]
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "14"
+    kotlinOptions.jvmTarget = "11"
     kotlinOptions.freeCompilerArgs = ["-Xjsr305=strict"]
 }
 
