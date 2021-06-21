@@ -17,7 +17,7 @@ buildscript {
     ext.jackson_version = '2.12.3'
     ext.kotlin_logging_version = '2.0.8'
     ext.logback_version = '1.2.3'
-    ext.slf4j_version = '1.7.30'
+    ext.slf4j_version = '1.7.31'
     ext.micrometer_version = '1.7.0'
     ext.reactor_extensions = '1.1.3'
 
