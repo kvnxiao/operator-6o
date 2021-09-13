@@ -13,7 +13,7 @@ buildscript {
 
     // Utility libraries
     ext.bucket4j_version = '6.2.0'
-    ext.caffeine_version = '3.0.2'
+    ext.caffeine_version = '3.0.4'
     ext.jackson_version = '2.12.3'
     ext.kotlin_logging_version = '2.0.8'
     ext.logback_version = '1.2.3'
