@@ -56,11 +56,11 @@ class HelpCommand(
         prefix: String,
         propertiesRegistry: PropertiesRegistry
     ): Mono<Message> =
-        ctx.channel.createEmbed(
+        ctx.channel.createMessage(
             embed {
                 val commandPath = "$prefix${ctx.args.alias}"
-                setTitle("Command Manual")
-                setDescription("Welcome to the help manual!")
+                title("Command Manual")
+                description("Welcome to the help manual!")
                 addField(
                     "How to use",
                     "To see a command's usage, type\n`${formatUsage(
@@ -88,7 +88,7 @@ class HelpCommand(
         Mono.justOrEmpty(propertiesRegistry.getPropertiesFromAlias(ctx.args.next()))
             .flatMap { (props, subAliases, pathList) ->
                 val mention = ctx.event.client.botMention()
-                ctx.channel.createEmbed(
+                ctx.channel.createMessage(
                     embed {
                         val fullCommandPath = pathList.joinToString(separator = " ")
                         val replacement = if (props.permissions.requireBotMention) {
@@ -97,7 +97,7 @@ class HelpCommand(
                             "`$prefix$fullCommandPath`"
                         }
 
-                        setTitle("Command Manual")
+                        title("Command Manual")
                         addField("ID", props.id, true)
                         addField("Aliases", props.aliases.joinToString(), true)
                         addField("Permissions Required", props.formatPermissions(), false)

@@ -27,12 +27,12 @@ import com.github.kvnxiao.discord.guild.audio.GuildAudioRegistry
 import com.github.kvnxiao.discord.guild.audio.SourceType
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import discord4j.core.event.domain.message.ReactionAddEvent
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
 import discord4j.core.`object`.entity.Message
 import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.`object`.reaction.ReactionEmoji
-import discord4j.core.event.domain.message.ReactionAddEvent
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -73,7 +73,7 @@ class YoutubeSearchCommand(
                             .filter { it.isNotEmpty() }
                             .map { tracks -> tracks.take(SEARCH_SIZE) }
                             .flatMap { tracks ->
-                                ctx.channel.createEmbed(
+                                ctx.channel.createMessage(
                                     embed {
                                         initAudioEmbed(audioManager.remainingTracks, member)
                                         searchResultIndexed(tracks)
@@ -164,7 +164,7 @@ class YoutubeSearchCommand(
             .zipWhen { index -> tracks[index].toMono() }
             .doOnNext { (_, track) -> audioManager.offer(listOf(track), member) }
             .flatMap { (index, track) ->
-                channel.createEmbed(
+                channel.createMessage(
                     embed {
                         initAudioEmbed(audioManager.remainingTracks, member)
                         addedToQueue(track)

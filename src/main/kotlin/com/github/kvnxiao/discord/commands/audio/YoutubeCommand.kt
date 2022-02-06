@@ -88,7 +88,7 @@ class YoutubeCommand(
             .filter { it.isNotEmpty() }
             .doOnNext { tracks -> audioManager.offer(tracks, member) }
             .flatMap { tracks ->
-                ctx.channel.createEmbed(
+                ctx.channel.createMessage(
                     embed {
                         initAudioEmbed(audioManager.remainingTracks, member)
                         addedToQueue(tracks)

@@ -19,6 +19,7 @@ import com.github.kvnxiao.discord.command.annotation.Descriptor
 import com.github.kvnxiao.discord.command.annotation.Id
 import com.github.kvnxiao.discord.command.annotation.Permissions
 import com.github.kvnxiao.discord.command.executable.Command
+import com.github.kvnxiao.discord.d4j.message
 import org.graalvm.polyglot.Context
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -49,16 +50,21 @@ class EvalCommand(
             .flatMap { strippedArgs ->
                 Mono.just(graalContext.eval("js", strippedArgs))
                     .flatMap { value ->
-                        ctx.channel.createMessage { spec ->
-                            spec.setMessageReference(ctx.event.message.id)
-                                .setContent("```\n${value}\n```")
-                        }
+                        ctx.channel.createMessage(
+                            message {
+                                messageReference(ctx.event.message.id)
+                                content("```\n${value}\n```")
+                            }
+                        )
                     }
             }
             .onErrorResume {
-                ctx.channel.createMessage { spec ->
-                    spec.setMessageReference(ctx.event.message.id).setContent("```\n${it.message}\n```")
-                }
+                ctx.channel.createMessage(
+                    message {
+                        messageReference(ctx.event.message.id)
+                        content("```\n${it.message}\n```")
+                    }
+                )
             }
             .then()
 }

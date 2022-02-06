@@ -18,35 +18,34 @@ package com.github.kvnxiao.discord.commands.audio
 import com.github.kvnxiao.discord.reaction.ReactionUnicode
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import discord4j.core.`object`.entity.User
-import discord4j.core.spec.EmbedCreateSpec
+import discord4j.core.spec.EmbedCreateSpec.Builder
 import java.util.concurrent.TimeUnit
 
 private const val TITLE = "Audio Player"
 
-internal fun EmbedCreateSpec.initAudioEmbed(queueSize: Int, user: User): EmbedCreateSpec =
-    this.setTitle(TITLE)
-        .setFooter("$queueSize tracks left in the queue", user.avatarUrl)
+internal fun Builder.initAudioEmbed(queueSize: Int, user: User): Builder =
+    this.title(TITLE).footer("$queueSize tracks left in the queue", user.avatarUrl)
 
-internal fun EmbedCreateSpec.addedToQueue(track: AudioTrack): EmbedCreateSpec =
-    this.setDescription("Added **[${track.info.title}](${track.info.uri})** to the queue.")
+internal fun Builder.addedToQueue(track: AudioTrack): Builder =
+    this.description("Added **[${track.info.title}](${track.info.uri})** to the queue.")
 
-internal fun EmbedCreateSpec.addedToQueue(tracks: List<AudioTrack>): EmbedCreateSpec =
+internal fun Builder.addedToQueue(tracks: List<AudioTrack>): Builder =
     if (tracks.size > 1) {
-        this.setDescription("Added ${tracks.size} tracks to the queue.")
+        this.description("Added ${tracks.size} tracks to the queue.")
     } else {
         this.addedToQueue(tracks[0])
     }
 
-internal fun EmbedCreateSpec.searchResultIndexed(tracks: List<AudioTrack>): EmbedCreateSpec =
-    this.setDescription(
+internal fun Builder.searchResultIndexed(tracks: List<AudioTrack>): Builder =
+    this.description(
         tracks.mapIndexed { index, audioTrack ->
             "**${index + 1}. [${audioTrack.info.title}](${audioTrack.info.uri})**"
         }.joinToString(separator = "\n")
     )
 
-internal fun EmbedCreateSpec.nowPlaying(track: AudioTrack?, queueList: List<AudioTrack>): EmbedCreateSpec =
-    if (track == null) this.setDescription("No tracks are currently playing.")
-    else this.setDescription(
+internal fun Builder.nowPlaying(track: AudioTrack?, queueList: List<AudioTrack>): Builder =
+    if (track == null) this.description("No tracks are currently playing.")
+    else this.description(
         ReactionUnicode.ARROW_FORWARD +
             " ${track.markdown()}\n${track.position.formatTime()}/${track.duration.formatTime()}"
     )

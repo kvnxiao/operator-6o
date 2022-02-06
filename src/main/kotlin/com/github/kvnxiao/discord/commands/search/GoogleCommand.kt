@@ -101,10 +101,10 @@ class GoogleCommand(
         body.asInputStream()
             .map { objectMapper.readValue<SearchResponse>(it) }
             .flatMap { search ->
-                ctx.channel.createEmbed(
+                ctx.channel.createMessage(
                     embed {
-                        setTitle("${ReactionUnicode.MAG_RIGHT} Google Search")
-                        setDescription(formatMessage(ctx.args.arguments, search))
+                        title("${ReactionUnicode.MAG_RIGHT} Google Search")
+                        description(formatMessage(ctx.args.arguments, search))
                     }
                 )
             }

@@ -60,9 +60,9 @@ class VersionCommand(
     private val discord4jVersion: String = discord4jProperties.getProperty(GIT_COMMIT_ID_DESCRIBE)
 
     override fun execute(ctx: Context): Mono<Void> =
-        ctx.channel.createEmbed(
+        ctx.channel.createMessage(
             embed {
-                setTitle("Version Info")
+                title("Version Info")
                 addField("Commit ID", "[$shortCommitId]($REPO_LINK$shortCommitId)", true)
                 addField("Commit Time", commitTime, true)
                 addField("Version", buildVersion, false)

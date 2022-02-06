@@ -23,7 +23,6 @@ import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.User
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
-import io.github.bucket4j.Bucket4j
 import mu.KLogger
 import mu.KotlinLogging
 import java.time.Duration
@@ -57,7 +56,7 @@ data class CachedRateLimiter(
             logger.info {
                 "Instantiating new rate-limit bucket for command [$commandId] (rateLimitOnGuild=${rateLimits.rateLimitOnGuild}, tokens=${rateLimits.tokensPerPeriod}, periodMs=${rateLimits.rateLimitPeriodMs}) [${if (rateLimits.rateLimitOnGuild) "guild" else "user"}:$id]"
             }
-            Bucket4j.builder()
+            Bucket.builder()
                 .addLimit(
                     Bandwidth.simple(
                         rateLimits.tokensPerPeriod,

@@ -16,13 +16,15 @@
 package com.github.kvnxiao.discord.d4j
 
 import discord4j.core.spec.EmbedCreateSpec
-import java.util.function.Consumer
+import discord4j.core.spec.MessageCreateSpec
 
 @DslMarker
-annotation class EmbedDSL
+annotation class CreateMessageDSL
 
-@EmbedDSL
-fun embed(block: EmbedCreateSpec.() -> Unit): Consumer<in EmbedCreateSpec> =
-    Consumer { spec ->
-        spec.block()
-    }
+@CreateMessageDSL
+fun embed(block: EmbedCreateSpec.Builder.() -> Unit): EmbedCreateSpec =
+    EmbedCreateSpec.builder().apply(block).build()
+
+@CreateMessageDSL
+fun message(block: MessageCreateSpec.Builder.() -> Unit): MessageCreateSpec =
+    MessageCreateSpec.builder().apply(block).build()

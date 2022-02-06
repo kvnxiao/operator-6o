@@ -23,6 +23,7 @@ import com.github.kvnxiao.discord.command.executable.GuildCommand
 import com.github.kvnxiao.discord.guild.audio.GuildAudioRegistry
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
+import discord4j.core.spec.VoiceChannelJoinSpec
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -42,7 +43,7 @@ class JoinCommand(
                 .flatMap(Member::getVoiceState)
                 .flatMap { voiceState ->
                     voiceState.channel.flatMap { voiceChannel ->
-                        voiceChannel.join { spec -> spec.setProvider(audioManager.provider) }
+                        voiceChannel.join(VoiceChannelJoinSpec.builder().provider(audioManager.provider).build())
                     }
                 }
                 .then()

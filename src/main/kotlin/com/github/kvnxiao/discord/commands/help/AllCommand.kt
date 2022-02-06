@@ -65,12 +65,12 @@ class AllCommand(
             if (mentionAliases.isNotEmpty()) mentionAliases.joinToString { "$botMention `$it`" }
             else "N/A"
 
-        return ctx.channel.createEmbed(
+        return ctx.channel.createMessage(
             embed {
-                setTitle("Command Manual")
+                title("Command Manual")
                 addField("List of all top-level commands", topLevelCommands, false)
                 addField("Commands that require an `@` mention to the bot", mentionCommands, false)
-                setFooter(
+                footer(
                     "Displaying valid commands for ${ctx.user.username}#${ctx.user.discriminator}",
                     ctx.user.avatarUrl
                 )
