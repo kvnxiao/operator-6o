@@ -47,7 +47,7 @@ class NowPlayingCommand(
         )
             .filterWhen { (_, voiceConnection) -> voiceConnection.isConnected }
             .flatMap { (audioManager) ->
-                ctx.channel.createEmbed(
+                ctx.channel.createMessage(
                     embed {
                         initAudioEmbed(audioManager.remainingTracks, ctx.user)
                         nowPlaying(audioManager.getCurrentTrack(), audioManager.queueList)

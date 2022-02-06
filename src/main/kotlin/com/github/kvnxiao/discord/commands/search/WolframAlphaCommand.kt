@@ -112,12 +112,12 @@ class WolframAlphaCommand(
             .map { objectMapper.readValue<WolframAlphaResult>(it) }
             .map { it.queryresult }
             .flatMap { result ->
-                ctx.channel.createEmbed(
+                ctx.channel.createMessage(
                     embed {
-                        setTitle("${ReactionUnicode.MAG_RIGHT} WolframAlpha")
-                        setThumbnail(THUMBNAIL)
-                        setColor(EMBED_COLOR)
-                        setFooter("Query took ${result.timing}s", null)
+                        title("${ReactionUnicode.MAG_RIGHT} WolframAlpha")
+                        thumbnail(THUMBNAIL)
+                        color(EMBED_COLOR)
+                        footer("Query took ${result.timing}s", null)
 
                         if (result.success) {
                             result.pods.forEach { pod ->
@@ -131,7 +131,7 @@ class WolframAlphaCommand(
                                 }
                             }
                         } else {
-                            setDescription("Failed to query `${ctx.args.arguments}` on WolframAlpha.")
+                            description("Failed to query `${ctx.args.arguments}` on WolframAlpha.")
                         }
                     }
                 )

@@ -47,10 +47,10 @@ class ClearCommand(
             .filter { (audioManager) -> audioManager.queueList.isNotEmpty() }
             .doOnNext { (audioManager) -> audioManager.clearQueue() }
             .flatMap {
-                ctx.channel.createEmbed(
+                ctx.channel.createMessage(
                     embed {
                         initAudioEmbed(0, ctx.user)
-                        setDescription("Queue has been cleared!")
+                        description("Queue has been cleared!")
                     }
                 )
             }

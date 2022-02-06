@@ -69,16 +69,16 @@ private object Xkcd {
         body.asInputStream()
             .map { objectMapper.readValue<XKCDResponse>(it) }
             .flatMap { response ->
-                ctx.channel.createEmbed(
+                ctx.channel.createMessage(
                     embed {
-                        setTitle("${response.title} (#${response.num})")
-                        setDescription(response.alt)
-                        setImage(response.img)
-                        setFooter(
+                        title("${response.title} (#${response.num})")
+                        description(response.alt)
+                        image(response.img)
+                        footer(
                             "xkcd #${response.num} | ${response.year}-${response.month}-${response.day}",
                             null
                         )
-                        setColor(EMBED_COLOR)
+                        color(EMBED_COLOR)
                     }
                 )
             }
