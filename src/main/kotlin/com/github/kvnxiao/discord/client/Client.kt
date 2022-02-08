@@ -28,11 +28,15 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.shard.GatewayBootstrap
 import discord4j.core.shard.ShardingStrategy
 import discord4j.gateway.GatewayOptions
+import discord4j.rest.request.RouteMatcher
+import discord4j.rest.response.ResponseFunction
+import io.netty.channel.unix.Errors.NativeIoException
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import reactor.retry.Retry
 
 private val logger: KLogger = KotlinLogging.logger {}
 
@@ -46,7 +50,16 @@ class Client(
 ) : DisposableBean {
 
     private val gatewayBootstrap: GatewayBootstrap<GatewayOptions> =
-        DiscordClient.create(token)
+        DiscordClient.builder(token)
+            .onClientResponse(
+                ResponseFunction.retryWhen(
+                    RouteMatcher.any(),
+                    Retry.anyOf<NativeIoException>(NativeIoException::class.java)
+                        .retryMax(5)
+                        .doOnRetry { logger.warn { "Encountered ${NativeIoException::class.simpleName}, retrying..." } }
+                )
+            )
+            .build()
             .gateway()
             .setSharding(ShardingStrategy.recommended())
     private val gatewayClient: GatewayDiscordClient
