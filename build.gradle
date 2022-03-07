@@ -17,7 +17,7 @@ buildscript {
     ext.caffeine_version = '3.0.5'
     ext.jackson_version = '2.13.1'
     ext.kotlin_logging_version = '2.1.21'
-    ext.logback_version = '1.2.10'
+    ext.logback_version = '1.2.11'
     ext.slf4j_version = '1.7.36'
     ext.micrometer_version = '1.8.2'
     ext.reactor_extensions = '1.1.5'
